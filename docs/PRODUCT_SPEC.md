@@ -186,10 +186,11 @@ So that the game maintains its daily ritual nature
 - Consider: shadcn/ui for component primitives
 
 **Database:**
-- **Recommendation: Vercel Postgres (Neon)** or **Supabase**
-  - Why: Free tier generous, works seamlessly with Vercel
-  - Stores: Pre-generated daily challenges
-- Alternative: PlanetScale (MySQL), but Postgres preferred
+- **Neon Postgres** (via Vercel Marketplace)
+  - Why: Serverless Postgres with generous free tier, instant branching for testing
+  - Seamless Vercel integration with auto-provisioned environment variables
+  - Well-established and battle-tested
+- Alternative: Prisma Postgres (no cold starts, newer option)
 
 **External APIs:**
 - TMDB API (The Movie Database)
@@ -221,13 +222,15 @@ So that the game maintains its daily ritual nature
 /lib
   /tmdb.ts                    # TMDB API utilities
   /db.ts                      # Database utilities
-  /lib/scoring.ts                 # Scoring algorithm (configurable)
+  /scoring.ts                 # Scoring algorithm (configurable)
   /timeBonus.ts               # Time bonus calculation (configurable)
   /localStorage.ts            # Browser storage helpers
 /types
   /index.ts                   # TypeScript interfaces
 /scripts
   /generate-challenge.ts      # Daily challenge generation (cron job)
+/docs
+  /PRODUCT_SPEC.md            # This specification document
 ```
 
 ### 4.3 Data Models
@@ -336,40 +339,44 @@ interface PlayerStats {
 
 **Tasks:**
 1. Initialize Next.js project with TypeScript
-   - `npx create-next-app@latest movie-game --typescript --tailwind --app`
+   - `npx create-next-app@latest movierush --typescript --tailwind --app`
 2. Set up GitHub repository
 3. Connect to Vercel for auto-deployment
-4. Set up database (Vercel Postgres recommended)
+4. Set up Neon Postgres database via Vercel Marketplace
+   - Create from Vercel dashboard → Storage → Create Database → Neon
+   - Environment variables automatically injected into Vercel project
+   - Copy connection strings to local `.env.local`
 5. Configure TMDB API key in environment variables
 6. Create basic folder structure
+7. Install dependencies:
+   - `@neondatabase/serverless` for database access
 
-**Deliverable:** Empty app deployed to Vercel with database connected
+**Deliverable:** Empty app deployed to Vercel with Neon database connected
 
 **Where to store things:**
 - Code: GitHub repository (you'll create this)
 - Environment variables: `.env.local` (local), Vercel dashboard (production)
-- Database: Vercel Postgres or Supabase (managed, no local DB needed)
+- Database: Neon via Vercel Marketplace (managed, no local DB needed)
 
 ### 6.2 Phase 2: Data Layer (Week 1-2)
 **Goal: Get challenge data flowing**
 
 **Tasks:**
-1. Create database schema (Challenge, Movie tables)
-2. Build TMDB utility functions (`/lib/tmdb.ts`)
-3. **Analyze popularity score distribution:**
+1. Set up Neon Postgres database via Vercel Marketplace
+   - Create database from Vercel dashboard Storage tab
+   - Copy connection strings to local `.env.local`
+2. Create database schema (Challenge, Movie tables)
+3. Build TMDB utility functions (`/lib/tmdb.ts`)
+4. **Analyze popularity score distribution:**
    - Fetch sample actor's complete filmography (e.g., Will Ferrell)
    - Document actual popularity score ranges
    - Determine appropriate bucket thresholds
    - Design scoring/time bonus algorithms based on real data
-4. Create script to generate a single challenge (`/scripts/generate-challenge.ts`)
-5. Manually create 3-5 test challenges in database
-6. Build `/api/challenge` endpoint to fetch today's challenge
+5. Create script to generate a single challenge (`/scripts/generate-challenge.ts`)
+6. Manually create 3-5 test challenges in database
+7. Build `/api/challenge` endpoint to fetch today's challenge
 
-**Deliverable:** API endpoint that returns today's challenge data
-
-**Development tip:** 
-- Start with hardcoded challenge data before automating generation
-- Test API routes using browser or Postman
+**Deliverable:** API endpoint that returns today's challenge data with real movies from database
 
 ### 6.3 Phase 3: Core Game UI (Week 2-3)
 **Goal: Build the playable game interface**
@@ -445,7 +452,7 @@ interface PlayerStats {
 **Local development** (`.env.local`):
 ```
 TMDB_API_KEY=your_key_here
-POSTGRES_URL=your_db_url
+DATABASE_URL=your_db_url
 ```
 
 **Production** (Vercel):
@@ -559,4 +566,4 @@ POSTGRES_URL=your_db_url
 
 **Version:** 1.0  
 **Last Updated:** January 2026  
-**Status:** Draft - Ready for Review
+**Status:** Phase 1 Complete - Ready for Phase 2
