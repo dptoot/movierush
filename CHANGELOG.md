@@ -5,6 +5,7 @@ All notable changes to MovieRush will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- `Timer` component with visual states: normal, warning (<10s), critical (<5s) (Phase 3.2)
 - `GameBoard` component - main game container with state management (Phase 3.1)
 - TypeScript types for Challenge, Movie, GameState, GamePhase (`types/index.ts`)
 - Game flow: idle state with Start button, playing state with timer countdown, ended state

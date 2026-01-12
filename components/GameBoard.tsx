@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Challenge, GamePhase, GameState } from '@/types';
+import Timer from './Timer';
 
 const INITIAL_TIME = 60; // seconds
 
@@ -160,12 +161,7 @@ export default function GameBoard() {
             {challenge.prompt}
           </h2>
 
-          {/* Timer placeholder - will be Timer component in Phase 3.2 */}
-          <div className="inline-block rounded-full bg-zinc-100 px-6 py-2 dark:bg-zinc-800">
-            <span className="font-mono text-2xl font-bold text-emerald-500">
-              {gameState.timeRemaining}s
-            </span>
-          </div>
+          <Timer timeRemaining={gameState.timeRemaining} />
         </div>
 
         {/* Score display */}
