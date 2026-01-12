@@ -5,8 +5,16 @@ All notable changes to MovieRush will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- `GameBoard` component - main game container with state management (Phase 3.1)
+- TypeScript types for Challenge, Movie, GameState, GamePhase (`types/index.ts`)
+- Game flow: idle state with Start button, playing state with timer countdown, ended state
+- UX improvements backlog (`docs/IMPROVEMENTS.md`)
 - `/api/challenge` endpoint to fetch today's challenge (Phase 2.6)
 - Test challenges in database for development (Phase 2.5)
+
+### Changed
+- Updated home page to use GameBoard component
+- Updated app metadata for MovieRush branding
 
 ## [0.2.0] - 2026-01-12
 
