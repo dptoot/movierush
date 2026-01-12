@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Challenge, GamePhase, GameState } from '@/types';
 import Timer from './Timer';
+import AutocompleteInput from './AutocompleteInput';
 
 const INITIAL_TIME = 60; // seconds
 
@@ -57,6 +58,69 @@ export default function GameBoard() {
 
   // Get current phase
   const phase: GamePhase = gameState?.phase ?? 'idle';
+
+  const TIME_PENALTY = 5; // seconds for incorrect guess
+
+  // Handle movie selection from autocomplete
+  const handleMovieSelect = (movie: { id: number; title: string }) => {
+    if (!gameState || !challenge) return;
+
+    // Check if already guessed (correct answer)
+    if (gameState.guessedMovieIds.includes(movie.id)) {
+      return;
+    }
+
+    // Check if this movie is a valid answer for this challenge
+    const isCorrect = challenge.valid_movie_ids.includes(movie.id);
+
+    if (isCorrect) {
+      // Correct guess - add to guessed movies
+      setGameState((prev) => {
+        if (!prev) return prev;
+
+        const newGuessedIds = [...prev.guessedMovieIds, movie.id];
+
+        // Check if all movies found - end game early
+        if (newGuessedIds.length >= challenge.total_movies) {
+          return {
+            ...prev,
+            guessedMovieIds: newGuessedIds,
+            phase: 'ended',
+            completedAt: Date.now(),
+          };
+        }
+
+        return {
+          ...prev,
+          guessedMovieIds: newGuessedIds,
+        };
+      });
+    } else {
+      // Incorrect guess - apply time penalty
+      setGameState((prev) => {
+        if (!prev) return prev;
+
+        const newTime = Math.max(0, prev.timeRemaining - TIME_PENALTY);
+
+        // If time runs out from penalty, end game
+        if (newTime <= 0) {
+          return {
+            ...prev,
+            timeRemaining: 0,
+            incorrectCount: prev.incorrectCount + 1,
+            phase: 'ended',
+            completedAt: Date.now(),
+          };
+        }
+
+        return {
+          ...prev,
+          timeRemaining: newTime,
+          incorrectCount: prev.incorrectCount + 1,
+        };
+      });
+    }
+  };
 
   // Timer countdown effect
   useEffect(() => {
@@ -174,16 +238,9 @@ export default function GameBoard() {
           </div>
         </div>
 
-        {/* Input placeholder - will be AutocompleteInput in Phase 3.3 */}
+        {/* Autocomplete input - searches all TMDB movies, validation happens on select */}
         <div className="mb-8">
-          <div className="mx-auto max-w-md">
-            <input
-              type="text"
-              placeholder="Type a movie name... (autocomplete coming in Phase 3.3)"
-              className="w-full rounded-lg border border-zinc-300 bg-white px-4 py-3 text-lg outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-50"
-              disabled
-            />
-          </div>
+          <AutocompleteInput onSelect={handleMovieSelect} />
         </div>
 
         {/* Movie grid placeholder - will be MovieGrid in Phase 3.4 */}

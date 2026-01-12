@@ -63,13 +63,13 @@ MovieRush is a daily movie trivia game where players race against time to name m
 
 **Popularity Bonus:**
 - Additional points based on how obscure the movie is
-- **TBD:** Final formula to be determined after analyzing real movie data distribution
-- Tentative approach using popularity buckets:
-  - Very Popular (200+): +0 bonus points
-  - Popular (100-199): +5 bonus points
-  - Moderate (50-99): +10 bonus points
-  - Obscure (<50): +20 bonus points
-- Will be refined in Phase 2 after analyzing actual filmography data
+- **Formula (Finalized):** Based on quality score = vote_count × (vote_average / 10)
+- Obscurity tiers:
+  - Very Well-Known (3000+): +0 bonus points
+  - Well-Known (1000-2999): +5 bonus points
+  - Moderate (200-999): +10 bonus points
+  - Obscure (<200): +20 bonus points
+- Players earn maximum bonuses for knowing deep-cut films in an actor's filmography
 
 **Total Score:**
 - Sum of all (base points + popularity bonuses)
@@ -83,14 +83,13 @@ MovieRush is a daily movie trivia game where players race against time to name m
 **Starting Time:** 60 seconds
 
 **Time Bonus per Correct Answer:**
-- Algorithm based on TMDB popularity score (unbounded, typically 0-800+)
-- **TBD:** Final formula to be determined after analyzing real movie data distribution
-- Tentative approach using popularity buckets:
-  - Very Popular (200+): +3 seconds
-  - Popular (100-199): +8 seconds  
-  - Moderate (50-99): +15 seconds
-  - Obscure (<50): +20 seconds
-- Will be refined in Phase 2 after analyzing actual filmography data
+- **Formula (Finalized):** Based on quality score = vote_count × (vote_average / 10)
+- Obscurity tiers determine time bonuses:
+  - Very Well-Known (3000+): +3 seconds
+  - Well-Known (1000-2999): +8 seconds
+  - Moderate (200-999): +15 seconds
+  - Obscure (<200): +20 seconds
+- Rewards players for knowing lesser-known films with more playtime
 
 **Time Penalty:**
 - -5 seconds per incorrect guess
@@ -123,11 +122,15 @@ So that I can quickly enter my answers without typos
 **Acceptance Criteria:**
 - After clicking "Start", challenge prompt is revealed
 - Autocomplete input appears and is focused
-- Autocomplete suggests valid movies as I type
+- Autocomplete searches ALL movies from TMDB (not filtered to valid answers)
+- Autocomplete displays search results as I type
+- When I select a movie, the game validates if it's in the valid answer list
+- Correct guesses reveal movie poster and award bonuses
+- Incorrect guesses result in 5-second time penalty
 - Timer starts at 60 seconds and counts down visibly
-- Correct guesses reveal movie poster
-- Time bonuses added for correct guesses
-- Time penalties applied for wrong guesses
+- Input clears after each guess, ready for next answer
+
+**Design Rationale:** Showing all TMDB movies (not just valid answers) requires actual movie knowledge. Players can't just browse through a filtered list to find answers.
 
 ### US-3: Visual Progress Tracking
 **As a player**
@@ -238,28 +241,17 @@ So that the game maintains its daily ritual nature
 **Challenge (Database)**
 ```typescript
 interface Challenge {
-  id: string;
-  date: string; // YYYY-MM-DD (UTC)
+  id: string;              // "challenge_2026_01_15_will_ferrell"
+  date: string;            // YYYY-MM-DD (UTC)
   type: 'actor' | 'director' | 'genre' | 'theme';
-  prompt: string; // Display text: "Name Will Ferrell Movies"
-  tmdb_filter: {
-    person_id?: number; // For actor/director challenges
-    genre_id?: number;  // For genre challenges
-    // Other filters as needed
-  };
-  valid_movies: Movie[];
+  prompt: string;          // "Name Will Ferrell Movies"
+  tmdb_person_id: number;  // TMDB person ID for actor/director challenges
+  movie_ids: number[];     // Array of valid TMDB movie IDs
   created_at: timestamp;
 }
-
-interface Movie {
-  tmdb_id: number;
-  title: string;
-  release_date: string;
-  poster_path: string;
-  popularity: number; // TMDB popularity score
-  backdrop_path?: string;
-}
 ```
+
+**Note:** We store only movie IDs. Full movie data (title, poster, votes, rating) is fetched fresh from TMDB during gameplay via autocomplete.
 
 **Game State (localStorage)**
 ```typescript
@@ -295,22 +287,29 @@ interface PlayerStats {
 - Response:
 ```json
 {
-  "id": "challenge_2024_01_15",
-  "date": "2024-01-15",
+  "id": "challenge_2026_01_15_will_ferrell",
+  "date": "2026-01-15",
   "prompt": "Name Will Ferrell Movies",
   "type": "actor",
-  "total_movies": 15
+  "total_movies": 87,
+  "valid_movie_ids": [123, 456, 789, ...]
 }
 ```
+
+**Note:** Returns array of valid movie IDs. Frontend validates guesses against this list.
 
 **GET /api/challenge/[id]/movies**
 - Returns valid movies for a challenge (after game ends or for validation)
 - Used for end-game reveal
 
 **POST /api/autocomplete**
-- Body: `{ query: string, challenge_id: string }`
-- Returns: Filtered movie suggestions from TMDB
-- Filters results to only valid movies for today's challenge
+- Body: `{ query: string }`
+- Returns: Movie suggestions from TMDB (unfiltered)
+- **Returns ALL movies** matching search query, not just valid answers
+- Frontend filters results client-side for display purposes only
+- Validation happens after selection, not during search
+
+**Design Note:** Autocomplete intentionally shows all TMDB movies to prevent players from browsing the answer list. This requires actual movie knowledge to succeed.
 
 **POST /api/validate**
 - Body: `{ movie_title: string, challenge_id: string }`
@@ -362,19 +361,19 @@ interface PlayerStats {
 **Goal: Get challenge data flowing**
 
 **Tasks:**
-- [x] Set up Neon Postgres database via Vercel Marketplace
+1. Set up Neon Postgres database via Vercel Marketplace
    - Create database from Vercel dashboard Storage tab
    - Copy connection strings to local `.env.local`
-- [x] Create database schema (Challenge, Movie tables)
-- [x] Build TMDB utility functions (`/lib/tmdb.ts`)
-- [x] Analyze popularity score distribution
+2. Create database schema (Challenge, Movie tables)
+3. Build TMDB utility functions (`/lib/tmdb.ts`)
+4. **Analyze popularity score distribution:**
    - Fetch sample actor's complete filmography (e.g., Will Ferrell)
    - Document actual popularity score ranges
    - Determine appropriate bucket thresholds
    - Design scoring/time bonus algorithms based on real data
-- [x] Create script to generate a single challenge (`/scripts/generate-challenge.ts`)
-- [x] Manually create 3-5 test challenges in database
-- [x] Build `/api/challenge` endpoint to fetch today's challenge
+5. Create script to generate a single challenge (`/scripts/generate-challenge.ts`)
+6. Manually create 3-5 test challenges in database
+7. Build `/api/challenge` endpoint to fetch today's challenge
 
 **Deliverable:** API endpoint that returns today's challenge data with real movies from database
 
@@ -382,13 +381,18 @@ interface PlayerStats {
 **Goal: Build the playable game interface**
 
 **Tasks:**
-1. ✅ Create `GameBoard` component (main game container)
-2. ✅ Build `Timer` component with countdown logic
-3. Build `AutocompleteInput` with TMDB search
-4. Create `MovieGrid` skeleton list
-5. Implement guess validation flow
-6. Add time bonus/penalty logic
-7. Implement poster reveal animations
+- [x] Create `GameBoard` component (main game container)
+- [x] Build `Timer` component with countdown logic
+- [x] Build `AutocompleteInput` with TMDB search (shows ALL movies, validates after selection)
+- [ ] Create `MovieGrid` skeleton list
+- [x] Implement guess validation flow
+- [ ] Add time bonus/penalty logic
+- [ ] Implement poster reveal animations
+
+**Design Decisions:**
+- Autocomplete shows ALL TMDB movies (not filtered to valid answers)
+- Validation happens after user selection (prevents browsing answer list)
+- Requires actual movie knowledge to play successfully
 
 **Deliverable:** Playable game (even if rough around edges)
 
@@ -523,15 +527,22 @@ DATABASE_URL=your_db_url
 ## 10. Open Questions & Decisions Needed
 
 ### Technical Decisions
-- [ ] Exact database choice (Vercel Postgres vs Supabase)
+- [x] Database choice: Neon Postgres via Vercel Marketplace
+- [x] Storage approach: Minimal (movie IDs only in INTEGER[] array)
+- [x] Scoring metric: Quality-weighted (vote_count × rating) not popularity
+- [x] Autocomplete behavior: Show ALL movies, validate after selection (prevents answer browsing)
 - [ ] Component library (shadcn/ui vs custom components)
 - [ ] Share format design (text emojis vs image)
+- [ ] Movie poster quality (w185, w342, w500, or original?)
 
 ### Game Design Decisions
+- [x] Autocomplete shows all TMDB movies (requires actual knowledge, prevents browsing)
+- [x] Obscurity scoring uses quality score (vote_count × vote_average/10)
+- [x] Time/point bonuses finalized (3000/1000/200/0 thresholds)
 - [ ] Maximum time cap (yes/no, what value?)
-- [ ] Exact autocomplete behavior (show all movies or just valid ones?)
 - [ ] Movie poster quality (w185, w342, w500, or original?)
-- [ ] Challenge difficulty rules (min/max movies, popularity ranges)
+- [ ] Challenge difficulty rules (min 20 movies, min 3 obscure - finalized)
+- [ ] Skeleton grid ordering (chronological by release date)
 
 ### Future Features Priority
 - [ ] Which challenge types to add next?
@@ -564,6 +575,6 @@ DATABASE_URL=your_db_url
 
 ---
 
-**Version:** 1.0
-**Last Updated:** January 2026
-**Status:** Phase 2 Complete - Ready for Phase 3
+**Version:** 1.1  
+**Last Updated:** January 12, 2026  
+**Status:** Phase 2 Complete - Phase 3 In Progress
