@@ -362,19 +362,19 @@ interface PlayerStats {
 **Goal: Get challenge data flowing**
 
 **Tasks:**
-1. Set up Neon Postgres database via Vercel Marketplace
+- [x] Set up Neon Postgres database via Vercel Marketplace
    - Create database from Vercel dashboard Storage tab
    - Copy connection strings to local `.env.local`
-2. Create database schema (Challenge, Movie tables)
-3. Build TMDB utility functions (`/lib/tmdb.ts`)
-4. **Analyze popularity score distribution:**
+- [x] Create database schema (Challenge, Movie tables)
+- [x] Build TMDB utility functions (`/lib/tmdb.ts`)
+- [x] Analyze popularity score distribution
    - Fetch sample actor's complete filmography (e.g., Will Ferrell)
    - Document actual popularity score ranges
    - Determine appropriate bucket thresholds
    - Design scoring/time bonus algorithms based on real data
-5. Create script to generate a single challenge (`/scripts/generate-challenge.ts`)
-6. Manually create 3-5 test challenges in database
-7. Build `/api/challenge` endpoint to fetch today's challenge
+- [x] Create script to generate a single challenge (`/scripts/generate-challenge.ts`)
+- [ ] Manually create 3-5 test challenges in database
+- [ ] Build `/api/challenge` endpoint to fetch today's challenge
 
 **Deliverable:** API endpoint that returns today's challenge data with real movies from database
 
