@@ -373,8 +373,8 @@ interface PlayerStats {
    - Determine appropriate bucket thresholds
    - Design scoring/time bonus algorithms based on real data
 - [x] Create script to generate a single challenge (`/scripts/generate-challenge.ts`)
-- [ ] Manually create 3-5 test challenges in database
-- [ ] Build `/api/challenge` endpoint to fetch today's challenge
+- [x] Manually create 3-5 test challenges in database
+- [x] Build `/api/challenge` endpoint to fetch today's challenge
 
 **Deliverable:** API endpoint that returns today's challenge data with real movies from database
 
@@ -564,6 +564,6 @@ DATABASE_URL=your_db_url
 
 ---
 
-**Version:** 1.0  
-**Last Updated:** January 2026  
-**Status:** Phase 1 Complete - Ready for Phase 2
+**Version:** 1.0
+**Last Updated:** January 2026
+**Status:** Phase 2 Complete - Ready for Phase 3
