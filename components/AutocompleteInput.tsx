@@ -170,7 +170,7 @@ export default function AutocompleteInput({
           onFocus={() => suggestions.length > 0 && setShowDropdown(true)}
           placeholder="Type a movie name..."
           disabled={disabled}
-          className="w-full rounded-lg border border-zinc-300 bg-white px-4 py-3 pr-10 text-lg outline-none transition-colors focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-50"
+          className="w-full bg-white text-movierush-navy border-4 border-movierush-gold rounded-lg px-6 py-4 text-xl outline-none transition-all focus:ring-4 focus:ring-movierush-gold/50 placeholder:text-movierush-silver disabled:cursor-not-allowed disabled:opacity-50"
           autoComplete="off"
           aria-label="Search for movies"
           aria-expanded={showDropdown}
@@ -180,8 +180,8 @@ export default function AutocompleteInput({
 
         {/* Loading indicator */}
         {isLoading && (
-          <div className="absolute right-3 top-1/2 -translate-y-1/2">
-            <div className="h-5 w-5 animate-spin rounded-full border-2 border-zinc-300 border-t-emerald-500" />
+          <div className="absolute right-4 top-1/2 -translate-y-1/2">
+            <span className="text-movierush-gold animate-pulse text-lg">...</span>
           </div>
         )}
       </div>
@@ -190,7 +190,7 @@ export default function AutocompleteInput({
       {showDropdown && suggestions.length > 0 && (
         <div
           ref={dropdownRef}
-          className="absolute z-50 mt-1 w-full overflow-hidden rounded-lg border border-zinc-200 bg-white shadow-lg dark:border-zinc-700 dark:bg-zinc-800"
+          className="absolute z-50 mt-2 w-full overflow-hidden bg-white border-4 border-movierush-navy rounded-xl shadow-chunky-lg"
           role="listbox"
         >
           {suggestions.map((movie, index) => (
@@ -200,31 +200,18 @@ export default function AutocompleteInput({
               onMouseEnter={() => setSelectedIndex(index)}
               className={`flex w-full items-center gap-3 px-4 py-3 text-left transition-colors ${
                 index === selectedIndex
-                  ? 'bg-emerald-50 dark:bg-emerald-900/20'
-                  : 'hover:bg-zinc-50 dark:hover:bg-zinc-700/50'
+                  ? 'bg-movierush-gold text-movierush-navy'
+                  : 'hover:bg-movierush-gold/20'
               }`}
               role="option"
               aria-selected={index === selectedIndex}
             >
-              {/* Movie poster thumbnail */}
-              {movie.poster_path ? (
-                <img
-                  src={`https://image.tmdb.org/t/p/w92${movie.poster_path}`}
-                  alt=""
-                  className="h-12 w-8 rounded object-cover"
-                />
-              ) : (
-                <div className="flex h-12 w-8 items-center justify-center rounded bg-zinc-200 dark:bg-zinc-600">
-                  <span className="text-xs text-zinc-400">🎬</span>
-                </div>
-              )}
-
               {/* Movie title and year */}
               <div className="flex-1 overflow-hidden">
-                <p className="truncate font-medium text-zinc-900 dark:text-zinc-50">
+                <p className={`truncate font-semibold ${index === selectedIndex ? 'text-movierush-navy' : 'text-movierush-navy'}`}>
                   {movie.title}
                 </p>
-                <p className="text-sm text-zinc-500">
+                <p className={`text-sm ${index === selectedIndex ? 'text-movierush-navy/70' : 'text-movierush-silver'}`}>
                   {getYear(movie.release_date)}
                 </p>
               </div>
@@ -235,8 +222,8 @@ export default function AutocompleteInput({
 
       {/* No results message */}
       {showDropdown && query.length >= 2 && !isLoading && suggestions.length === 0 && (
-        <div className="absolute z-50 mt-1 w-full rounded-lg border border-zinc-200 bg-white p-4 text-center text-sm text-zinc-500 shadow-lg dark:border-zinc-700 dark:bg-zinc-800">
-          No matching movies found
+        <div className="absolute z-50 mt-2 w-full bg-white border-4 border-movierush-navy rounded-xl p-4 text-center shadow-chunky-lg">
+          <span className="text-movierush-silver italic">No matching movies found</span>
         </div>
       )}
     </div>

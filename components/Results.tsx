@@ -68,84 +68,94 @@ Play at: movierush.vercel.app`;
   };
 
   return (
-    <div className="flex min-h-[400px] flex-col items-center py-8">
-      {/* Game Over heading */}
-      <h1 className="mb-6 text-center text-4xl font-bold text-zinc-900 dark:text-zinc-50">
-        🎉 Game Over!
-      </h1>
+    <div className="min-h-screen bg-movierush-navy p-6 flex items-center justify-center">
+      <div className="max-w-4xl mx-auto text-center">
+        {/* Logo */}
+        <img
+          src="/movie-rush-trans.png"
+          alt="MovieRush"
+          className="mx-auto mb-8 h-48 md:h-64 w-auto"
+        />
 
-      {/* Score display */}
-      <div className="mb-6 text-center">
-        <p className="text-6xl font-bold text-emerald-500">{score}</p>
-        <p className="text-lg text-zinc-500">points</p>
-      </div>
+        {/* Game Over heading */}
+        <h1 className="text-6xl font-display text-movierush-coral mb-4 animate-pop">
+          Game Over!
+        </h1>
 
-      {/* Stats row */}
-      <div className="mb-8 flex justify-center">
-        <div className="text-center">
-          <p className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
-            {guessedMovies.length}
-          </p>
-          <p className="text-sm text-zinc-500">movies found</p>
-        </div>
-      </div>
+        {/* Come back tomorrow message - right below heading */}
+        <p className="mb-8 text-movierush-cream/70">
+          Come back tomorrow for a new challenge!
+        </p>
 
-      {/* Share button */}
-      <button
-        onClick={handleShare}
-        className="mb-8 rounded-full bg-emerald-500 px-8 py-3 text-lg font-semibold text-white transition-all hover:bg-emerald-600 hover:shadow-lg active:scale-95"
-      >
-        {copied ? '✓ Copied!' : 'Share Results'}
-      </button>
-
-      {/* Your Guesses section */}
-      {sortedMovies.length > 0 && (
-        <>
-          <h2 className="my-8 text-center text-2xl font-bold text-zinc-900 dark:text-zinc-50">
-            Your Guesses
-          </h2>
-
-          <div className="grid w-full max-w-4xl grid-cols-1 gap-4 px-4 md:grid-cols-2 lg:grid-cols-3">
-            {sortedMovies.map((movie) => (
-              <div
-                key={movie.id}
-                className="flex gap-3 rounded-lg border border-zinc-200 p-4 dark:border-zinc-700"
-              >
-                {/* Poster thumbnail */}
-                {movie.poster_path ? (
-                  <img
-                    src={`${TMDB_IMAGE_BASE}${movie.poster_path}`}
-                    alt={movie.title}
-                    className="h-24 w-16 rounded object-cover"
-                  />
-                ) : (
-                  <div className="flex h-24 w-16 items-center justify-center rounded bg-zinc-200 dark:bg-zinc-700">
-                    <span className="text-2xl">🎬</span>
-                  </div>
-                )}
-
-                {/* Movie info */}
-                <div className="flex flex-1 flex-col justify-center text-left">
-                  <p className="font-semibold text-zinc-900 dark:text-zinc-50">
-                    {movie.title}
-                  </p>
-                  <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                    {movie.points_awarded} points
-                  </p>
-                  <p className="text-xs text-zinc-400">
-                    +{movie.time_bonus}s bonus
-                  </p>
-                </div>
-              </div>
-            ))}
+        {/* Stats row - movies found and points side by side */}
+        <div className="flex justify-center gap-6 my-8">
+          <div className="card-chunky px-8 py-4">
+            <p className="text-4xl font-bold text-movierush-navy">
+              {guessedMovies.length}
+            </p>
+            <p className="text-sm text-movierush-silver">movies found</p>
           </div>
-        </>
-      )}
+          <div className="card-chunky px-8 py-4">
+            <p className="text-4xl font-bold text-movierush-coral">
+              {score}
+            </p>
+            <p className="text-sm text-movierush-silver">points</p>
+          </div>
+        </div>
 
-      {/* Come back tomorrow message */}
-      <p className="mt-8 text-center text-zinc-500">
-        Come back tomorrow for a new challenge!
-      </p>
+        {/* Share button */}
+        <button
+          onClick={handleShare}
+          className="btn-primary mb-8"
+        >
+          {copied ? '✓ Copied!' : 'Share Results'}
+        </button>
+
+        {/* Your Guesses section */}
+        {sortedMovies.length > 0 && (
+          <>
+            <h2 className="text-3xl font-display text-movierush-gold mb-6 mt-12">
+              Your Guesses
+            </h2>
+
+            <div className="grid w-full grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {sortedMovies.map((movie) => (
+                <div
+                  key={movie.id}
+                  className="card-chunky flex gap-3 hover:scale-105 transition-transform duration-200"
+                >
+                  {/* Poster thumbnail */}
+                  {movie.poster_path ? (
+                    <img
+                      src={`${TMDB_IMAGE_BASE}${movie.poster_path}`}
+                      alt={movie.title}
+                      className="h-24 w-16 rounded object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-24 w-16 items-center justify-center rounded bg-movierush-cream">
+                      <span className="text-2xl">🎬</span>
+                    </div>
+                  )}
+
+                  {/* Movie info */}
+                  <div className="flex flex-1 flex-col justify-center text-left">
+                    <p className="font-bold text-movierush-navy">
+                      {movie.title}
+                    </p>
+                    <p className="font-semibold text-movierush-coral">
+                      {movie.points_awarded} points
+                    </p>
+                    <p className="text-sm text-movierush-blue">
+                      +{movie.time_bonus}s bonus
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+
+      </div>
     </div>
   );
 }

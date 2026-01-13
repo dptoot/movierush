@@ -4,7 +4,35 @@ All notable changes to MovieRush will be documented in this file.
 
 ## [Unreleased]
 
+### Changed
+- UX improvements from backlog (Phase 5)
+  - Splash screen: human-friendly date format, new tagline explaining gameplay
+  - Splash screen: "Start The Rush" button copy
+  - Game UI: removed movie posters from autocomplete (prevents cast hints)
+  - Game UI: timer and movie counter on same line, fixed timer width
+  - Game UI: removed redundant "X movies remaining" from grid
+  - Game UI: moved "End Game" button above movie list
+  - Results: side-by-side cards for movies found and points
+  - Results: navy/coral colors for better readability
+  - Results: moved "Come back tomorrow" below heading
+
 ### Added
+- MovieRush branding and visual theme (Phase 5)
+  - Custom color palette: navy, gold, coral, cream, silver, blue
+  - Tailwind v4 CSS-based theme configuration
+  - Brand logo on splash and results screens
+  - Chunky button and card styles with shadows
+  - Timer warning animations (pulse when < 10s)
+  - Pop animation on Game Over heading
+- Logo assets: `movie-rush.png`, `movie-rush-trans.png`
+
+### Changed
+- Converted Tailwind config from v3 JS to v4 CSS `@theme` syntax
+- Timer component simplified to use themed CSS classes
+- Updated metadata with MovieRush branding, favicon, OpenGraph
+- GameBoard now controls full-screen layout (removed page wrapper)
+
+### Previously Added
 - `Results` component with score display, movie grid, and share functionality (Phase 4)
 - `lib/scoring.ts` - point calculation with obscurity-based bonuses
 - Replay prevention - completed games saved to localStorage, prevents replaying same day

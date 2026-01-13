@@ -24,14 +24,8 @@ export default function MovieGrid({ guessedMovies, totalMovies }: MovieGridProps
   }
 
   // Grid with guessed movies
-  const remainingCount = totalMovies - guessedMovies.length;
-
   return (
     <div className="rounded-lg border border-zinc-200 bg-gray-50 p-4 dark:border-zinc-700 dark:bg-zinc-800">
-      <p className="mb-3 text-sm text-zinc-500 dark:text-zinc-400">
-        {remainingCount} movie{remainingCount !== 1 ? 's' : ''} remaining
-      </p>
-
       <div
         ref={gridRef}
         className="grid max-h-96 grid-cols-3 gap-2 overflow-y-auto sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8"

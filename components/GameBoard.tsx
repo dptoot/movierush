@@ -12,6 +12,19 @@ import Results from './Results';
 const INITIAL_TIME = 60; // seconds
 const STORAGE_KEY = 'movierush_game';
 
+// Format date as "January 12, 2026"
+function formatDate(dateString: string): string {
+  // Extract just the date portion (YYYY-MM-DD) from ISO timestamp
+  const datePart = dateString.split('T')[0];
+  const [year, month, day] = datePart.split('-').map(Number);
+  const date = new Date(year, month - 1, day); // month is 0-indexed
+  return date.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+}
+
 // Persisted data structure
 interface PersistedGame {
   gameState: GameState;
@@ -304,10 +317,10 @@ export default function GameBoard() {
   // Loading state
   if (loading) {
     return (
-      <div className="flex min-h-[400px] items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-movierush-navy">
         <div className="text-center">
           <div className="mb-4 text-4xl">🎬</div>
-          <p className="text-zinc-500">Loading today&apos;s challenge...</p>
+          <p className="text-movierush-gold animate-pulse">Loading today&apos;s challenge...</p>
         </div>
       </div>
     );
@@ -316,10 +329,10 @@ export default function GameBoard() {
   // Error state
   if (error) {
     return (
-      <div className="flex min-h-[400px] items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-movierush-navy">
         <div className="text-center">
           <div className="mb-4 text-4xl">😕</div>
-          <p className="text-zinc-500">{error}</p>
+          <p className="text-movierush-cream">{error}</p>
         </div>
       </div>
     );
@@ -328,37 +341,32 @@ export default function GameBoard() {
   // Idle state - show Start button
   if (phase === 'idle' && challenge) {
     return (
-      <div className="flex min-h-[400px] flex-col items-center justify-center">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-movierush-navy">
         <div className="text-center">
-          <h1 className="mb-2 text-4xl font-bold text-zinc-900 dark:text-zinc-50">
-            🎬 MovieRush
-          </h1>
-          <p className="mb-8 text-zinc-500">
-            Daily movie trivia challenge
+          <img
+            src="/movie-rush-trans.png"
+            alt="MovieRush"
+            className="mx-auto mb-8 h-48 md:h-64 w-auto"
+          />
+          <p className="mb-2 text-xl text-movierush-cream">
+            Every day, a new movie challenge. Race the clock to name as many as you can.
+          </p>
+          <p className="mb-8 text-lg text-movierush-silver">
+            Correct answers add time, but mistakes will cost you precious seconds.
           </p>
 
-          <div className="mb-8 rounded-xl bg-zinc-100 p-8 dark:bg-zinc-800">
-            <p className="mb-2 text-sm font-medium uppercase tracking-wide text-zinc-500">
-              Today&apos;s Challenge
-            </p>
-            <p className="text-lg text-zinc-600 dark:text-zinc-400">
-              {challenge.total_movies} movies to guess
-            </p>
-            <p className="mt-1 text-sm text-zinc-400">
-              {challenge.date}
+          <div className="mb-8 rounded-xl bg-white/10 backdrop-blur p-8">
+            <p className="text-lg text-movierush-cream">
+              {formatDate(challenge.date)}
             </p>
           </div>
 
           <button
             onClick={handleStart}
-            className="rounded-full bg-emerald-500 px-12 py-4 text-lg font-semibold text-white transition-all hover:bg-emerald-600 hover:shadow-lg active:scale-95"
+            className="btn-primary"
           >
-            Start Challenge
+            Start The Rush
           </button>
-
-          <p className="mt-4 text-sm text-zinc-400">
-            You&apos;ll have {INITIAL_TIME} seconds to start
-          </p>
         </div>
       </div>
     );
@@ -367,47 +375,48 @@ export default function GameBoard() {
   // Playing state - show game interface
   if (phase === 'playing' && challenge && gameState) {
     return (
-      <div className="flex min-h-[400px] flex-col">
-        {/* Header with prompt and timer */}
-        <div className="mb-6 text-center">
-          <h2 className="mb-2 text-2xl font-bold text-zinc-900 dark:text-zinc-50">
-            {challenge.prompt}
-          </h2>
+      <div className="min-h-screen bg-movierush-navy p-4 md:p-8">
+        <div className="mx-auto max-w-6xl">
+          {/* Header with prompt */}
+          <div className="mb-6 text-center">
+            <h2 className="challenge-prompt mb-4">
+              {challenge.prompt}
+            </h2>
 
-          <Timer timeRemaining={gameState.timeRemaining} />
-        </div>
-
-        {/* Score display */}
-        <div className="mb-6 flex justify-center gap-8 text-center">
-          <div>
-            <p className="text-sm text-zinc-500">Found</p>
-            <p className="text-xl font-bold text-zinc-900 dark:text-zinc-50">
-              {gameState.guessedMovieIds.length}/{challenge.total_movies}
-            </p>
+            {/* Timer and movie count on same line */}
+            <div className="flex items-center justify-center gap-6">
+              <Timer timeRemaining={gameState.timeRemaining} />
+              <p className="text-movierush-cream text-lg">
+                <span className="font-bold text-movierush-gold">{gameState.guessedMovieIds.length}</span>
+                <span className="text-movierush-silver">/</span>
+                <span className="font-bold">{challenge.total_movies}</span>
+                <span className="ml-1 text-movierush-silver">found</span>
+              </p>
+            </div>
           </div>
-        </div>
 
-        {/* Autocomplete input - searches all TMDB movies, validation happens on select */}
-        <div className="mb-8">
-          <AutocompleteInput onSelect={handleMovieSelect} />
-        </div>
+          {/* Autocomplete input - searches all TMDB movies, validation happens on select */}
+          <div className="mb-6 bg-white/10 backdrop-blur rounded-xl p-6">
+            <AutocompleteInput onSelect={handleMovieSelect} />
+          </div>
 
-        {/* Movie grid - shows guessed movies */}
-        <div className="flex-1">
-          <MovieGrid
-            guessedMovies={guessedMovies}
-            totalMovies={challenge.total_movies}
-          />
-        </div>
+          {/* End Game button - above movie list */}
+          <div className="mb-6 text-center">
+            <button
+              onClick={handleEndGame}
+              className="btn-secondary"
+            >
+              End Game
+            </button>
+          </div>
 
-        {/* End Game button */}
-        <div className="mt-6 text-center">
-          <button
-            onClick={handleEndGame}
-            className="rounded-lg border border-zinc-300 px-6 py-2 text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-100 dark:border-zinc-600 dark:text-zinc-400 dark:hover:bg-zinc-800"
-          >
-            End Game
-          </button>
+          {/* Movie grid - shows guessed movies */}
+          <div className="flex-1">
+            <MovieGrid
+              guessedMovies={guessedMovies}
+              totalMovies={challenge.total_movies}
+            />
+          </div>
         </div>
       </div>
     );
