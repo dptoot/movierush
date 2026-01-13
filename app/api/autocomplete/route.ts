@@ -30,6 +30,8 @@ export async function POST(request: NextRequest) {
         title: movie.title,
         release_date: movie.release_date,
         poster_path: movie.poster_path,
+        vote_count: movie.vote_count ?? 0,
+        vote_average: movie.vote_average ?? 0,
       }))
       .slice(0, 8); // Limit to 8 suggestions
 

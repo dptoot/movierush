@@ -18,6 +18,8 @@ export interface TMDBMovie {
   backdrop_path: string | null;
   runtime?: number;
   video?: boolean; // true = made-for-video/TV
+  vote_count?: number;
+  vote_average?: number;
 }
 
 export interface TMDBPerson {

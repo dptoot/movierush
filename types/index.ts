@@ -72,3 +72,12 @@ export interface GuessResult {
   timeBonus?: number;
   pointsEarned?: number;
 }
+
+/**
+ * Guessed movie for display in MovieGrid
+ */
+export interface GuessedMovie {
+  id: number;
+  title: string;
+  poster_path: string | null;
+}

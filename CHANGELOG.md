@@ -5,6 +5,16 @@ All notable changes to MovieRush will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- "End Game" button for manual game completion (Phase 3)
+- Time bonus logic for correct guesses based on movie obscurity (Phase 3)
+  - Quality score = vote_count × (vote_average / 10)
+  - Very Well-Known (3000+): +3s, Well-Known (1000-2999): +8s, Moderate (200-999): +15s, Obscure (<200): +20s
+- `lib/timeBonus.ts` - time bonus calculation utility
+- localStorage persistence for game state - survives page refreshes
+- `MovieGrid` component with responsive poster grid and fadeIn animation (Phase 3.4)
+
+### Added (continued)
+- `GuessedMovie` type for tracking guessed movies with poster data
 - `AutocompleteInput` component with debounced TMDB search (Phase 3.3)
 - `/api/autocomplete` endpoint - searches all TMDB movies (validation on selection)
 - Guess validation flow - correct guesses update counter, incorrect apply 5s penalty
@@ -17,6 +27,7 @@ All notable changes to MovieRush will be documented in this file.
 - Test challenges in database for development (Phase 2.5)
 
 ### Changed
+- MovieGrid now only appears after first correct guess (no empty placeholder)
 - Updated home page to use GameBoard component
 - Updated app metadata for MovieRush branding
 

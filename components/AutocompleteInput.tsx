@@ -7,6 +7,8 @@ interface MovieSuggestion {
   title: string;
   release_date: string;
   poster_path: string | null;
+  vote_count: number;
+  vote_average: number;
 }
 
 interface AutocompleteInputProps {

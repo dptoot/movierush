@@ -38,15 +38,20 @@ MovieRush is a daily movie trivia game where players race against time to name m
 
 **During Gameplay:**
 - Player types movie names in autocomplete field
+- Autocomplete shows ALL TMDB movies (not filtered)
 - **Correct guess:**
-  - Movie poster reveals in skeleton list
-  - Time bonus added (based on popularity algorithm)
+  - Movie poster appears in grid (newest on left)
+  - Time bonus added (based on quality score)
+  - Points awarded (10 base + obscurity bonus)
   - Input clears, ready for next guess
 - **Incorrect guess:**
   - 5-second time penalty
   - No visual indication saved (doesn't show wrong guesses)
   - Input clears, ready for next guess
-- Can continue until timer expires or player manually ends game
+- Player can continue guessing until:
+  - Timer expires (automatic game end), OR
+  - Player clicks "End Game" button (manual game end)
+- "End Game" button visible during gameplay for early completion
 
 **End of Game:**
 - Shows all movie posters (guessed ones highlighted/marked)
@@ -129,6 +134,7 @@ So that I can quickly enter my answers without typos
 - Incorrect guesses result in 5-second time penalty
 - Timer starts at 60 seconds and counts down visibly
 - Input clears after each guess, ready for next answer
+- "End Game" button is visible and allows player to end early
 
 **Design Rationale:** Showing all TMDB movies (not just valid answers) requires actual movie knowledge. Players can't just browse through a filtered list to find answers.
 
@@ -384,15 +390,19 @@ interface PlayerStats {
 - [x] Create `GameBoard` component (main game container)
 - [x] Build `Timer` component with countdown logic
 - [x] Build `AutocompleteInput` with TMDB search (shows ALL movies, validates after selection)
-- [ ] Create `MovieGrid` skeleton list
+- [x] Create `MovieGrid` component (displays guessed movies, grows left-to-right)
 - [x] Implement guess validation flow
-- [ ] Add time bonus/penalty logic
-- [ ] Implement poster reveal animations
+- [x] Add time bonus/penalty logic
+- [x] Implement poster reveal animations (fadeIn)
+- [x] Add "End Game" button for manual game completion
+- [x] Add localStorage persistence for game state
 
 **Design Decisions:**
 - Autocomplete shows ALL TMDB movies (not filtered to valid answers)
 - Validation happens after user selection (prevents browsing answer list)
-- Requires actual movie knowledge to play successfully
+- MovieGrid only appears after first correct guess (not empty skeletons)
+- Newest guesses appear on left, grid grows rightward
+- Scrollable container for many guesses
 
 **Deliverable:** Playable game (even if rough around edges)
 
@@ -575,6 +585,6 @@ DATABASE_URL=your_db_url
 
 ---
 
-**Version:** 1.1  
-**Last Updated:** January 12, 2026  
-**Status:** Phase 2 Complete - Phase 3 In Progress
+**Version:** 1.1
+**Last Updated:** January 12, 2026
+**Status:** Phase 3 Complete

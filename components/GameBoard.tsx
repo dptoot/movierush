@@ -1,11 +1,48 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Challenge, GamePhase, GameState } from '@/types';
+import { useState, useEffect, useRef } from 'react';
+import { Challenge, GamePhase, GameState, GuessedMovie } from '@/types';
+import { calculateTimeBonus } from '@/lib/timeBonus';
 import Timer from './Timer';
 import AutocompleteInput from './AutocompleteInput';
+import MovieGrid from './MovieGrid';
 
 const INITIAL_TIME = 60; // seconds
+const STORAGE_KEY = 'movierush_game';
+
+// Persisted data structure
+interface PersistedGame {
+  gameState: GameState;
+  guessedMovies: GuessedMovie[];
+}
+
+// localStorage helpers
+function saveGame(data: PersistedGame): void {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch (e) {
+    console.error('Failed to save game state:', e);
+  }
+}
+
+function loadGame(): PersistedGame | null {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (!saved) return null;
+    return JSON.parse(saved) as PersistedGame;
+  } catch (e) {
+    console.error('Failed to load game state:', e);
+    return null;
+  }
+}
+
+function clearGame(): void {
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+  } catch (e) {
+    console.error('Failed to clear game state:', e);
+  }
+}
 
 export default function GameBoard() {
   // Challenge data from API
@@ -15,6 +52,39 @@ export default function GameBoard() {
 
   // Game state
   const [gameState, setGameState] = useState<GameState | null>(null);
+
+  // Guessed movies with full data (for MovieGrid display)
+  const [guessedMovies, setGuessedMovies] = useState<GuessedMovie[]>([]);
+
+  // Track if we've initialized from localStorage (prevents saving during load)
+  const initializedRef = useRef(false);
+
+  // Load saved game state after challenge is fetched
+  useEffect(() => {
+    if (!challenge) return;
+
+    const saved = loadGame();
+    if (saved && saved.gameState.date === challenge.date) {
+      // Saved game is for today's challenge - restore it
+      setGameState(saved.gameState);
+      setGuessedMovies(saved.guessedMovies);
+    } else if (saved) {
+      // Saved game is from a different day - clear it
+      clearGame();
+    }
+
+    // Mark as initialized after a tick to allow state to settle
+    setTimeout(() => {
+      initializedRef.current = true;
+    }, 0);
+  }, [challenge]);
+
+  // Save game state whenever it changes (after initialization)
+  useEffect(() => {
+    if (!initializedRef.current || !gameState) return;
+
+    saveGame({ gameState, guessedMovies });
+  }, [gameState, guessedMovies]);
 
   // Fetch today's challenge on mount
   useEffect(() => {
@@ -56,13 +126,31 @@ export default function GameBoard() {
     });
   };
 
+  // End the game manually
+  const handleEndGame = () => {
+    setGameState((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        phase: 'ended',
+        completedAt: Date.now(),
+      };
+    });
+  };
+
   // Get current phase
   const phase: GamePhase = gameState?.phase ?? 'idle';
 
   const TIME_PENALTY = 5; // seconds for incorrect guess
 
   // Handle movie selection from autocomplete
-  const handleMovieSelect = (movie: { id: number; title: string }) => {
+  const handleMovieSelect = (movie: {
+    id: number;
+    title: string;
+    poster_path: string | null;
+    vote_count: number;
+    vote_average: number;
+  }) => {
     if (!gameState || !challenge) return;
 
     // Check if already guessed (correct answer)
@@ -74,17 +162,27 @@ export default function GameBoard() {
     const isCorrect = challenge.valid_movie_ids.includes(movie.id);
 
     if (isCorrect) {
+      // Calculate time bonus based on movie obscurity
+      const { bonus: timeBonus } = calculateTimeBonus(movie.vote_count, movie.vote_average);
+
       // Correct guess - add to guessed movies
+      setGuessedMovies((prev) => [
+        ...prev,
+        { id: movie.id, title: movie.title, poster_path: movie.poster_path },
+      ]);
+
       setGameState((prev) => {
         if (!prev) return prev;
 
         const newGuessedIds = [...prev.guessedMovieIds, movie.id];
+        const newTimeRemaining = prev.timeRemaining + timeBonus;
 
         // Check if all movies found - end game early
         if (newGuessedIds.length >= challenge.total_movies) {
           return {
             ...prev,
             guessedMovieIds: newGuessedIds,
+            timeRemaining: newTimeRemaining,
             phase: 'ended',
             completedAt: Date.now(),
           };
@@ -93,6 +191,7 @@ export default function GameBoard() {
         return {
           ...prev,
           guessedMovieIds: newGuessedIds,
+          timeRemaining: newTimeRemaining,
         };
       });
     } else {
@@ -243,16 +342,22 @@ export default function GameBoard() {
           <AutocompleteInput onSelect={handleMovieSelect} />
         </div>
 
-        {/* Movie grid placeholder - will be MovieGrid in Phase 3.4 */}
+        {/* Movie grid - shows guessed movies */}
         <div className="flex-1">
-          <div className="grid grid-cols-3 gap-4 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6">
-            {Array.from({ length: challenge.total_movies }).map((_, index) => (
-              <div
-                key={index}
-                className="aspect-[2/3] rounded-lg bg-zinc-200 dark:bg-zinc-700"
-              />
-            ))}
-          </div>
+          <MovieGrid
+            guessedMovies={guessedMovies}
+            totalMovies={challenge.total_movies}
+          />
+        </div>
+
+        {/* End Game button */}
+        <div className="mt-6 text-center">
+          <button
+            onClick={handleEndGame}
+            className="rounded-lg border border-zinc-300 px-6 py-2 text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-100 dark:border-zinc-600 dark:text-zinc-400 dark:hover:bg-zinc-800"
+          >
+            End Game
+          </button>
         </div>
       </div>
     );
