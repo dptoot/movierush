@@ -3,9 +3,11 @@
 import { useState, useEffect, useRef } from 'react';
 import { Challenge, GamePhase, GameState, GuessedMovie } from '@/types';
 import { calculateTimeBonus } from '@/lib/timeBonus';
+import { calculatePoints } from '@/lib/scoring';
 import Timer from './Timer';
 import AutocompleteInput from './AutocompleteInput';
 import MovieGrid from './MovieGrid';
+import Results from './Results';
 
 const INITIAL_TIME = 60; // seconds
 const STORAGE_KEY = 'movierush_game';
@@ -56,6 +58,9 @@ export default function GameBoard() {
   // Guessed movies with full data (for MovieGrid display)
   const [guessedMovies, setGuessedMovies] = useState<GuessedMovie[]>([]);
 
+  // Score tracking
+  const [score, setScore] = useState(0);
+
   // Track if we've initialized from localStorage (prevents saving during load)
   const initializedRef = useRef(false);
 
@@ -63,11 +68,45 @@ export default function GameBoard() {
   useEffect(() => {
     if (!challenge) return;
 
+    // Check for completed game (replay prevention)
+    const completedGame = localStorage.getItem(`game_${challenge.date}`);
+    if (completedGame) {
+      try {
+        const gameData = JSON.parse(completedGame);
+        if (gameData.completed === true) {
+          // Game was completed - prevent replay by showing results
+          setGameState({
+            date: challenge.date,
+            challengeId: challenge.id,
+            phase: 'ended',
+            guessedMovieIds: [],
+            incorrectCount: 0,
+            timeRemaining: 0,
+            finalScore: gameData.score || 0,
+          });
+          setScore(gameData.score || 0);
+          // We don't have full guessedMovies data from the completion record
+          // so we just show the score
+          setGuessedMovies([]);
+          initializedRef.current = true;
+          return;
+        }
+      } catch {
+        // Invalid JSON, continue with normal flow
+      }
+    }
+
     const saved = loadGame();
     if (saved && saved.gameState.date === challenge.date) {
       // Saved game is for today's challenge - restore it
       setGameState(saved.gameState);
       setGuessedMovies(saved.guessedMovies);
+      // Calculate score from guessed movies
+      const restoredScore = saved.guessedMovies.reduce(
+        (acc, movie) => acc + movie.points_awarded,
+        0
+      );
+      setScore(restoredScore);
     } else if (saved) {
       // Saved game is from a different day - clear it
       clearGame();
@@ -165,11 +204,23 @@ export default function GameBoard() {
       // Calculate time bonus based on movie obscurity
       const { bonus: timeBonus } = calculateTimeBonus(movie.vote_count, movie.vote_average);
 
-      // Correct guess - add to guessed movies
+      // Calculate points for this guess
+      const { totalPoints } = calculatePoints(movie.vote_count, movie.vote_average);
+
+      // Correct guess - add to guessed movies with scoring info
       setGuessedMovies((prev) => [
         ...prev,
-        { id: movie.id, title: movie.title, poster_path: movie.poster_path },
+        {
+          id: movie.id,
+          title: movie.title,
+          poster_path: movie.poster_path,
+          points_awarded: totalPoints,
+          time_bonus: timeBonus,
+        },
       ]);
+
+      // Update score
+      setScore((prev) => prev + totalPoints);
 
       setGameState((prev) => {
         if (!prev) return prev;
@@ -363,20 +414,14 @@ export default function GameBoard() {
     );
   }
 
-  // Ended state placeholder - will be Results component in Phase 4
-  if (phase === 'ended') {
+  // Ended state - show Results component
+  if (phase === 'ended' && challenge) {
     return (
-      <div className="flex min-h-[400px] items-center justify-center">
-        <div className="text-center">
-          <div className="mb-4 text-4xl">🎉</div>
-          <h2 className="mb-2 text-2xl font-bold text-zinc-900 dark:text-zinc-50">
-            Game Over!
-          </h2>
-          <p className="text-zinc-500">
-            Results component coming in Phase 4
-          </p>
-        </div>
-      </div>
+      <Results
+        score={score}
+        guessedMovies={guessedMovies}
+        challengeDate={challenge.date}
+      />
     );
   }
 

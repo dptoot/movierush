@@ -415,12 +415,12 @@ interface PlayerStats {
 **Goal: Complete the game loop**
 
 **Tasks:**
-1. Implement scoring algorithm (`/lib/scoring.ts`)
-2. Build `Results` component (end game summary)
-3. Create localStorage helpers for game state
-4. Prevent replay of same day's challenge
-5. Build share functionality
-6. Show all movies (guessed vs. missed)
+- [x] Implement scoring algorithm (`/lib/scoring.ts`)
+- [x] Build `Results` component (end game summary)
+- [x] Create localStorage helpers for game state
+- [x] Prevent replay of same day's challenge
+- [x] Build share functionality
+- [x] Show guessed movies with points breakdown
 
 **Deliverable:** Full game loop from start to shareable results
 
@@ -585,6 +585,6 @@ DATABASE_URL=your_db_url
 
 ---
 
-**Version:** 1.1
+**Version:** 1.2
 **Last Updated:** January 12, 2026
-**Status:** Phase 3 Complete
+**Status:** Phase 4 Complete

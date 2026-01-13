@@ -5,6 +5,10 @@ All notable changes to MovieRush will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- `Results` component with score display, movie grid, and share functionality (Phase 4)
+- `lib/scoring.ts` - point calculation with obscurity-based bonuses
+- Replay prevention - completed games saved to localStorage, prevents replaying same day
+- Share button with native share API fallback to clipboard
 - "End Game" button for manual game completion (Phase 3)
 - Time bonus logic for correct guesses based on movie obscurity (Phase 3)
   - Quality score = vote_count × (vote_average / 10)
