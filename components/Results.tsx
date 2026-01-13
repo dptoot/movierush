@@ -24,11 +24,12 @@ export default function Results({
       completed: true,
       score,
       moviesFound: guessedMovies.length,
+      guessedMovies,
       date: challengeDate,
       timestamp: new Date().toISOString(),
     };
     localStorage.setItem(`game_${challengeDate}`, JSON.stringify(gameData));
-  }, [score, guessedMovies.length, challengeDate]);
+  }, [score, guessedMovies, challengeDate]);
 
   // Sort movies by points_awarded descending
   const sortedMovies = [...guessedMovies].sort(

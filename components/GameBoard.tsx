@@ -75,19 +75,18 @@ export default function GameBoard() {
         const gameData = JSON.parse(completedGame);
         if (gameData.completed === true) {
           // Game was completed - prevent replay by showing results
+          const savedMovies = gameData.guessedMovies || [];
           setGameState({
             date: challenge.date,
             challengeId: challenge.id,
             phase: 'ended',
-            guessedMovieIds: [],
+            guessedMovieIds: savedMovies.map((m: { id: number }) => m.id),
             incorrectCount: 0,
             timeRemaining: 0,
             finalScore: gameData.score || 0,
           });
           setScore(gameData.score || 0);
-          // We don't have full guessedMovies data from the completion record
-          // so we just show the score
-          setGuessedMovies([]);
+          setGuessedMovies(savedMovies);
           initializedRef.current = true;
           return;
         }
