@@ -1,20 +1,28 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+import { Inter } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+export const viewport: Viewport = {
+  themeColor: "#1a2650",
+};
 
 export const metadata: Metadata = {
-  title: "MovieRush - Daily Movie Trivia",
-  description: "Race against time to name movies in this daily trivia challenge",
+  title: "MovieRush - Daily Movie Trivia Challenge",
+  description: "Race against time to name movies! Daily challenges, obscure bonuses, shareable scores.",
+  icons: {
+    icon: "/movie-rush.png",
+    apple: "/movie-rush.png",
+  },
+  openGraph: {
+    title: "MovieRush - Daily Movie Trivia Challenge",
+    description: "Race against time to name movies! Daily challenges, obscure bonuses, shareable scores.",
+    images: ["/movie-rush.png"],
+  },
 };
 
 export default function RootLayout({
@@ -24,9 +32,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className={`${inter.variable} antialiased`}>
         {children}
       </body>
     </html>

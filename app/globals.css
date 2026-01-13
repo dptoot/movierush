@@ -1,42 +1,134 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@theme {
+  /* Brand colors from logo */
+  --color-movierush-navy: #1a2650;
+  --color-movierush-gold: #FDB913;
+  --color-movierush-coral: #E94F37;
+  --color-movierush-cream: #F5E6D3;
+  --color-movierush-silver: #8B98A8;
+  --color-movierush-blue: #2E5C8A;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  /* Semantic colors */
+  --color-correct: #10B981;
+  --color-incorrect: #EF4444;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  /* Font families */
+  --font-display: Impact, "Arial Black", sans-serif;
+  --font-body: Inter, system-ui, sans-serif;
+
+  /* Chunky shadows */
+  --shadow-chunky: 4px 4px 0px rgba(0, 0, 0, 0.25);
+  --shadow-chunky-lg: 8px 8px 0px rgba(0, 0, 0, 0.25);
+
+  /* Animations */
+  --animate-pulse-slow: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-shake: shake 0.5s ease-in-out;
+  --animate-pop: pop 0.3s ease-out;
+  --animate-fade-in: fade-in 0.3s ease-out;
+
+  /* Keyframes */
+  @keyframes pulse-slow {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+  }
+
+  @keyframes shake {
+    0%, 100% {
+      transform: translateX(0);
+    }
+    25% {
+      transform: translateX(-4px);
+    }
+    75% {
+      transform: translateX(4px);
+    }
+  }
+
+  @keyframes pop {
+    0% {
+      transform: scale(0.8);
+      opacity: 0;
+    }
+    50% {
+      transform: scale(1.1);
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-}
-
-/* Poster reveal animation */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
+@layer base {
+  body {
+    @apply bg-movierush-navy text-white font-body;
   }
 }
 
-.animate-fadeIn {
-  animation: fadeIn 0.3s ease-out;
+@layer components {
+  /* Chunky button style matching logo */
+  .btn-primary {
+    @apply bg-movierush-gold text-movierush-navy;
+    @apply font-bold text-lg px-8 py-4 rounded-lg;
+    @apply shadow-chunky;
+    @apply transition-all duration-150;
+    @apply hover:translate-x-1 hover:translate-y-1 hover:shadow-none;
+    @apply active:translate-x-2 active:translate-y-2 active:shadow-none;
+  }
+
+  .btn-secondary {
+    @apply bg-movierush-coral text-white;
+    @apply font-bold px-6 py-3 rounded-lg;
+    @apply shadow-chunky;
+    @apply transition-all duration-150;
+    @apply hover:translate-x-1 hover:translate-y-1 hover:shadow-none;
+  }
+
+  /* Card style with depth */
+  .card-chunky {
+    @apply bg-white text-movierush-navy;
+    @apply rounded-xl p-6;
+    @apply shadow-chunky-lg;
+    @apply border-4 border-black;
+  }
+
+  /* Timer styles */
+  .timer-display {
+    @apply text-7xl md:text-9xl font-display;
+    @apply text-movierush-gold;
+    filter: drop-shadow(0 4px 8px rgba(253, 185, 19, 0.5));
+  }
+
+  .timer-warning {
+    @apply text-movierush-coral;
+    @apply animate-pulse-slow;
+  }
+
+  /* Score display */
+  .score-display {
+    @apply text-4xl font-bold text-movierush-gold;
+  }
+
+  /* Prompt text */
+  .challenge-prompt {
+    @apply text-3xl md:text-5xl font-display;
+    @apply text-movierush-gold;
+    @apply tracking-wide;
+  }
 }
