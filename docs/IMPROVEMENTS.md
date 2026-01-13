@@ -17,6 +17,20 @@ Items captured during development for future polish phases.
 
 ---
 
+### Branding & Polish
+
+- [ ] Add a logo to the application
+- [ ] Update the subtitle on the splash page to something more fun/engaging
+
+### Game UI Refinements
+
+- [ ] Remove movie posters from autocomplete dropdown (may give away cast hints)
+- [ ] Move timer and "X/X movies found" counter to the same horizontal line
+- [ ] Remove "X movies remaining" from the movie grid (redundant with counter)
+- [ ] Move "End Game" button above the movie list
+
+---
+
 ## Future Ideas
 
 *(Add items here as they come up during development)*
