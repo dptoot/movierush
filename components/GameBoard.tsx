@@ -317,7 +317,7 @@ export default function GameBoard() {
   // Loading state
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-movierush-navy">
+      <div className="flex min-h-screen items-center justify-center bg-movierush-navy p-4">
         <div className="text-center">
           <div className="mb-4 text-4xl">🎬</div>
           <p className="text-movierush-gold animate-pulse">Loading today&apos;s challenge...</p>
@@ -329,7 +329,7 @@ export default function GameBoard() {
   // Error state
   if (error) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-movierush-navy">
+      <div className="flex min-h-screen items-center justify-center bg-movierush-navy p-4">
         <div className="text-center">
           <div className="mb-4 text-4xl">😕</div>
           <p className="text-movierush-cream">{error}</p>
@@ -341,8 +341,8 @@ export default function GameBoard() {
   // Idle state - show Start button
   if (phase === 'idle' && challenge) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-movierush-navy">
-        <div className="text-center">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-movierush-navy p-4">
+        <div className="text-center max-w-lg">
           <img
             src="/movie-rush-trans.png"
             alt="MovieRush"
