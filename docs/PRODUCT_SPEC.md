@@ -443,11 +443,17 @@ interface PlayerStats {
 **Goal: Set up daily challenge generation**
 
 **Tasks:**
-1. Refine challenge generation script
-2. Add validation rules (difficulty, list size)
-3. Set up cron job (Vercel Cron or GitHub Actions)
-4. Pre-generate 30 days of challenges
-5. Monitor and adjust
+- [x] Refine challenge generation script
+- [x] Add validation rules (difficulty, list size)
+- [x] Set up cron job (Vercel Cron)
+  - Created `/api/cron/generate-challenge` endpoint
+  - Added `vercel.json` with cron schedule (6 PM UTC daily)
+  - Implemented CRON_SECRET authorization
+  - Created `lib/featured-actors.ts` with 100 curated actors
+  - Deterministic actor selection (same date = same actor)
+  - Duplicate prevention (checks before generating)
+- [ ] Pre-generate 30 days of challenges
+- [ ] Monitor and adjust
 
 **Deliverable:** Self-sustaining daily challenge system
 

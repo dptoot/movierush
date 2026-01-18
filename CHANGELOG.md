@@ -4,6 +4,15 @@ All notable changes to MovieRush will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+- Automated daily challenge generation via Vercel Cron (Phase 6)
+  - `lib/featured-actors.ts` - 100 curated actors with TMDB IDs
+  - Deterministic actor selection (same date = same actor)
+  - `/api/cron/generate-challenge` endpoint with CRON_SECRET auth
+  - `vercel.json` cron configuration (runs 6 PM UTC daily)
+  - `scripts/trigger-cron.ts` for local testing
+  - Duplicate prevention (checks if challenge exists before generating)
+
 ### Changed
 - UX improvements from backlog (Phase 5)
   - Splash screen: human-friendly date format, new tagline explaining gameplay
