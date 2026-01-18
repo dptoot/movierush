@@ -4,6 +4,11 @@ All notable changes to MovieRush will be documented in this file.
 
 ## [Unreleased]
 
+### Fixed
+- Autocomplete dropdown not displaying on mobile when deployed
+  - Removed `backdrop-blur` from autocomplete container in GameBoard
+  - `backdrop-filter` creates a stacking context that isolates z-index
+
 ### Added
 - Automated daily challenge generation via Vercel Cron (Phase 6)
   - `lib/featured-actors.ts` - 100 curated actors with TMDB IDs

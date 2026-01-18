@@ -396,7 +396,8 @@ export default function GameBoard() {
           </div>
 
           {/* Autocomplete input - searches all TMDB movies, validation happens on select */}
-          <div className="mb-6 bg-white/10 backdrop-blur rounded-xl p-6">
+          {/* Note: backdrop-blur removed - it creates a stacking context that breaks dropdown z-index on mobile */}
+          <div className="mb-6 bg-white/10 rounded-xl p-6">
             <AutocompleteInput onSelect={handleMovieSelect} />
           </div>
 
