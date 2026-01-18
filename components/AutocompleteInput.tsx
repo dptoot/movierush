@@ -46,6 +46,8 @@ export default function AutocompleteInput({
     }
 
     setIsLoading(true);
+    // TEMP DEBUG 1: Confirm search started
+    alert(`DEBUG 1: Searching for "${searchQuery}"`);
 
     try {
       const response = await fetch('/api/autocomplete', {
@@ -54,17 +56,22 @@ export default function AutocompleteInput({
         body: JSON.stringify({ query: searchQuery }),
       });
 
+      // TEMP DEBUG 2: Fetch completed
+      alert(`DEBUG 2: Fetch done, status: ${response.status}`);
+
       if (!response.ok) {
         throw new Error('Search failed');
       }
 
       const data = await response.json();
-      // TEMP DEBUG: Alert results on mobile
-      alert(`Results: ${data.results?.length || 0} movies found. First: ${data.results?.[0]?.title || 'none'}`);
+      // TEMP DEBUG 3: Results parsed
+      alert(`DEBUG 3: ${data.results?.length || 0} movies. First: ${data.results?.[0]?.title || 'none'}`);
       setSuggestions(data.results || []);
       setShowDropdown(data.results?.length > 0);
       setSelectedIndex(-1);
     } catch (error) {
+      // TEMP DEBUG 4: Error caught
+      alert(`DEBUG 4 ERROR: ${error}`);
       console.error('Autocomplete error:', error);
       setSuggestions([]);
       setShowDropdown(false);
