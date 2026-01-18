@@ -59,6 +59,8 @@ export default function AutocompleteInput({
       }
 
       const data = await response.json();
+      // TEMP DEBUG: Alert results on mobile
+      alert(`Results: ${data.results?.length || 0} movies found. First: ${data.results?.[0]?.title || 'none'}`);
       setSuggestions(data.results || []);
       setShowDropdown(data.results?.length > 0);
       setSelectedIndex(-1);
@@ -181,7 +183,7 @@ export default function AutocompleteInput({
         {/* Loading indicator */}
         {isLoading && (
           <div className="absolute right-4 top-1/2 -translate-y-1/2">
-            <span className="text-movierush-gold animate-pulse text-lg">...</span>
+            <div className="h-6 w-6 animate-spin rounded-full border-4 border-movierush-navy border-t-transparent"></div>
           </div>
         )}
       </div>
