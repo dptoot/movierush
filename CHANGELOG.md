@@ -10,6 +10,9 @@ All notable changes to MovieRush will be documented in this file.
   - `backdrop-filter` creates a stacking context that isolates z-index
 
 ### Added
+- Test cron job for verifying Vercel cron logs
+  - `/api/cron/test` endpoint runs every 5 minutes
+  - Useful for debugging cron execution and log visibility
 - Automated daily challenge generation via Vercel Cron (Phase 6)
   - `lib/featured-actors.ts` - 100 curated actors with TMDB IDs
   - Deterministic actor selection (same date = same actor)
