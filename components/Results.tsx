@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { GuessedMovie } from '@/types';
 
 interface ResultsProps {
@@ -71,9 +72,13 @@ Play at: movierush.vercel.app`;
     <div className="min-h-screen bg-movierush-navy p-6 flex items-center justify-center">
       <div className="max-w-4xl mx-auto text-center">
         {/* Logo */}
-        <img
-          src="/movie-rush-trans.png"
+        <Image
+          src="/movie-rush-trans-sm.webp"
           alt="MovieRush"
+          width={512}
+          height={256}
+          sizes="(max-width: 768px) 384px, 512px"
+          priority
           className="mx-auto mb-8 h-48 md:h-64 w-auto"
         />
 

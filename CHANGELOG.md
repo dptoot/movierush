@@ -5,6 +5,7 @@ All notable changes to MovieRush will be documented in this file.
 ## [Unreleased]
 
 ### Changed
+- Logo: optimized with Next.js Image component and resized WebP (1.6MB → 52KB, 97% reduction)
 - Homepage UX: moved "Start The Rush" button above date, removed date box styling for cleaner look
 - Relaxed challenge validation: removed obscure movie requirement
   - Now only requires 20+ movies (was 20+ movies AND 3+ obscure)

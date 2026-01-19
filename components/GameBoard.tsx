@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import Image from 'next/image';
 import { Challenge, GamePhase, GameState, GuessedMovie } from '@/types';
 import { calculateTimeBonus } from '@/lib/timeBonus';
 import { calculatePoints } from '@/lib/scoring';
@@ -343,9 +344,13 @@ export default function GameBoard() {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-movierush-navy p-4">
         <div className="text-center max-w-lg">
-          <img
-            src="/movie-rush-trans.png"
+          <Image
+            src="/movie-rush-trans-sm.webp"
             alt="MovieRush"
+            width={512}
+            height={256}
+            sizes="(max-width: 768px) 384px, 512px"
+            priority
             className="mx-auto mb-8 h-48 md:h-64 w-auto"
           />
           <p className="mb-2 text-xl text-movierush-cream">
