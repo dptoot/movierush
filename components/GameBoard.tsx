@@ -355,18 +355,16 @@ export default function GameBoard() {
             Correct answers add time, but mistakes will cost you precious seconds.
           </p>
 
-          <div className="mb-8 rounded-xl bg-white/10 backdrop-blur p-8">
-            <p className="text-lg text-movierush-cream">
-              {formatDate(challenge.date)}
-            </p>
-          </div>
-
           <button
             onClick={handleStart}
-            className="btn-primary"
+            className="btn-primary mb-8"
           >
             Start The Rush
           </button>
+
+          <p className="text-lg text-movierush-silver">
+            {formatDate(challenge.date)}
+          </p>
         </div>
       </div>
     );

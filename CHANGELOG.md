@@ -5,6 +5,7 @@ All notable changes to MovieRush will be documented in this file.
 ## [Unreleased]
 
 ### Changed
+- Homepage UX: moved "Start The Rush" button above date, removed date box styling for cleaner look
 - Relaxed challenge validation: removed obscure movie requirement
   - Now only requires 20+ movies (was 20+ movies AND 3+ obscure)
   - Enables A-list actors like DiCaprio and Vin Diesel
