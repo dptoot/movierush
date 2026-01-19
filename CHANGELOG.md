@@ -4,15 +4,21 @@ All notable changes to MovieRush will be documented in this file.
 
 ## [Unreleased]
 
+### Changed
+- Relaxed challenge validation: removed obscure movie requirement
+  - Now only requires 20+ movies (was 20+ movies AND 3+ obscure)
+  - Enables A-list actors like DiCaprio and Vin Diesel
+
 ### Fixed
 - Autocomplete dropdown not displaying on mobile when deployed
   - Removed `backdrop-blur` from autocomplete container in GameBoard
   - `backdrop-filter` creates a stacking context that isolates z-index
 
 ### Added
-- Test cron job for verifying Vercel cron logs
-  - `/api/cron/test` endpoint runs every 5 minutes
-  - Useful for debugging cron execution and log visibility
+- Batch challenge generation script (`scripts/generate-month.ts`)
+  - Generate challenges for multiple days at once (default 31 days)
+  - Skips dates that already have challenges
+  - Progress reporting with summary stats
 - Automated daily challenge generation via Vercel Cron (Phase 6)
   - `lib/featured-actors.ts` - 100 curated actors with TMDB IDs
   - Deterministic actor selection (same date = same actor)

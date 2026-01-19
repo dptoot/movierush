@@ -162,12 +162,7 @@ async function generateChallenge(actorName: string, date: string): Promise<strin
     throw new Error(`Insufficient movies: ${totalMovies} (minimum 20 required)`);
   }
 
-  if (obscureCount < 3) {
-    throw new Error(`Insufficient obscure movies: ${obscureCount} (minimum 3 required)`);
-  }
-
   console.log(`   ✓ Total movies: ${totalMovies} (min 20)`);
-  console.log(`   ✓ Obscure movies: ${obscureCount} (min 3)`);
 
   // Step 6: Generate challenge ID
   const challengeId = generateChallengeId(date, actor.name);
