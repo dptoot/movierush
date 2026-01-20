@@ -399,11 +399,17 @@ export default function GameBoard() {
             priority
             className="mx-auto mb-8 h-48 md:h-64 w-auto"
           />
-          <p className="mb-2 text-xl text-movierush-cream">
-            Every day, a new movie challenge. Race the clock to name as many as you can.
-          </p>
-          <p className="mb-8 text-lg text-movierush-silver">
-            Correct answers add time, but mistakes will cost you precious seconds.
+          <p className="mb-8 text-lg text-movierush-cream leading-relaxed">
+            Every day, a new movie challenge.
+            <br />
+            Race the clock and name as many movies as you can!
+            <br />
+            <br />
+            <span className="text-movierush-silver">
+              Correct answers will add time...
+              <br />
+              but mistakes will cost you precious seconds!
+            </span>
           </p>
 
           <button

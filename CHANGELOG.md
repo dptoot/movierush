@@ -10,6 +10,7 @@ All notable changes to MovieRush will be documented in this file.
   - Shows clipboard icon with "✓ Copied" feedback on click
 
 ### Changed
+- Splash screen tagline reformatted with line breaks for better readability
 - Dev reset button now hidden by default, only visible with `?dev=true` URL param
 - Visual feedback for guesses during gameplay:
   - Correct guess: green "+Xs" text showing time bonus
