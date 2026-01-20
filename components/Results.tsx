@@ -18,6 +18,7 @@ export default function Results({
   challengeDate,
 }: ResultsProps) {
   const [copied, setCopied] = useState(false);
+  const [moviesCopied, setMoviesCopied] = useState(false);
 
   // Save completion to localStorage on mount
   useEffect(() => {
@@ -65,6 +66,17 @@ Play at: movierush.vercel.app`;
       } catch {
         console.error('Failed to share or copy');
       }
+    }
+  };
+
+  const handleCopyMovies = async () => {
+    const movieList = sortedMovies.map((m) => m.title).join('\n');
+    try {
+      await navigator.clipboard.writeText(movieList);
+      setMoviesCopied(true);
+      setTimeout(() => setMoviesCopied(false), 2000);
+    } catch {
+      console.error('Failed to copy movie list');
     }
   };
 
@@ -131,9 +143,35 @@ Play at: movierush.vercel.app`;
         {/* Your Guesses section */}
         {sortedMovies.length > 0 && (
           <>
-            <h2 className="text-3xl font-display text-movierush-gold mb-6 mt-12">
-              Your Guesses
-            </h2>
+            <div className="flex items-center justify-center gap-3 mb-6 mt-12">
+              <h2 className="text-3xl font-display text-movierush-gold">
+                Your Guesses
+              </h2>
+              <button
+                onClick={handleCopyMovies}
+                className="text-movierush-cream/60 hover:text-movierush-gold transition-colors"
+                title="Copy movie list"
+              >
+                {moviesCopied ? (
+                  <span className="text-movierush-gold text-sm">✓ Copied</span>
+                ) : (
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                    />
+                  </svg>
+                )}
+              </button>
+            </div>
 
             <div className="grid w-full grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
               {sortedMovies.map((movie) => (

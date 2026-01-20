@@ -5,6 +5,9 @@ All notable changes to MovieRush will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- Copy movie list button on Results page next to "Your Guesses" heading
+  - Copies just the movie names (one per line) to clipboard
+  - Shows clipboard icon with "✓ Copied" feedback on click
 - Visual feedback for guesses during gameplay:
   - Correct guess: green "+Xs" text showing time bonus
   - Wrong guess: red "-5s" text with timer shake animation
