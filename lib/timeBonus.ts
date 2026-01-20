@@ -7,9 +7,9 @@
  *
  * Obscurity tiers:
  * - Very Well-Known (3000+): +3 seconds
- * - Well-Known (1000-2999): +8 seconds
- * - Moderate (200-999): +15 seconds
- * - Obscure (<200): +20 seconds
+ * - Well-Known (1000-2999): +5 seconds
+ * - Moderate (200-999): +7 seconds
+ * - Obscure (<200): +10 seconds
  */
 
 export interface TimeBonusResult {
@@ -26,10 +26,10 @@ export function calculateTimeBonus(voteCount: number, voteAverage: number): Time
   if (qualityScore >= 3000) {
     return { qualityScore, tier: 'very-well-known', bonus: 3 };
   } else if (qualityScore >= 1000) {
-    return { qualityScore, tier: 'well-known', bonus: 8 };
+    return { qualityScore, tier: 'well-known', bonus: 5 };
   } else if (qualityScore >= 200) {
-    return { qualityScore, tier: 'moderate', bonus: 15 };
+    return { qualityScore, tier: 'moderate', bonus: 7 };
   } else {
-    return { qualityScore, tier: 'obscure', bonus: 20 };
+    return { qualityScore, tier: 'obscure', bonus: 10 };
   }
 }

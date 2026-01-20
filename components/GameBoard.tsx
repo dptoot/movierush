@@ -10,7 +10,8 @@ import AutocompleteInput from './AutocompleteInput';
 import MovieGrid from './MovieGrid';
 import Results from './Results';
 
-const INITIAL_TIME = 60; // seconds
+const INITIAL_TIME = 30; // seconds
+const MAX_TIME = 45; // maximum time cap
 const STORAGE_KEY = 'movierush_game';
 
 // Format date as "January 12, 2026"
@@ -206,7 +207,7 @@ export default function GameBoard() {
   // Get current phase
   const phase: GamePhase = gameState?.phase ?? 'idle';
 
-  const TIME_PENALTY = 5; // seconds for incorrect guess
+  const TIME_PENALTY = 3; // seconds for incorrect guess
 
   // Helper to show feedback with animation
   const showFeedback = (
@@ -281,7 +282,7 @@ export default function GameBoard() {
         if (!prev) return prev;
 
         const newGuessedIds = [...prev.guessedMovieIds, movie.id];
-        const newTimeRemaining = prev.timeRemaining + timeBonus;
+        const newTimeRemaining = Math.min(prev.timeRemaining + timeBonus, MAX_TIME);
 
         // Check if all movies found - end game early
         if (newGuessedIds.length >= challenge.total_movies) {

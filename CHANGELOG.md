@@ -4,6 +4,13 @@ All notable changes to MovieRush will be documented in this file.
 
 ## [Unreleased]
 
+### Changed
+- Rebalanced time mechanics for tighter gameplay:
+  - Starting time: 60s → 30s
+  - Wrong guess penalty: -5s → -3s
+  - Maximum time cap: 45 seconds (new)
+  - Time bonuses adjusted: +3s/+5s/+7s/+10s (was +3s/+8s/+15s/+20s)
+
 ### Added
 - Copy movie list button on Results page next to "Your Guesses" heading
   - Copies just the movie names (one per line) to clipboard

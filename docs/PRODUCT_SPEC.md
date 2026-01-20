@@ -85,23 +85,22 @@ MovieRush is a daily movie trivia game where players race against time to name m
 
 ### 2.4 Time Mechanics
 
-**Starting Time:** 60 seconds
+**Starting Time:** 30 seconds
 
 **Time Bonus per Correct Answer:**
 - **Formula (Finalized):** Based on quality score = vote_count × (vote_average / 10)
 - Obscurity tiers determine time bonuses:
   - Very Well-Known (3000+): +3 seconds
-  - Well-Known (1000-2999): +8 seconds
-  - Moderate (200-999): +15 seconds
-  - Obscure (<200): +20 seconds
+  - Well-Known (1000-2999): +5 seconds
+  - Moderate (200-999): +7 seconds
+  - Obscure (<200): +10 seconds
 - Rewards players for knowing lesser-known films with more playtime
 
 **Time Penalty:**
-- -5 seconds per incorrect guess
+- -3 seconds per incorrect guess
 
 **Maximum Time:**
-- TBD (configurable for future adjustment)
-- Initial implementation: No hard cap
+- 45 seconds (hard cap prevents indefinite play)
 
 ---
 
@@ -131,8 +130,8 @@ So that I can quickly enter my answers without typos
 - Autocomplete displays search results as I type
 - When I select a movie, the game validates if it's in the valid answer list
 - Correct guesses reveal movie poster and award bonuses
-- Incorrect guesses result in 5-second time penalty
-- Timer starts at 60 seconds and counts down visibly
+- Incorrect guesses result in 3-second time penalty
+- Timer starts at 30 seconds and counts down visibly
 - Input clears after each guess, ready for next answer
 - "End Game" button is visible and allows player to end early
 
@@ -557,7 +556,7 @@ DATABASE_URL=your_db_url
 - [x] Autocomplete shows all TMDB movies (requires actual knowledge, prevents browsing)
 - [x] Obscurity scoring uses quality score (vote_count × vote_average/10)
 - [x] Time/point bonuses finalized (3000/1000/200/0 thresholds)
-- [ ] Maximum time cap (yes/no, what value?)
+- [x] Maximum time cap: 45 seconds
 - [ ] Movie poster quality (w185, w342, w500, or original?)
 - [ ] Challenge difficulty rules (min 20 movies, min 3 obscure - finalized)
 - [ ] Skeleton grid ordering (chronological by release date)
