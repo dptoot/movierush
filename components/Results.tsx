@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { GuessedMovie } from '@/types';
 
@@ -17,6 +18,8 @@ export default function Results({
   guessedMovies,
   challengeDate,
 }: ResultsProps) {
+  const searchParams = useSearchParams();
+  const isDevMode = searchParams.get('dev') === 'true';
   const [copied, setCopied] = useState(false);
   const [moviesCopied, setMoviesCopied] = useState(false);
 
@@ -128,17 +131,19 @@ Play at: movierush.vercel.app`;
           {copied ? '✓ Copied!' : 'Share Results'}
         </button>
 
-        {/* Dev: Reset button for testing */}
-        <button
-          onClick={() => {
-            localStorage.removeItem('movierush_game');
-            localStorage.removeItem(`game_${challengeDate}`);
-            window.location.reload();
-          }}
-          className="text-xs text-movierush-cream/40 hover:text-movierush-coral underline mb-4"
-        >
-          [Dev] Reset & Replay Today
-        </button>
+        {/* Dev: Reset button for testing (only visible with ?dev=true) */}
+        {isDevMode && (
+          <button
+            onClick={() => {
+              localStorage.removeItem('movierush_game');
+              localStorage.removeItem(`game_${challengeDate}`);
+              window.location.reload();
+            }}
+            className="text-xs text-movierush-cream/40 hover:text-movierush-coral underline mb-4"
+          >
+            [Dev] Reset & Replay Today
+          </button>
+        )}
 
         {/* Your Guesses section */}
         {sortedMovies.length > 0 && (
