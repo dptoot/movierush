@@ -26,6 +26,7 @@
   --animate-shake: shake 0.5s ease-in-out;
   --animate-pop: pop 0.3s ease-out;
   --animate-fade-in: fade-in 0.3s ease-out;
+  --animate-feedback-pop: feedback-pop 1s ease-out forwards;
 
   /* Keyframes */
   @keyframes pulse-slow {
@@ -73,6 +74,28 @@
       transform: scale(1);
     }
   }
+
+  @keyframes feedback-pop {
+    0% {
+      opacity: 0;
+      transform: translateY(10px) scale(0.8);
+    }
+    15% {
+      opacity: 1;
+      transform: translateY(-5px) scale(1.1);
+    }
+    30% {
+      transform: translateY(0) scale(1);
+    }
+    70% {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(-10px) scale(0.9);
+    }
+  }
 }
 
 @layer base {
@@ -118,6 +141,10 @@
   .timer-warning {
     @apply text-movierush-coral;
     @apply animate-pulse-slow;
+  }
+
+  .timer-shake {
+    @apply animate-shake;
   }
 
   /* Score display */

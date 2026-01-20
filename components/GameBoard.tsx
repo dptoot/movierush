@@ -75,6 +75,19 @@ export default function GameBoard() {
   // Score tracking
   const [score, setScore] = useState(0);
 
+  // Track all guessed movie IDs (correct and incorrect) to detect repeats
+  const [triedMovieIds, setTriedMovieIds] = useState<Set<number>>(new Set());
+
+  // Visual feedback state
+  const [feedback, setFeedback] = useState<{
+    type: 'correct' | 'wrong' | 'repeat-correct' | 'repeat-wrong';
+    message: string;
+    key: number; // Used to restart animation
+  } | null>(null);
+
+  // Timer shake animation trigger
+  const [timerShake, setTimerShake] = useState(false);
+
   // Track if we've initialized from localStorage (prevents saving during load)
   const initializedRef = useRef(false);
 
@@ -195,6 +208,22 @@ export default function GameBoard() {
 
   const TIME_PENALTY = 5; // seconds for incorrect guess
 
+  // Helper to show feedback with animation
+  const showFeedback = (
+    type: 'correct' | 'wrong' | 'repeat-correct' | 'repeat-wrong',
+    message: string
+  ) => {
+    setFeedback({ type, message, key: Date.now() });
+    // Clear feedback after animation completes (1s)
+    setTimeout(() => setFeedback(null), 1000);
+  };
+
+  // Helper to trigger timer shake
+  const triggerTimerShake = () => {
+    setTimerShake(true);
+    setTimeout(() => setTimerShake(false), 500);
+  };
+
   // Handle movie selection from autocomplete
   const handleMovieSelect = (movie: {
     id: number;
@@ -205,10 +234,20 @@ export default function GameBoard() {
   }) => {
     if (!gameState || !challenge) return;
 
-    // Check if already guessed (correct answer)
-    if (gameState.guessedMovieIds.includes(movie.id)) {
+    // Check if this movie was already tried (either correct or incorrect)
+    if (triedMovieIds.has(movie.id)) {
+      // Check if it was a correct guess
+      if (gameState.guessedMovieIds.includes(movie.id)) {
+        showFeedback('repeat-correct', 'Already guessed! ✓');
+      } else {
+        showFeedback('repeat-wrong', 'Already tried that one');
+      }
+      // No time penalty for repeats
       return;
     }
+
+    // Add to tried movies set
+    setTriedMovieIds((prev) => new Set(prev).add(movie.id));
 
     // Check if this movie is a valid answer for this challenge
     const isCorrect = challenge.valid_movie_ids.includes(movie.id);
@@ -219,6 +258,9 @@ export default function GameBoard() {
 
       // Calculate points for this guess
       const { totalPoints } = calculatePoints(movie.vote_count, movie.vote_average);
+
+      // Show positive feedback
+      showFeedback('correct', `+${timeBonus}s`);
 
       // Correct guess - add to guessed movies with scoring info
       setGuessedMovies((prev) => [
@@ -259,6 +301,10 @@ export default function GameBoard() {
         };
       });
     } else {
+      // Show negative feedback and trigger shake
+      showFeedback('wrong', `-${TIME_PENALTY}s`);
+      triggerTimerShake();
+
       // Incorrect guess - apply time penalty
       setGameState((prev) => {
         if (!prev) return prev;
@@ -386,15 +432,29 @@ export default function GameBoard() {
               {challenge.prompt}
             </h2>
 
-            {/* Timer and movie count on same line */}
-            <div className="flex items-center justify-center gap-6">
-              <Timer timeRemaining={gameState.timeRemaining} />
-              <p className="text-movierush-cream text-lg">
-                <span className="font-bold text-movierush-gold">{gameState.guessedMovieIds.length}</span>
-                <span className="text-movierush-silver">/</span>
-                <span className="font-bold">{challenge.total_movies}</span>
-                <span className="ml-1 text-movierush-silver">found</span>
-              </p>
+            {/* Timer with feedback */}
+            <div className="relative flex flex-col items-center">
+              {/* Feedback text - positioned above timer */}
+              <div className="h-8 mb-2">
+                {feedback && (
+                  <span
+                    key={feedback.key}
+                    className={`
+                      text-xl font-bold animate-feedback-pop
+                      ${feedback.type === 'correct' ? 'text-green-500' : ''}
+                      ${feedback.type === 'wrong' ? 'text-red-500' : ''}
+                      ${feedback.type === 'repeat-correct' ? 'text-yellow-400' : ''}
+                      ${feedback.type === 'repeat-wrong' ? 'text-gray-400' : ''}
+                    `}
+                  >
+                    {feedback.message}
+                  </span>
+                )}
+              </div>
+              {/* Timer with optional shake */}
+              <div className={timerShake ? 'animate-shake' : ''}>
+                <Timer timeRemaining={gameState.timeRemaining} />
+              </div>
             </div>
           </div>
 

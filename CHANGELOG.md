@@ -4,7 +4,17 @@ All notable changes to MovieRush will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+- Visual feedback for guesses during gameplay:
+  - Correct guess: green "+Xs" text showing time bonus
+  - Wrong guess: red "-5s" text with timer shake animation
+  - Repeat correct: yellow "Already guessed! ✓" message
+  - Repeat wrong: gray "Already tried that one" message
+- Repeated guess handling: no time penalty for re-guessing movies
+- `feedback-pop` animation keyframes and `timer-shake` utility class
+
 ### Changed
+- Removed "X/Y movies found" counter during gameplay for cleaner UI
 - Logo: optimized with Next.js Image component and resized WebP (1.6MB → 52KB, 97% reduction)
 - Homepage UX: moved "Start The Rush" button above date, removed date box styling for cleaner look
 - Relaxed challenge validation: removed obscure movie requirement
