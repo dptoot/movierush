@@ -10,8 +10,8 @@ import AutocompleteInput from './AutocompleteInput';
 import MovieGrid from './MovieGrid';
 import Results from './Results';
 
-const INITIAL_TIME = 30; // seconds
-const MAX_TIME = 45; // maximum time cap
+const INITIAL_TIME = 60; // seconds
+const MAX_TIME = 90; // maximum time cap
 const STORAGE_KEY = 'movierush_game';
 
 // Format date as "January 12, 2026"
