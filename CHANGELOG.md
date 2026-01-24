@@ -5,6 +5,10 @@ All notable changes to MovieRush will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- Loading state for Results stats section with themed gold spinner
+- Themed gold color for GameBoard loading spinner (was white)
+
+### Added
 - Comprehensive error handling for GameBoard and Results components
   - Challenge fetch errors: themed error card with retry button
   - Autocomplete search errors: coral-bordered dropdown with "Unable to search. Try again." message

@@ -384,8 +384,8 @@ export default function GameBoard() {
     return (
       <div className="flex min-h-screen items-center justify-center bg-movierush-navy p-4">
         <div className="text-center">
-          <div className="mb-4 h-8 w-8 mx-auto animate-spin rounded-full border-2 border-white border-t-transparent"></div>
-          <p className="text-white">Loading</p>
+          <div className="mb-4 h-8 w-8 mx-auto animate-spin rounded-full border-2 border-movierush-gold border-t-transparent"></div>
+          <p className="text-movierush-gold">Loading...</p>
         </div>
       </div>
     );
