@@ -167,7 +167,7 @@ export default function GameBoard() {
         }
         const data = await response.json();
         setChallenge(data);
-      } catch (err) {
+      } catch {
         setError('Failed to connect to server. Please check your connection.');
       } finally {
         setLoading(false);
@@ -276,7 +276,9 @@ export default function GameBoard() {
           challenge_id: challenge.id,
           tmdb_id: movie.id,
         }),
-      }).catch(() => {}); // Fail silently
+      }).catch((err) => {
+        console.error('Failed to record guess stat:', err);
+      });
 
       // Correct guess - add to guessed movies with scoring info
       setGuessedMovies((prev) => [
@@ -389,13 +391,46 @@ export default function GameBoard() {
     );
   }
 
+  // Retry handler for error state
+  const handleRetry = () => {
+    setError(null);
+    setLoading(true);
+    fetch('/api/challenge')
+      .then((response) => {
+        if (!response.ok) {
+          if (response.status === 404) {
+            setError('No challenge available today. Check back soon!');
+          } else {
+            setError('Something went wrong. Please try again later.');
+          }
+          return null;
+        }
+        return response.json();
+      })
+      .then((data) => {
+        if (data) setChallenge(data);
+      })
+      .catch(() => {
+        setError('Unable to load challenge. Please check your connection and refresh.');
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
+
   // Error state
   if (error) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-movierush-navy p-4">
-        <div className="text-center">
-          <div className="mb-4 text-4xl">😕</div>
-          <p className="text-movierush-cream">{error}</p>
+        <div className="card-chunky max-w-md text-center p-8">
+          <div className="mb-4 text-5xl">🎬</div>
+          <p className="text-movierush-coral text-lg font-semibold mb-6">{error}</p>
+          <button
+            onClick={handleRetry}
+            className="btn-primary"
+          >
+            Retry
+          </button>
         </div>
       </div>
     );

@@ -5,6 +5,13 @@ All notable changes to MovieRush will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- Comprehensive error handling for GameBoard and Results components
+  - Challenge fetch errors: themed error card with retry button
+  - Autocomplete search errors: coral-bordered dropdown with "Unable to search. Try again." message
+  - Share functionality errors: button shows "Unable to share" with helper text
+  - Console logging for stats recording and fetch failures (debugging)
+
+### Added
 - Social stats feature showing popular and rare movie guesses
   - `guess_stats` database table tracking guess counts per challenge
   - `/api/stats/record-guess` - records guesses (fire-and-forget, doesn't slow gameplay)

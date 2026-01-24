@@ -25,6 +25,7 @@ export default function AutocompleteInput({
   const [isLoading, setIsLoading] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
 
   const inputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -36,10 +37,12 @@ export default function AutocompleteInput({
     if (searchQuery.trim().length < 2) {
       setSuggestions([]);
       setShowDropdown(false);
+      setSearchError(null);
       return;
     }
 
     setIsLoading(true);
+    setSearchError(null);
 
     try {
       const response = await fetch('/api/autocomplete', {
@@ -59,7 +62,8 @@ export default function AutocompleteInput({
     } catch (error) {
       console.error('Autocomplete error:', error);
       setSuggestions([]);
-      setShowDropdown(false);
+      setSearchError('Unable to search. Try again.');
+      setShowDropdown(true);
     } finally {
       setIsLoading(false);
     }
@@ -214,8 +218,15 @@ export default function AutocompleteInput({
         </div>
       )}
 
+      {/* Error message */}
+      {showDropdown && searchError && (
+        <div className="absolute z-50 mt-2 w-full bg-white border-4 border-movierush-coral rounded-xl p-4 text-center shadow-chunky-lg">
+          <span className="text-movierush-coral">{searchError}</span>
+        </div>
+      )}
+
       {/* No results message */}
-      {showDropdown && query.length >= 2 && !isLoading && suggestions.length === 0 && (
+      {showDropdown && query.length >= 2 && !isLoading && !searchError && suggestions.length === 0 && (
         <div className="absolute z-50 mt-2 w-full bg-white border-4 border-movierush-navy rounded-xl p-4 text-center shadow-chunky-lg">
           <span className="text-movierush-silver italic">No matching movies found</span>
         </div>

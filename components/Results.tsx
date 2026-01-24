@@ -31,6 +31,7 @@ export default function Results({
   const isDevMode = searchParams.get('dev') === 'true';
   const [copied, setCopied] = useState(false);
   const [moviesCopied, setMoviesCopied] = useState(false);
+  const [shareError, setShareError] = useState(false);
   const [popularMovies, setPopularMovies] = useState<StatMovie[] | null>(null);
   const [rareMovies, setRareMovies] = useState<StatMovie[] | null>(null);
 
@@ -58,8 +59,9 @@ export default function Results({
         setPopularMovies(popData.movies || []);
         setRareMovies(rareData.movies || []);
       })
-      .catch(() => {
+      .catch((err) => {
         // On fetch error, set to empty arrays (will hide section)
+        console.error('Failed to fetch stats:', err);
         setPopularMovies([]);
         setRareMovies([]);
       });
@@ -71,6 +73,7 @@ export default function Results({
   );
 
   const handleShare = async () => {
+    setShareError(false);
     const shareText = `MovieRush ${challengeDate}
 
 ${score} points
@@ -89,7 +92,7 @@ Play at: movierush.vercel.app`;
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
       }
-    } catch (err) {
+    } catch {
       // User cancelled share or error occurred, try clipboard
       try {
         await navigator.clipboard.writeText(shareText);
@@ -97,6 +100,8 @@ Play at: movierush.vercel.app`;
         setTimeout(() => setCopied(false), 2000);
       } catch {
         console.error('Failed to share or copy');
+        setShareError(true);
+        setTimeout(() => setShareError(false), 3000);
       }
     }
   };
@@ -155,10 +160,14 @@ Play at: movierush.vercel.app`;
         {/* Share button */}
         <button
           onClick={handleShare}
-          className="btn-primary mb-8"
+          className={`btn-primary mb-2 ${shareError ? 'bg-movierush-coral' : ''}`}
         >
-          {copied ? '✓ Copied!' : 'Share Results'}
+          {copied ? '✓ Copied!' : shareError ? 'Unable to share' : 'Share Results'}
         </button>
+        {shareError && (
+          <p className="text-movierush-coral text-sm mb-6">Try again or copy manually</p>
+        )}
+        {!shareError && <div className="mb-6" />}
 
         {/* Dev: Reset button for testing (only visible with ?dev=true) */}
         {isDevMode && (
