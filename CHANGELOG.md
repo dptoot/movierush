@@ -4,6 +4,14 @@ All notable changes to MovieRush will be documented in this file.
 
 ## [Unreleased]
 
+### Fixed
+- Mobile responsive design improvements:
+  - Timer: added text-5xl base size for small phones (was missing mobile breakpoint)
+  - Challenge prompt: scaled down to text-2xl on mobile for better fit
+  - Buttons: added min-h-12 (48px) tap targets for accessibility
+  - Results stats cards: compact padding on mobile, prevents overflow
+  - Game Over heading: responsive sizing (text-4xl on mobile)
+
 ### Added
 - Loading state for Results stats section with themed gold spinner
 - Themed gold color for GameBoard loading spinner (was white)

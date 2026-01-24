@@ -132,7 +132,7 @@ Play at: movierush.vercel.app`;
         />
 
         {/* Game Over heading */}
-        <h1 className="text-6xl font-display text-movierush-coral mb-4 animate-pop">
+        <h1 className="text-4xl md:text-6xl font-display text-movierush-coral mb-4 animate-pop">
           Game Over!
         </h1>
 
@@ -142,18 +142,18 @@ Play at: movierush.vercel.app`;
         </p>
 
         {/* Stats row - movies found and points side by side */}
-        <div className="flex justify-center gap-6 my-8">
-          <div className="card-chunky px-8 py-4">
-            <p className="text-4xl font-bold text-movierush-navy">
+        <div className="flex justify-center gap-3 sm:gap-6 my-8">
+          <div className="card-chunky px-4 py-3 sm:px-8 sm:py-4">
+            <p className="text-3xl sm:text-4xl font-bold text-movierush-navy">
               {guessedMovies.length}
             </p>
-            <p className="text-sm text-movierush-silver">movies found</p>
+            <p className="text-xs sm:text-sm text-movierush-silver">movies found</p>
           </div>
-          <div className="card-chunky px-8 py-4">
-            <p className="text-4xl font-bold text-movierush-coral">
+          <div className="card-chunky px-4 py-3 sm:px-8 sm:py-4">
+            <p className="text-3xl sm:text-4xl font-bold text-movierush-coral">
               {score}
             </p>
-            <p className="text-sm text-movierush-silver">points</p>
+            <p className="text-xs sm:text-sm text-movierush-silver">points</p>
           </div>
         </div>
 

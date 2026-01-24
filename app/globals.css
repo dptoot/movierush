@@ -109,6 +109,7 @@
   .btn-primary {
     @apply bg-movierush-gold text-movierush-navy;
     @apply font-bold text-lg px-8 py-4 rounded-lg;
+    @apply min-h-12 min-w-44;
     @apply shadow-chunky;
     @apply transition-all duration-150;
     @apply hover:translate-x-1 hover:translate-y-1 hover:shadow-none;
@@ -118,6 +119,7 @@
   .btn-secondary {
     @apply bg-movierush-coral text-white;
     @apply font-bold px-6 py-3 rounded-lg;
+    @apply min-h-12;
     @apply shadow-chunky;
     @apply transition-all duration-150;
     @apply hover:translate-x-1 hover:translate-y-1 hover:shadow-none;
@@ -133,7 +135,7 @@
 
   /* Timer styles */
   .timer-display {
-    @apply text-7xl md:text-9xl font-display;
+    @apply text-5xl md:text-7xl lg:text-9xl font-display;
     @apply text-movierush-gold;
     filter: drop-shadow(0 4px 8px rgba(253, 185, 19, 0.5));
   }
@@ -154,7 +156,7 @@
 
   /* Prompt text */
   .challenge-prompt {
-    @apply text-3xl md:text-5xl font-display;
+    @apply text-2xl md:text-3xl lg:text-5xl font-display;
     @apply text-movierush-gold;
     @apply tracking-wide;
   }
