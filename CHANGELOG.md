@@ -8,6 +8,7 @@ All notable changes to MovieRush will be documented in this file.
 - Page now scrolls to top when transitioning between game phases (splash, gameplay, results)
 
 ### Changed
+- Autocomplete results now sorted by popularity (most popular movies first)
 - Rebalanced time mechanics for more relaxed gameplay:
   - Starting time: 60s (was 30s)
   - Maximum time cap: 90s (was 45s)

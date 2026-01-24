@@ -24,6 +24,7 @@ export async function POST(request: NextRequest) {
     const searchResults = await searchMovies(query.trim());
 
     // Return all results (no filtering) - validation happens after selection
+    // Sort by popularity (most popular first)
     const results = searchResults
       .map((movie) => ({
         id: movie.id,
@@ -32,7 +33,9 @@ export async function POST(request: NextRequest) {
         poster_path: movie.poster_path,
         vote_count: movie.vote_count ?? 0,
         vote_average: movie.vote_average ?? 0,
+        popularity: movie.popularity ?? 0,
       }))
+      .sort((a, b) => b.popularity - a.popularity)
       .slice(0, 8); // Limit to 8 suggestions
 
     return NextResponse.json({ results });
