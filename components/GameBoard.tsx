@@ -268,6 +268,16 @@ export default function GameBoard() {
       // Show positive feedback
       showFeedback('correct', `+${timeBonus}s`);
 
+      // Record guess for social stats (fire-and-forget, don't await)
+      fetch('/api/stats/record-guess', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          challenge_id: challenge.id,
+          tmdb_id: movie.id,
+        }),
+      }).catch(() => {}); // Fail silently
+
       // Correct guess - add to guessed movies with scoring info
       setGuessedMovies((prev) => [
         ...prev,
@@ -505,6 +515,7 @@ export default function GameBoard() {
         score={score}
         guessedMovies={guessedMovies}
         challengeDate={challenge.date}
+        challengeId={String(challenge.id)}
       />
     );
   }

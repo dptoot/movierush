@@ -9,6 +9,14 @@ interface ResultsProps {
   score: number;
   guessedMovies: GuessedMovie[];
   challengeDate: string;
+  challengeId: string;
+}
+
+interface StatMovie {
+  tmdb_id: number;
+  title: string;
+  poster_path: string | null;
+  guess_count: number;
 }
 
 const TMDB_IMAGE_BASE = 'https://image.tmdb.org/t/p/w92';
@@ -17,11 +25,14 @@ export default function Results({
   score,
   guessedMovies,
   challengeDate,
+  challengeId,
 }: ResultsProps) {
   const searchParams = useSearchParams();
   const isDevMode = searchParams.get('dev') === 'true';
   const [copied, setCopied] = useState(false);
   const [moviesCopied, setMoviesCopied] = useState(false);
+  const [popularMovies, setPopularMovies] = useState<StatMovie[] | null>(null);
+  const [rareMovies, setRareMovies] = useState<StatMovie[] | null>(null);
 
   // Save completion to localStorage on mount
   useEffect(() => {
@@ -35,6 +46,24 @@ export default function Results({
     };
     localStorage.setItem(`game_${challengeDate}`, JSON.stringify(gameData));
   }, [score, guessedMovies, challengeDate]);
+
+  // Fetch popular and rare movies stats
+  useEffect(() => {
+    Promise.all([
+      fetch(`/api/stats/popular?challenge_id=${challengeId}&limit=5`),
+      fetch(`/api/stats/rare?challenge_id=${challengeId}&limit=5`),
+    ])
+      .then(([popRes, rareRes]) => Promise.all([popRes.json(), rareRes.json()]))
+      .then(([popData, rareData]) => {
+        setPopularMovies(popData.movies || []);
+        setRareMovies(rareData.movies || []);
+      })
+      .catch(() => {
+        // On fetch error, set to empty arrays (will hide section)
+        setPopularMovies([]);
+        setRareMovies([]);
+      });
+  }, [challengeId]);
 
   // Sort movies by points_awarded descending
   const sortedMovies = [...guessedMovies].sort(
@@ -215,6 +244,100 @@ Play at: movierush.vercel.app`;
           </>
         )}
 
+        {/* Today's Stats section - only show if we have data */}
+        {popularMovies !== null &&
+          rareMovies !== null &&
+          (popularMovies.length > 0 || rareMovies.length > 0) && (
+            <div className="mt-12">
+              <h2 className="text-3xl font-display text-movierush-gold mb-6">
+                Today&apos;s Stats
+              </h2>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {/* Most Popular */}
+                {popularMovies.length > 0 && (
+                  <div>
+                    <h3 className="text-xl font-semibold text-movierush-cream mb-4">
+                      Most Popular
+                    </h3>
+                    <div className="space-y-3">
+                      {popularMovies.map((movie, index) => (
+                        <div
+                          key={movie.tmdb_id}
+                          className="card-chunky flex items-center gap-3"
+                        >
+                          <span className="text-lg font-bold text-movierush-gold w-6">
+                            {index + 1}
+                          </span>
+                          {movie.poster_path ? (
+                            <img
+                              src={`${TMDB_IMAGE_BASE}${movie.poster_path}`}
+                              alt={movie.title}
+                              className="h-16 w-11 rounded object-cover"
+                            />
+                          ) : (
+                            <div className="flex h-16 w-11 items-center justify-center rounded bg-movierush-cream">
+                              <span className="text-lg">🎬</span>
+                            </div>
+                          )}
+                          <div className="flex-1 text-left">
+                            <p className="font-semibold text-movierush-navy line-clamp-1">
+                              {movie.title}
+                            </p>
+                            <p className="text-sm text-movierush-silver">
+                              {movie.guess_count}{' '}
+                              {movie.guess_count === 1 ? 'player' : 'players'}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Hidden Gems */}
+                {rareMovies.length > 0 && (
+                  <div>
+                    <h3 className="text-xl font-semibold text-movierush-cream mb-4">
+                      Hidden Gems
+                    </h3>
+                    <div className="space-y-3">
+                      {rareMovies.map((movie, index) => (
+                        <div
+                          key={movie.tmdb_id}
+                          className="card-chunky flex items-center gap-3"
+                        >
+                          <span className="text-lg font-bold text-movierush-coral w-6">
+                            {index + 1}
+                          </span>
+                          {movie.poster_path ? (
+                            <img
+                              src={`${TMDB_IMAGE_BASE}${movie.poster_path}`}
+                              alt={movie.title}
+                              className="h-16 w-11 rounded object-cover"
+                            />
+                          ) : (
+                            <div className="flex h-16 w-11 items-center justify-center rounded bg-movierush-cream">
+                              <span className="text-lg">🎬</span>
+                            </div>
+                          )}
+                          <div className="flex-1 text-left">
+                            <p className="font-semibold text-movierush-navy line-clamp-1">
+                              {movie.title}
+                            </p>
+                            <p className="text-sm text-movierush-silver">
+                              {movie.guess_count}{' '}
+                              {movie.guess_count === 1 ? 'player' : 'players'}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
       </div>
     </div>
   );

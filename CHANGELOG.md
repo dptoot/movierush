@@ -4,6 +4,16 @@ All notable changes to MovieRush will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+- Social stats feature showing popular and rare movie guesses
+  - `guess_stats` database table tracking guess counts per challenge
+  - `/api/stats/record-guess` - records guesses (fire-and-forget, doesn't slow gameplay)
+  - `/api/stats/popular` - returns most guessed movies with TMDB details
+  - `/api/stats/rare` - returns least guessed "hidden gems" with TMDB details
+  - Results page shows "Today's Stats" section after game ends
+  - Most Popular list (gold rank numbers) and Hidden Gems list (coral rank numbers)
+  - Stats section hidden for first player or on fetch errors (graceful degradation)
+
 ### Fixed
 - Page now scrolls to top when transitioning between game phases (splash, gameplay, results)
 - Mobile viewport now uses standard responsive settings (device-width, initialScale)
