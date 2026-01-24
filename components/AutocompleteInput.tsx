@@ -30,12 +30,6 @@ export default function AutocompleteInput({
   const dropdownRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Focus input on mount
-  useEffect(() => {
-    if (!disabled) {
-      inputRef.current?.focus();
-    }
-  }, [disabled]);
 
   // Debounced search function - searches ALL TMDB movies
   const searchMovies = useCallback(async (searchQuery: string) => {

@@ -6,8 +6,11 @@ All notable changes to MovieRush will be documented in this file.
 
 ### Fixed
 - Page now scrolls to top when transitioning between game phases (splash, gameplay, results)
+- Mobile viewport now uses standard responsive settings (device-width, initialScale)
+- Added interactiveWidget viewport setting for better mobile keyboard handling
 
 ### Changed
+- Removed auto-focus on game input to prevent keyboard from opening automatically on mobile
 - Autocomplete results now sorted by popularity (most popular movies first)
 - Rebalanced time mechanics for more relaxed gameplay:
   - Starting time: 60s (was 30s)

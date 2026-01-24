@@ -9,6 +9,9 @@ const inter = Inter({
 
 export const viewport: Viewport = {
   themeColor: "#1a2650",
+  width: "device-width",
+  initialScale: 1,
+  interactiveWidget: "resizes-content",
 };
 
 export const metadata: Metadata = {
