@@ -207,6 +207,11 @@ export default function GameBoard() {
   // Get current phase
   const phase: GamePhase = gameState?.phase ?? 'idle';
 
+  // Scroll to top when phase changes
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [phase]);
+
   const TIME_PENALTY = 3; // seconds for incorrect guess
 
   // Helper to show feedback with animation

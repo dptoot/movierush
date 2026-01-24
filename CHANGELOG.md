@@ -4,6 +4,9 @@ All notable changes to MovieRush will be documented in this file.
 
 ## [Unreleased]
 
+### Fixed
+- Page now scrolls to top when transitioning between game phases (splash, gameplay, results)
+
 ### Changed
 - Rebalanced time mechanics for more relaxed gameplay:
   - Starting time: 60s (was 30s)
