@@ -151,6 +151,11 @@ export default function AutocompleteInput({
     };
   }, []);
 
+  // Focus input on mount (when game starts)
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
+
   // Get year from release date
   const getYear = (releaseDate: string) => {
     return releaseDate ? releaseDate.split('-')[0] : '';

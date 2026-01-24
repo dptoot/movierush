@@ -4,6 +4,9 @@ All notable changes to MovieRush will be documented in this file.
 
 ## [Unreleased]
 
+### Changed
+- Re-enabled autofocus on movie input when game starts
+
 ### Fixed
 - Mobile responsive design improvements:
   - Timer: added text-5xl base size for small phones (was missing mobile breakpoint)
