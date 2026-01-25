@@ -70,7 +70,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.variable} antialiased`}>
-        {children}
+        {/* Skip link for keyboard navigation - WCAG 2.4.1 */}
+        <a href="#main-content" className="skip-link">
+          Skip to main content
+        </a>
+        <main id="main-content">
+          {children}
+        </main>
         <Analytics />
       </body>
     </html>

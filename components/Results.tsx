@@ -142,17 +142,17 @@ Play at: movierush.vercel.app`;
         </p>
 
         {/* Stats row - movies found and points side by side */}
-        <div className="flex justify-center gap-3 sm:gap-6 my-8">
+        <div className="flex justify-center gap-3 sm:gap-6 my-8" role="group" aria-label="Game statistics">
           <div className="card-chunky px-4 py-3 sm:px-8 sm:py-4">
-            <p className="text-3xl sm:text-4xl font-bold text-movierush-navy">
+            <output className="text-3xl sm:text-4xl font-bold text-movierush-navy block" aria-label="Movies found">
               {guessedMovies.length}
-            </p>
+            </output>
             <p className="text-xs sm:text-sm text-movierush-silver">movies found</p>
           </div>
           <div className="card-chunky px-4 py-3 sm:px-8 sm:py-4">
-            <p className="text-3xl sm:text-4xl font-bold text-movierush-coral">
+            <output className="text-3xl sm:text-4xl font-bold text-movierush-coral block" aria-label="Total score">
               {score}
-            </p>
+            </output>
             <p className="text-xs sm:text-sm text-movierush-silver">points</p>
           </div>
         </div>
@@ -161,6 +161,7 @@ Play at: movierush.vercel.app`;
         <button
           onClick={handleShare}
           className={`btn-primary mb-2 ${shareError ? 'bg-movierush-coral' : ''}`}
+          aria-label="Share your game results"
         >
           {copied ? '✓ Copied!' : shareError ? 'Unable to share' : 'Share Results'}
         </button>
@@ -194,6 +195,7 @@ Play at: movierush.vercel.app`;
                 onClick={handleCopyMovies}
                 className="text-movierush-cream/60 hover:text-movierush-gold transition-colors"
                 title="Copy movie list"
+                aria-label="Copy movie list to clipboard"
               >
                 {moviesCopied ? (
                   <span className="text-movierush-gold text-sm">✓ Copied</span>
@@ -258,11 +260,11 @@ Play at: movierush.vercel.app`;
         {/* Today's Stats section */}
         {/* Loading state */}
         {(popularMovies === null || rareMovies === null) && (
-          <div className="mt-12">
+          <section className="mt-12" aria-busy="true" aria-label="Loading statistics">
             <h2 className="text-3xl font-display text-movierush-gold mb-6">
               Today&apos;s Stats
             </h2>
-            <div className="flex items-center justify-center gap-3 py-8">
+            <div className="flex items-center justify-center gap-3 py-8" role="status">
               <svg
                 className="h-6 w-6 animate-spin text-movierush-gold"
                 xmlns="http://www.w3.org/2000/svg"
@@ -285,14 +287,14 @@ Play at: movierush.vercel.app`;
               </svg>
               <span className="text-movierush-gold">Loading stats...</span>
             </div>
-          </div>
+          </section>
         )}
 
         {/* Loaded state - only show if we have data */}
         {popularMovies !== null &&
           rareMovies !== null &&
           (popularMovies.length > 0 || rareMovies.length > 0) && (
-            <div className="mt-12">
+            <section className="mt-12" aria-label="Today's game statistics">
               <h2 className="text-3xl font-display text-movierush-gold mb-6">
                 Today&apos;s Stats
               </h2>
@@ -384,7 +386,7 @@ Play at: movierush.vercel.app`;
                   </div>
                 )}
               </div>
-            </div>
+            </section>
           )}
       </div>
     </div>

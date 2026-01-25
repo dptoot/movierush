@@ -466,6 +466,7 @@ export default function GameBoard() {
           <button
             onClick={handleStart}
             className="btn-primary mb-8"
+            aria-label="Start today's movie challenge"
           >
             Start The Rush
           </button>
@@ -491,8 +492,13 @@ export default function GameBoard() {
 
             {/* Timer with feedback */}
             <div className="relative flex flex-col items-center">
-              {/* Feedback text - positioned above timer */}
-              <div className="h-8 mb-2">
+              {/* Feedback text - positioned above timer (aria-live for screen readers) */}
+              <div
+                className="h-8 mb-2"
+                role="status"
+                aria-live="assertive"
+                aria-atomic="true"
+              >
                 {feedback && (
                   <span
                     key={feedback.key}
@@ -526,6 +532,7 @@ export default function GameBoard() {
             <button
               onClick={handleEndGame}
               className="btn-secondary"
+              aria-label="End game early and see results"
             >
               End Game
             </button>

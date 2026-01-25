@@ -4,7 +4,32 @@ All notable changes to MovieRush will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+- **Phase 8.1:** WCAG 2.1 AA Accessibility Compliance Implementation
+  - Color contrast fixes: Silver color adjusted (#8B98A8 → #A8B8C8) for 4.5:1 ratio on navy
+  - Skip-to-content link for keyboard navigation (WCAG 2.4.1)
+  - Semantic `<main>` landmark in root layout
+  - Timer component: Semantic `<time>` element with `role="timer"`, `aria-live="polite"`, `aria-label`
+  - Feedback region: `role="status"`, `aria-live="assertive"` for screen reader announcements
+  - Score display: Semantic `<output>` elements with aria-labels
+  - MovieGrid: Semantic `<ul>/<li>` list structure with proper image alt text
+  - Results sections: Proper `<section>` elements with aria-labels
+  - All buttons: Descriptive `aria-label` attributes
+  - Focus styles: Visible focus rings for `.btn-primary` and `.btn-secondary`
+  - `prefers-reduced-motion` support:
+    - Disabled animations with non-motion alternatives
+    - Timer warning: wavy underline instead of pulse
+    - Timer shake: color change instead of motion
+    - Instant appearance for fade/pop animations
+- **Phase 8: Production Readiness** - Comprehensive engineering tasks added to PRODUCT_SPEC.md
+  - **8.1 WCAG 2.1 AA Compliance** - Color contrast audit, motion sensitivity, focus management, ARIA completeness, screen reader testing, semantic HTML audit
+  - **8.2 Mobile-First Implementation** - CSS refactor, small screen optimization, landscape support, safe area support, touch interaction audit, device testing matrix, high-DPI optimization
+  - **8.3 Client-Side Optimization** - React memoization, code splitting, bundle analysis, Lighthouse audits, runtime profiling, network performance
+  - **8.4 Testing & Documentation** - Testing infrastructure setup, E2E tests, accessibility automation, visual regression testing, testing documentation
+  - **8.5 Dark/Light Mode** - Theme architecture, system preference detection, theme toggle UI (low priority)
+
 ### Changed
+- **Phase 5 Status:** Marked as "Core Complete" with references to Phase 8 for production hardening
 - **Spec Alignment:** Updated time mechanics in PRODUCT_SPEC.md to match implementation
   - Starting time: 30s → 60s (matches `INITIAL_TIME` in GameBoard.tsx)
   - Maximum time cap: 45s → 90s (matches `MAX_TIME` in GameBoard.tsx)

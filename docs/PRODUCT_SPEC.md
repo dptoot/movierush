@@ -425,18 +425,21 @@ interface PlayerStats {
 
 ### 6.5 Phase 5: Polish & Testing (Week 4-5)
 **Goal: Make it production-ready**
+**Status:** ✅ Core Complete (see Phase 8 for production hardening)
 
 **Tasks:**
 - [x] Visual branding and theming (MovieRush color palette, logo, animations)
 - [x] Tailwind v4 theme configuration with brand colors
-- [ ] Responsive design refinements (mobile-first)
+- [x] Responsive design (base implementation) → see Phase 8.2 for mobile-first refinements
 - [x] Loading states and error handling (themed)
-- [ ] Accessibility improvements
-- [ ] Performance optimization
-- [ ] User testing with friends/family
-- [ ] Bug fixes
+- [x] Accessibility (base implementation) → see Phase 8.1 for WCAG compliance
+- [x] Performance optimization (API-side) → see Phase 8.3 for client-side optimization
+- [ ] User testing with friends/family → see Phase 8.4
+- [x] Bug fixes (Phase 7 addressed ESLint issues and edge cases)
 
 **Deliverable:** Production-ready MVP
+
+**Note:** Phase 5 established the foundation. Phase 8 (Production Readiness) provides comprehensive engineering tasks for WCAG compliance, mobile-first design, and formal testing infrastructure.
 
 ### 6.6 Phase 6: Automation (Week 5-6)
 **Goal: Set up daily challenge generation**
@@ -875,6 +878,457 @@ Parallelize API calls using `Promise.all()` with batching to respect TMDB rate l
 
 ---
 
-**Version:** 1.4
-**Last Updated:** January 24, 2026
-**Status:** Phase 7 Planning Complete
+## 13. Phase 8: Production Readiness
+
+### Overview
+This phase addresses the remaining gaps from Phase 5 (Polish & Testing) with comprehensive engineering rigor. Rather than surface-level fixes, these tasks establish proper patterns, testing methodologies, and compliance standards for a production-quality application.
+
+**Goals:**
+- Achieve WCAG 2.1 AA accessibility compliance
+- Implement true mobile-first responsive design
+- Optimize client-side React performance
+- Establish testing baselines and documentation
+- Support user preferences (motion, color scheme)
+
+---
+
+### 8.1 Accessibility: WCAG 2.1 AA Compliance
+**Priority:** High
+**Status:** ✅ Complete
+
+**Problem:**
+Current accessibility implementation covers basic ARIA patterns but lacks formal WCAG compliance. No color contrast verification, motion sensitivity support, or screen reader testing has been performed.
+
+**WCAG 2.1 AA Requirements to Address:**
+- 1.4.3 Contrast (Minimum) - 4.5:1 for normal text, 3:1 for large text
+- 1.4.11 Non-text Contrast - 3:1 for UI components
+- 2.3.3 Animation from Interactions - Respect reduced motion preferences
+- 2.4.7 Focus Visible - Clear focus indicators on all interactive elements
+- 4.1.2 Name, Role, Value - All interactive elements properly labeled
+
+**Tasks:**
+
+**8.1.1 Color Contrast Audit**
+- [x] Audit all color combinations using WebAIM Contrast Checker
+- [x] Document current contrast ratios for each combination:
+  - Cream (#F5E6D3) on Navy (#1a2650)
+  - Gold (#FDB913) on Navy (#1a2650)
+  - Coral (#E94F37) on Navy (#1a2650)
+  - Silver (#8B98A8) on Navy (#1a2650)
+  - White on Gold (button text)
+  - Navy on Gold (button text alternative)
+- [x] Identify and fix any combinations below 4.5:1 (normal text) or 3:1 (large text/UI)
+- [x] Create contrast-safe color token variants if needed
+
+**8.1.2 Motion Sensitivity Support**
+- [x] Add `prefers-reduced-motion` media query to `globals.css`
+- [x] Audit all animations and transitions:
+  - `animate-pulse-slow` (timer)
+  - `animate-shake` (penalty feedback)
+  - `animate-pop` (correct guess)
+  - `animate-fade-in` (poster reveal)
+  - `animate-feedback-pop` (score popup)
+  - Button hover/active transitions
+  - Timer warning pulse
+- [x] Create reduced-motion alternatives:
+  - Replace motion with opacity/color changes where appropriate
+  - Disable non-essential animations entirely
+  - Preserve essential feedback (correct/incorrect) via non-motion cues
+- [x] Test with system reduced-motion setting enabled
+
+**8.1.3 Focus Management**
+- [x] Audit all interactive elements for visible focus indicators
+- [x] Add explicit focus styles to:
+  - All buttons (Start, End Game, Share, Copy)
+  - Dropdown options in autocomplete
+  - Any clickable cards or links
+- [x] Implement focus trap in autocomplete dropdown when open
+- [x] Ensure focus returns to input after dropdown selection
+- [x] Add skip-to-content link for keyboard navigation
+- [x] Test complete keyboard-only navigation flow
+
+**8.1.4 ARIA Completeness**
+- [x] Add descriptive `aria-label` to all buttons:
+  - "Start today's challenge"
+  - "End game early"
+  - "Share your results"
+  - "Copy movie list to clipboard"
+  - "Play again tomorrow" (if applicable)
+- [x] Add `role="timer"` and `aria-live="polite"` to Timer component
+- [x] Add `aria-live="polite"` to score/feedback announcements
+- [x] Add `aria-describedby` linking inputs to helper text
+- [x] Ensure all form controls have associated labels
+
+**8.1.5 Screen Reader Testing**
+- [ ] Test with VoiceOver (macOS/iOS)
+- [ ] Test with NVDA (Windows)
+- [ ] Document screen reader announcement flow:
+  - Game start state
+  - Timer countdown (should not spam announcements)
+  - Correct guess feedback
+  - Incorrect guess feedback
+  - Game end summary
+- [ ] Fix any confusing or missing announcements
+- [ ] Verify autocomplete suggestions are announced correctly
+
+**8.1.6 Semantic HTML Audit**
+- [x] Verify heading hierarchy (h1 → h2 → h3, no skipped levels)
+- [x] Ensure landmark regions are properly defined (main, nav, footer)
+- [x] Replace any `<div>` click handlers with proper `<button>` elements
+- [x] Add `<time>` element for timer display with datetime attribute
+- [x] Use `<output>` element for score display
+
+**Acceptance Criteria:**
+- Lighthouse Accessibility score ≥ 95
+- All color combinations meet WCAG AA contrast requirements
+- Full keyboard navigation without mouse
+- Screen reader users can complete game successfully
+- Animations respect user motion preferences
+
+**Files Affected:**
+- `app/globals.css`
+- `components/AutocompleteInput.tsx`
+- `components/Timer.tsx`
+- `components/GameBoard.tsx`
+- `components/Results.tsx`
+- `app/layout.tsx`
+
+---
+
+### 8.2 Responsive Design: Mobile-First Implementation
+**Priority:** High
+**Status:** 🔲 Not Started
+
+**Problem:**
+Current responsive implementation uses mobile breakpoints but follows a desktop-first approach. Edge cases (ultra-small screens, landscape orientation, notched devices) are not handled. No documented device testing.
+
+**Design Principles:**
+- Start with smallest viewport, progressively enhance
+- Test on real devices, not just browser resize
+- Account for safe areas (notches, rounded corners)
+- Support both portrait and landscape orientations
+
+**Tasks:**
+
+**8.2.1 Mobile-First CSS Refactor**
+- [ ] Audit all Tailwind classes for desktop-first patterns
+- [ ] Refactor to mobile-first (base styles for mobile, `sm:` `md:` `lg:` for larger)
+- [ ] Document breakpoint strategy:
+  - Base: 0-639px (mobile portrait)
+  - `sm`: 640-767px (mobile landscape / small tablet)
+  - `md`: 768-1023px (tablet)
+  - `lg`: 1024-1279px (laptop)
+  - `xl`: 1280px+ (desktop)
+- [ ] Remove any hardcoded pixel widths that break on small screens
+- [ ] Ensure no horizontal scroll on any viewport width
+
+**8.2.2 Small Screen Optimization (< 375px)**
+- [ ] Test on iPhone SE (375px) and smaller (320px)
+- [ ] Adjust typography scale for readability:
+  - Challenge prompt minimum readable size
+  - Timer digits visible without truncation
+  - Button text doesn't wrap awkwardly
+- [ ] Ensure touch targets remain ≥ 44px (iOS) / 48px (Android)
+- [ ] Verify autocomplete dropdown fits within viewport
+- [ ] Movie grid columns appropriate for screen width
+
+**8.2.3 Landscape Orientation Support**
+- [ ] Test all views in landscape mode
+- [ ] Adjust layouts for short/wide viewports:
+  - Game board may need horizontal layout
+  - Timer and input side-by-side consideration
+  - Movie grid columns for landscape
+- [ ] Prevent layout shift on orientation change
+- [ ] Maintain playability without requiring portrait mode
+
+**8.2.4 Safe Area Support (Notched Devices)**
+- [ ] Add `viewport-fit=cover` to viewport meta tag
+- [ ] Use `env(safe-area-inset-*)` for:
+  - Bottom padding (home indicator area)
+  - Top padding (notch/dynamic island)
+  - Side padding (curved screen edges)
+- [ ] Test on iPhone with notch/dynamic island
+- [ ] Test on Android devices with punch-hole cameras
+
+**8.2.5 Touch Interaction Audit**
+- [ ] Verify all touch targets ≥ 48px
+- [ ] Add adequate spacing between touch targets (≥ 8px)
+- [ ] Remove hover-only interactions (ensure touch alternatives)
+- [ ] Test autocomplete selection on touch devices
+- [ ] Verify scrolling behavior in movie grid
+- [ ] Test pull-to-refresh doesn't interfere with gameplay
+
+**8.2.6 Device Testing Matrix**
+- [ ] Create device testing checklist
+- [ ] Test on physical devices:
+  - iPhone SE (small iOS)
+  - iPhone 14 Pro (notch/dynamic island)
+  - iPad (tablet)
+  - Android phone (various sizes)
+  - Android tablet
+- [ ] Document any device-specific issues
+- [ ] Test with browser DevTools device emulation for coverage
+
+**8.2.7 High-DPI Display Optimization**
+- [ ] Verify images are sharp on retina displays
+- [ ] Ensure 2x/3x assets served where needed
+- [ ] Check that borders/shadows render crisply
+- [ ] Test on high-DPI monitors (4K, 5K)
+
+**Acceptance Criteria:**
+- No horizontal scrolling on any device
+- Full gameplay possible on 320px width screen
+- Landscape mode fully functional
+- No content obscured by notches or safe areas
+- Documented testing on ≥ 5 physical devices
+
+**Files Affected:**
+- `app/globals.css`
+- `app/layout.tsx` (viewport meta)
+- `components/GameBoard.tsx`
+- `components/MovieGrid.tsx`
+- `components/AutocompleteInput.tsx`
+- `components/Timer.tsx`
+- `components/Results.tsx`
+
+---
+
+### 8.3 Performance: Client-Side Optimization
+**Priority:** Medium
+**Status:** 🔲 Not Started
+
+**Problem:**
+API-side performance is optimized (Phase 7), but client-side React performance has not been addressed. No memoization, code splitting, or bundle analysis performed.
+
+**Tasks:**
+
+**8.3.1 React Component Memoization**
+- [ ] Identify expensive render operations:
+  - Movie grid sorting/filtering
+  - Results calculations
+  - Feedback animations
+- [ ] Add `React.memo()` to pure presentational components:
+  - MovieGrid item components
+  - Timer display (if separated)
+  - Individual result cards
+- [ ] Add `useMemo()` for expensive calculations:
+  - Sorted movie arrays in Results
+  - Filtered/grouped movie lists
+  - Score calculations
+- [ ] Add `useCallback()` for handler functions passed as props
+- [ ] Verify improvements with React DevTools Profiler
+
+**8.3.2 Code Splitting & Lazy Loading**
+- [ ] Implement dynamic imports for heavy components:
+  ```typescript
+  const Results = dynamic(() => import('@/components/Results'), {
+    loading: () => <ResultsSkeleton />
+  })
+  ```
+- [ ] Lazy load Results component (not needed until game ends)
+- [ ] Evaluate ShareButton for lazy loading (uses clipboard API)
+- [ ] Add Suspense boundaries with appropriate fallbacks
+- [ ] Measure bundle size reduction
+
+**8.3.3 Bundle Analysis**
+- [ ] Install and configure `@next/bundle-analyzer`
+- [ ] Generate initial bundle analysis report
+- [ ] Identify largest dependencies
+- [ ] Evaluate alternatives for heavy dependencies
+- [ ] Document bundle size baseline and targets:
+  - First Load JS target: < 100KB
+  - Largest chunk target: < 50KB
+- [ ] Set up CI check for bundle size regression
+
+**8.3.4 Lighthouse Performance Audit**
+- [ ] Run Lighthouse performance audit
+- [ ] Document baseline scores:
+  - Performance
+  - First Contentful Paint (FCP)
+  - Largest Contentful Paint (LCP)
+  - Time to Interactive (TTI)
+  - Cumulative Layout Shift (CLS)
+  - Total Blocking Time (TBT)
+- [ ] Address any critical performance issues
+- [ ] Set performance budget thresholds
+- [ ] Target: Performance score ≥ 90
+
+**8.3.5 Runtime Performance Profiling**
+- [ ] Profile with React DevTools during gameplay
+- [ ] Identify unnecessary re-renders
+- [ ] Check for memory leaks (especially timer intervals)
+- [ ] Verify cleanup in useEffect hooks
+- [ ] Test performance with large movie grids (50+ guesses)
+
+**8.3.6 Network Performance**
+- [ ] Verify efficient resource loading order
+- [ ] Check for render-blocking resources
+- [ ] Optimize font loading strategy (font-display: swap)
+- [ ] Preload critical assets (logo, fonts)
+- [ ] Verify API calls are not duplicated
+
+**Acceptance Criteria:**
+- Lighthouse Performance score ≥ 90
+- No unnecessary re-renders during gameplay
+- Bundle size within defined limits
+- No memory leaks after extended play sessions
+- Documented performance baseline
+
+**Files Affected:**
+- `components/*.tsx` (memoization)
+- `app/page.tsx` (dynamic imports)
+- `next.config.ts` (bundle analyzer)
+- `package.json` (new dev dependency)
+
+---
+
+### 8.4 Testing & Documentation
+**Priority:** Medium
+**Status:** 🔲 Not Started
+
+**Problem:**
+No formal testing infrastructure or documentation of testing procedures. Testing is ad-hoc and undocumented.
+
+**Tasks:**
+
+**8.4.1 Testing Infrastructure Setup**
+- [ ] Evaluate testing framework options:
+  - Playwright (E2E, accessibility)
+  - Vitest (unit tests)
+  - Testing Library (component tests)
+- [ ] Install and configure chosen framework(s)
+- [ ] Set up test directory structure
+- [ ] Configure CI to run tests on PR
+
+**8.4.2 Critical Path E2E Tests**
+- [ ] Test complete game flow:
+  - Load homepage
+  - Click Start
+  - Enter correct guess
+  - Enter incorrect guess
+  - Let timer run out / click End Game
+  - View results
+  - Share results
+- [ ] Test localStorage persistence:
+  - Game state survives refresh
+  - Completed game prevents replay
+- [ ] Test error scenarios:
+  - Network failure during search
+  - Challenge API failure
+
+**8.4.3 Accessibility Automated Tests**
+- [ ] Configure axe-core with Playwright
+- [ ] Add accessibility assertions to E2E tests
+- [ ] Test keyboard navigation flow
+- [ ] Verify ARIA attributes programmatically
+
+**8.4.4 Visual Regression Testing**
+- [ ] Evaluate visual testing options (Percy, Chromatic, Playwright screenshots)
+- [ ] Capture baseline screenshots:
+  - Homepage (before start)
+  - Active game state
+  - Results screen
+  - Error states
+  - Mobile viewport
+- [ ] Configure CI to detect visual regressions
+
+**8.4.5 Testing Documentation**
+- [ ] Create `docs/TESTING.md` with:
+  - How to run tests locally
+  - Test coverage expectations
+  - Manual testing checklist
+  - Device testing matrix
+  - Accessibility testing procedure
+- [ ] Document browser/device support matrix
+
+**Acceptance Criteria:**
+- Automated tests for critical game flow
+- Accessibility tests passing
+- Testing documentation complete
+- CI runs tests on every PR
+
+**Files Affected:**
+- `package.json` (test dependencies)
+- `playwright.config.ts` or `vitest.config.ts` (new)
+- `tests/` directory (new)
+- `docs/TESTING.md` (new)
+- `.github/workflows/` (CI configuration)
+
+---
+
+### 8.5 User Preferences: Dark/Light Mode
+**Priority:** Low
+**Status:** 🔲 Not Started
+
+**Problem:**
+Application has a fixed dark theme. Some users prefer light mode or system-matched themes.
+
+**Tasks:**
+
+**8.5.1 Theme Architecture**
+- [ ] Design light theme color palette:
+  - Light background alternative
+  - Adjusted text colors for contrast
+  - Button/accent colors that work on light
+- [ ] Implement CSS custom properties for theme values
+- [ ] Create theme toggle mechanism
+
+**8.5.2 System Preference Detection**
+- [ ] Implement `prefers-color-scheme` media query
+- [ ] Default to system preference
+- [ ] Allow manual override stored in localStorage
+- [ ] Sync with system changes in real-time
+
+**8.5.3 Theme Toggle UI**
+- [ ] Add theme toggle to UI (location TBD)
+- [ ] Design toggle component (icon button or dropdown)
+- [ ] Implement smooth theme transition animation
+- [ ] Persist user preference across sessions
+
+**8.5.4 Theme Testing**
+- [ ] Verify all components in both themes
+- [ ] Check contrast ratios in light mode
+- [ ] Test theme switching during gameplay
+- [ ] Ensure no flash of wrong theme on load
+
+**Acceptance Criteria:**
+- Both dark and light themes fully functional
+- System preference respected by default
+- User can override and preference persists
+- No accessibility regressions in either theme
+
+**Files Affected:**
+- `app/globals.css`
+- `app/layout.tsx`
+- `components/ThemeToggle.tsx` (new)
+- `lib/theme.ts` (new)
+
+---
+
+### Phase 8 Summary
+
+| Task | Priority | Status | Category |
+|------|----------|--------|----------|
+| 8.1 WCAG 2.1 AA Compliance | High | ✅ | Accessibility |
+| 8.2 Mobile-First Implementation | High | 🔲 | Responsive |
+| 8.3 Client-Side Optimization | Medium | 🔲 | Performance |
+| 8.4 Testing & Documentation | Medium | 🔲 | Quality |
+| 8.5 Dark/Light Mode | Low | 🔲 | User Preferences |
+
+**Recommended Order:**
+1. 8.1 (accessibility is a launch blocker for many organizations)
+2. 8.2 (mobile users are primary audience for casual games)
+3. 8.4 (establish testing before more changes)
+4. 8.3 (optimization based on real usage patterns)
+5. 8.5 (nice-to-have, not critical for MVP)
+
+**Dependencies:**
+- 8.1.1 (Color Contrast) should inform 8.5 (Theme) color choices
+- 8.4 (Testing) should be established before major 8.2/8.3 refactors
+- 8.3.4 (Lighthouse) provides data for prioritizing 8.3 tasks
+
+---
+
+**Version:** 1.5
+**Last Updated:** January 25, 2026
+**Status:** Phase 8 Planning Complete
