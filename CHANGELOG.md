@@ -5,6 +5,35 @@ All notable changes to MovieRush will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **Phase 8.4:** Testing Infrastructure & Documentation
+  - Testing framework setup:
+    - Vitest for unit tests (fast, ESM-native, TypeScript support)
+    - Playwright for E2E tests (real browser testing, accessibility)
+    - axe-core integration for WCAG compliance testing
+  - Unit tests (48 tests):
+    - `lib/scoring.ts` - Quality score calculation, tier classification, points
+    - `lib/timeBonus.ts` - Quality score calculation, tier classification, bonus values
+    - Boundary condition tests for all tier thresholds
+  - E2E tests (25+ tests):
+    - Game flow: Homepage, start, autocomplete, timer, end game, results, share
+    - Persistence: Game state survives refresh, replay prevention
+    - Error handling: API failures (404, 500)
+    - Keyboard navigation: Full game completable without mouse
+    - Accessibility: WCAG 2.1 AA compliance via axe-core
+    - Screen reader support: ARIA attributes verification
+    - Reduced motion: Respects prefers-reduced-motion
+  - GitHub Actions CI workflow:
+    - Unit tests run on every push/PR
+    - E2E tests run after unit tests pass
+    - ESLint and TypeScript type checking
+    - Playwright report artifacts uploaded
+  - Testing documentation (`docs/TESTING.md`):
+    - How to run tests locally
+    - Test structure and organization
+    - Manual testing checklist
+    - Device testing matrix
+    - Troubleshooting guide
+  - NPM scripts: `test`, `test:watch`, `test:coverage`, `test:e2e`, `test:e2e:ui`, `test:all`
 - **Phase 8.3:** Client-Side Performance Optimization
   - React component memoization:
     - Added `React.memo()` to MovieGridItem for efficient re-renders
@@ -65,7 +94,6 @@ All notable changes to MovieRush will be documented in this file.
   - **8.2 Mobile-First Implementation** - CSS refactor, small screen optimization, landscape support, safe area support, touch interaction audit, device testing matrix, high-DPI optimization
   - **8.3 Client-Side Optimization** - React memoization, code splitting, bundle analysis, Lighthouse audits, runtime profiling, network performance
   - **8.4 Testing & Documentation** - Testing infrastructure setup, E2E tests, accessibility automation, visual regression testing, testing documentation
-  - **8.5 Dark/Light Mode** - Theme architecture, system preference detection, theme toggle UI (low priority)
 
 ### Changed
 - **Phase 5 Status:** Marked as "Core Complete" with references to Phase 8 for production hardening

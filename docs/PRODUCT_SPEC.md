@@ -1186,124 +1186,96 @@ API-side performance is optimized (Phase 7), but client-side React performance h
 
 ### 8.4 Testing & Documentation
 **Priority:** Medium
-**Status:** 🔲 Not Started
+**Status:** ✅ Complete
 
 **Problem:**
 No formal testing infrastructure or documentation of testing procedures. Testing is ad-hoc and undocumented.
 
+**Solution:**
+Implemented two-tier testing strategy with Vitest (unit tests) and Playwright (E2E tests), plus GitHub Actions CI workflow.
+
 **Tasks:**
 
 **8.4.1 Testing Infrastructure Setup**
-- [ ] Evaluate testing framework options:
-  - Playwright (E2E, accessibility)
-  - Vitest (unit tests)
-  - Testing Library (component tests)
-- [ ] Install and configure chosen framework(s)
-- [ ] Set up test directory structure
-- [ ] Configure CI to run tests on PR
+- [x] Evaluate testing framework options:
+  - Playwright (E2E, accessibility) ✓
+  - Vitest (unit tests) ✓
+  - Testing Library (component tests) - deferred, not needed for MVP
+- [x] Install and configure chosen framework(s)
+- [x] Set up test directory structure
+- [x] Configure CI to run tests on PR
 
-**8.4.2 Critical Path E2E Tests**
-- [ ] Test complete game flow:
+**8.4.2 Unit Tests (Vitest)**
+- [x] Test scoring algorithm (`lib/scoring.ts`)
+  - Quality score calculation
+  - Tier classification (very-well-known, well-known, moderate, obscure)
+  - Boundary conditions
+  - Points calculation
+- [x] Test time bonus algorithm (`lib/timeBonus.ts`)
+  - Quality score calculation
+  - Tier classification
+  - Bonus values per tier
+
+**8.4.3 Critical Path E2E Tests**
+- [x] Test complete game flow:
   - Load homepage
   - Click Start
-  - Enter correct guess
-  - Enter incorrect guess
+  - Autocomplete search and selection
+  - Timer countdown
   - Let timer run out / click End Game
   - View results
   - Share results
-- [ ] Test localStorage persistence:
+- [x] Test localStorage persistence:
   - Game state survives refresh
   - Completed game prevents replay
-- [ ] Test error scenarios:
+- [x] Test error scenarios:
   - Network failure during search
-  - Challenge API failure
+  - Challenge API failure (404, 500)
 
-**8.4.3 Accessibility Automated Tests**
-- [ ] Configure axe-core with Playwright
-- [ ] Add accessibility assertions to E2E tests
-- [ ] Test keyboard navigation flow
-- [ ] Verify ARIA attributes programmatically
+**8.4.4 Accessibility Automated Tests**
+- [x] Configure axe-core with Playwright
+- [x] Add WCAG 2.1 AA accessibility assertions to E2E tests
+- [x] Test keyboard navigation flow
+- [x] Verify ARIA attributes programmatically
+- [x] Test reduced motion preference
+- [x] Test color contrast
 
-**8.4.4 Visual Regression Testing**
-- [ ] Evaluate visual testing options (Percy, Chromatic, Playwright screenshots)
-- [ ] Capture baseline screenshots:
-  - Homepage (before start)
-  - Active game state
-  - Results screen
-  - Error states
-  - Mobile viewport
-- [ ] Configure CI to detect visual regressions
+**8.4.5 Visual Regression Testing**
+- [ ] Evaluate visual testing options (Percy, Chromatic, Playwright screenshots) - deferred to future iteration
+- [ ] Capture baseline screenshots - deferred
+- [ ] Configure CI to detect visual regressions - deferred
 
-**8.4.5 Testing Documentation**
-- [ ] Create `docs/TESTING.md` with:
+**8.4.6 Testing Documentation**
+- [x] Create `docs/TESTING.md` with:
   - How to run tests locally
   - Test coverage expectations
   - Manual testing checklist
   - Device testing matrix
   - Accessibility testing procedure
-- [ ] Document browser/device support matrix
+- [x] Document browser/device support matrix
+
+**Test Summary:**
+- 48 unit tests (scoring + time bonus)
+- 25+ E2E tests (game flow, persistence, accessibility)
+- GitHub Actions CI runs on every push/PR
 
 **Acceptance Criteria:**
-- Automated tests for critical game flow
-- Accessibility tests passing
-- Testing documentation complete
-- CI runs tests on every PR
+- ✅ Automated tests for critical game flow
+- ✅ Accessibility tests passing
+- ✅ Testing documentation complete
+- ✅ CI runs tests on every PR
 
-**Files Affected:**
-- `package.json` (test dependencies)
-- `playwright.config.ts` or `vitest.config.ts` (new)
-- `tests/` directory (new)
-- `docs/TESTING.md` (new)
-- `.github/workflows/` (CI configuration)
-
----
-
-### 8.5 User Preferences: Dark/Light Mode
-**Priority:** Low
-**Status:** 🔲 Not Started
-
-**Problem:**
-Application has a fixed dark theme. Some users prefer light mode or system-matched themes.
-
-**Tasks:**
-
-**8.5.1 Theme Architecture**
-- [ ] Design light theme color palette:
-  - Light background alternative
-  - Adjusted text colors for contrast
-  - Button/accent colors that work on light
-- [ ] Implement CSS custom properties for theme values
-- [ ] Create theme toggle mechanism
-
-**8.5.2 System Preference Detection**
-- [ ] Implement `prefers-color-scheme` media query
-- [ ] Default to system preference
-- [ ] Allow manual override stored in localStorage
-- [ ] Sync with system changes in real-time
-
-**8.5.3 Theme Toggle UI**
-- [ ] Add theme toggle to UI (location TBD)
-- [ ] Design toggle component (icon button or dropdown)
-- [ ] Implement smooth theme transition animation
-- [ ] Persist user preference across sessions
-
-**8.5.4 Theme Testing**
-- [ ] Verify all components in both themes
-- [ ] Check contrast ratios in light mode
-- [ ] Test theme switching during gameplay
-- [ ] Ensure no flash of wrong theme on load
-
-**Acceptance Criteria:**
-- Both dark and light themes fully functional
-- System preference respected by default
-- User can override and preference persists
-- No accessibility regressions in either theme
-
-**Files Affected:**
-- `app/globals.css`
-- `app/layout.tsx`
-- `components/ThemeToggle.tsx` (new)
-- `lib/theme.ts` (new)
+**Files Created/Modified:**
+- `package.json` - Added test scripts and dependencies
+- `vitest.config.ts` - Vitest configuration
+- `playwright.config.ts` - Playwright configuration
+- `tests/unit/scoring.test.ts` - Scoring unit tests
+- `tests/unit/timeBonus.test.ts` - Time bonus unit tests
+- `tests/e2e/game-flow.spec.ts` - Game flow E2E tests
+- `tests/e2e/persistence.spec.ts` - Persistence E2E tests
+- `tests/e2e/accessibility.spec.ts` - Accessibility E2E tests
+- `docs/TESTING.md` - Testing documentation
+- `.github/workflows/test.yml` - CI workflow
 
 ---
 
@@ -1314,18 +1286,15 @@ Application has a fixed dark theme. Some users prefer light mode or system-match
 | 8.1 WCAG 2.1 AA Compliance | High | ✅ | Accessibility |
 | 8.2 Mobile-First Implementation | High | ✅ | Responsive |
 | 8.3 Client-Side Optimization | Medium | ✅ | Performance |
-| 8.4 Testing & Documentation | Medium | 🔲 | Quality |
-| 8.5 Dark/Light Mode | Low | 🔲 | User Preferences |
+| 8.4 Testing & Documentation | Medium | ✅ | Quality |
 
 **Recommended Order:**
 1. 8.1 (accessibility is a launch blocker for many organizations)
 2. 8.2 (mobile users are primary audience for casual games)
 3. 8.4 (establish testing before more changes)
 4. 8.3 (optimization based on real usage patterns)
-5. 8.5 (nice-to-have, not critical for MVP)
 
 **Dependencies:**
-- 8.1.1 (Color Contrast) should inform 8.5 (Theme) color choices
 - 8.4 (Testing) should be established before major 8.2/8.3 refactors
 - 8.3.4 (Lighthouse) provides data for prioritizing 8.3 tasks
 
