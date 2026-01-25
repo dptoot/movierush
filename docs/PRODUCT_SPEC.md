@@ -1300,6 +1300,60 @@ Implemented two-tier testing strategy with Vitest (unit tests) and Playwright (E
 
 ---
 
-**Version:** 1.5
+## 14. Post-Phase 8: UI Enhancements
+
+### 14.1 Timer Redesign with Animated Circular Progress Ring
+**Status:** ✅ Complete (January 2026)
+
+**Problem:**
+The original timer was a simple text countdown. While functional, it lacked visual engagement and didn't provide intuitive feedback about time remaining at a glance.
+
+**Solution:**
+Redesigned the Timer component with an SVG-based circular progress ring that provides clear visual feedback.
+
+**Implementation Details:**
+
+**Visual Design:**
+- SVG circular progress ring (200x200 viewBox, responsive sizing via CSS)
+- 8px stroke width with rounded line caps
+- Subtle background track (10% white opacity)
+- Progress ring depletes clockwise from top (12 o'clock position)
+
+**Color Transitions:**
+- Gold (#FDB913): > 30 seconds remaining
+- Orange (#F59E0B): 10-30 seconds remaining
+- Coral (#E94F37): < 10 seconds remaining (warning state)
+
+**Animation:**
+- CSS `@keyframes timer-drain` animation for smooth depletion
+- Animation automatically restarts when time bonuses/penalties are applied
+- Handles overflow time (when time > maxTime, ring stays full with delayed start)
+- Uses `strokeDasharray` and `strokeDashoffset` for progress visualization
+
+**Technical Features:**
+- React state tracks animation parameters (startOffset, duration, delay)
+- `useEffect` detects time changes beyond normal 1-second tick to restart animation
+- Key-based remounting ensures animation restarts cleanly on bonuses/penalties
+- Proper cleanup and no memory leaks
+
+**Accessibility:**
+- Semantic `<time>` element with `datetime` attribute (ISO 8601 duration format)
+- `role="timer"` for screen reader identification
+- `aria-live="polite"` for non-intrusive announcements
+- Contextual `aria-label` with announcements at key intervals (60s, 30s, 10s)
+- SVG ring is `aria-hidden="true"` (decorative)
+
+**Responsive Design:**
+- Timer scales appropriately across breakpoints
+- Landscape-compact mode reduces size for limited viewport height
+- Text remains readable at all sizes using `tabular-nums` for consistent digit width
+
+**Files Affected:**
+- `components/Timer.tsx` - Complete rewrite
+- `app/globals.css` - Timer-specific styles and keyframes
+
+---
+
+**Version:** 1.6
 **Last Updated:** January 25, 2026
-**Status:** Phase 8 Planning Complete
+**Status:** Phase 8 Complete, UI Enhancements Ongoing

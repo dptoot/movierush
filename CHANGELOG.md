@@ -4,6 +4,9 @@ All notable changes to MovieRush will be documented in this file.
 
 ## [Unreleased]
 
+### Documentation
+- **Product Spec v1.6:** Added Section 14 (Post-Phase 8: UI Enhancements) documenting the timer redesign with full implementation details
+
 ### Changed
 - **Timer UI Redesign:** Replaced radial gradient with animated circular progress ring
   - SVG-based stroke that drains clockwise as time elapses
