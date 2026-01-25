@@ -382,7 +382,7 @@ export default function GameBoard() {
   // Loading state
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-movierush-navy p-4">
+      <div className="flex min-h-screen items-center justify-center bg-movierush-navy p-4 safe-area-padding">
         <div className="text-center">
           <div className="mb-4 h-8 w-8 mx-auto animate-spin rounded-full border-2 border-movierush-gold border-t-transparent"></div>
           <p className="text-movierush-gold">Loading...</p>
@@ -421,8 +421,8 @@ export default function GameBoard() {
   // Error state
   if (error) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-movierush-navy p-4">
-        <div className="card-chunky max-w-md text-center p-8">
+      <div className="flex min-h-screen items-center justify-center bg-movierush-navy p-4 safe-area-padding">
+        <div className="card-chunky max-w-md w-full mx-4 text-center p-6 md:p-8">
           <div className="mb-4 text-5xl">🎬</div>
           <p className="text-movierush-coral text-lg font-semibold mb-6">{error}</p>
           <button
@@ -439,8 +439,8 @@ export default function GameBoard() {
   // Idle state - show Start button
   if (phase === 'idle' && challenge) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-movierush-navy p-4">
-        <div className="text-center max-w-lg">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-movierush-navy p-4 safe-area-padding">
+        <div className="text-center max-w-lg w-full px-2">
           <Image
             src="/movie-rush-trans-sm.webp"
             alt="MovieRush"
@@ -482,11 +482,11 @@ export default function GameBoard() {
   // Playing state - show game interface
   if (phase === 'playing' && challenge && gameState) {
     return (
-      <div className="min-h-screen bg-movierush-navy p-4 md:p-8">
-        <div className="mx-auto max-w-6xl">
+      <div className="min-h-screen bg-movierush-navy p-4 md:p-8 safe-area-padding overflow-safe">
+        <div className="mx-auto max-w-6xl w-full landscape-compact">
           {/* Header with prompt */}
-          <div className="mb-6 text-center">
-            <h2 className="challenge-prompt mb-4">
+          <div className="mb-4 md:mb-6 text-center">
+            <h2 className="challenge-prompt mb-2 md:mb-4 px-2">
               {challenge.prompt}
             </h2>
 
@@ -523,12 +523,12 @@ export default function GameBoard() {
 
           {/* Autocomplete input - searches all TMDB movies, validation happens on select */}
           {/* Note: backdrop-blur removed - it creates a stacking context that breaks dropdown z-index on mobile */}
-          <div className="mb-6 bg-white/10 rounded-xl p-6">
+          <div className="mb-4 md:mb-6 bg-white/10 rounded-xl p-3 md:p-6">
             <AutocompleteInput onSelect={handleMovieSelect} />
           </div>
 
           {/* End Game button - above movie list */}
-          <div className="mb-6 text-center">
+          <div className="mb-4 md:mb-6 text-center">
             <button
               onClick={handleEndGame}
               className="btn-secondary"

@@ -5,6 +5,28 @@ All notable changes to MovieRush will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **Phase 8.2:** Mobile-First Responsive Design Implementation
+  - Safe area support for notched devices (iPhone X+, Android punch-hole cameras)
+    - Added `viewportFit: "cover"` to viewport configuration
+    - Created CSS utilities: `.safe-area-padding`, `.safe-area-top`, `.safe-area-bottom`
+    - Applied safe area padding to all main content containers
+  - Small screen optimization (<375px)
+    - Reduced button min-width and padding for very small screens
+    - Scaled down typography (challenge prompt, timer, headings)
+    - Adjusted card padding for compact displays
+  - Touch target improvements
+    - Dropdown items now have `min-h-12` (48px) minimum height
+    - Input fields optimized for mobile text entry
+    - Autocomplete dropdown constrained to 60vh for better mobile UX
+  - Landscape orientation support
+    - Added CSS rules for landscape on phones (max-height: 500px)
+    - Compact layout with reduced spacing in landscape mode
+  - Component-level responsive improvements
+    - GameBoard: Responsive padding, landscape-compact class
+    - Results: Smaller logo/headings on mobile, responsive grid gaps
+    - MovieGrid: Smaller gaps and max-height on very small screens
+    - AutocompleteInput: Responsive text size and padding
+  - Overflow protection: Added `.overflow-safe` utility class
 - **Phase 8.1:** WCAG 2.1 AA Accessibility Compliance Implementation
   - Color contrast fixes: Silver color adjusted (#8B98A8 → #A8B8C8) for 4.5:1 ratio on navy
   - Skip-to-content link for keyboard navigation (WCAG 2.4.1)

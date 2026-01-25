@@ -13,6 +13,8 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   interactiveWidget: "resizes-content",
+  // Enable full-screen display on notched devices (iPhone X+, etc.)
+  viewportFit: "cover",
 };
 
 export const metadata: Metadata = {

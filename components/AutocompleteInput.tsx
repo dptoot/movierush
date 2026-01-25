@@ -162,7 +162,7 @@ export default function AutocompleteInput({
   };
 
   return (
-    <div className="relative mx-auto max-w-md">
+    <div className="relative mx-auto max-w-md w-full">
       <div className="relative">
         <input
           ref={inputRef}
@@ -173,7 +173,7 @@ export default function AutocompleteInput({
           onFocus={() => suggestions.length > 0 && setShowDropdown(true)}
           placeholder="Type a movie name..."
           disabled={disabled}
-          className="w-full bg-white text-movierush-navy border-4 border-movierush-gold rounded-lg px-6 py-4 text-xl outline-none transition-all focus:ring-4 focus:ring-movierush-gold/50 placeholder:text-movierush-silver disabled:cursor-not-allowed disabled:opacity-50"
+          className="w-full bg-white text-movierush-navy border-4 border-movierush-gold rounded-lg px-4 md:px-6 py-4 text-lg md:text-xl outline-none transition-all focus:ring-4 focus:ring-movierush-gold/50 placeholder:text-movierush-silver disabled:cursor-not-allowed disabled:opacity-50"
           autoComplete="off"
           aria-label="Search for movies"
           aria-expanded={showDropdown}
@@ -196,7 +196,7 @@ export default function AutocompleteInput({
         <div
           ref={dropdownRef}
           id="movie-suggestions-listbox"
-          className="absolute z-50 mt-2 w-full overflow-hidden bg-white border-4 border-movierush-navy rounded-xl shadow-chunky-lg"
+          className="absolute z-50 mt-2 w-full overflow-hidden bg-white border-4 border-movierush-navy rounded-xl shadow-chunky-lg max-h-[60vh] overflow-y-auto"
           role="listbox"
         >
           {suggestions.map((movie, index) => (
@@ -205,7 +205,7 @@ export default function AutocompleteInput({
               id={`movie-option-${index}`}
               onClick={() => handleSelect(movie)}
               onMouseEnter={() => setSelectedIndex(index)}
-              className={`flex w-full items-center gap-3 px-4 py-3 text-left transition-colors ${
+              className={`flex w-full items-center gap-3 px-4 py-3 min-h-12 text-left transition-colors ${
                 index === selectedIndex
                   ? 'bg-movierush-gold text-movierush-navy'
                   : 'hover:bg-movierush-gold/20'

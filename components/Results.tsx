@@ -28,7 +28,8 @@ export default function Results({
   challengeId,
 }: ResultsProps) {
   const searchParams = useSearchParams();
-  const isDevMode = searchParams.get('dev') === 'true';
+  // Show dev tools in development mode OR when ?dev=true is in URL
+  const isDevMode = process.env.NODE_ENV === 'development' || searchParams.get('dev') === 'true';
   const [copied, setCopied] = useState(false);
   const [moviesCopied, setMoviesCopied] = useState(false);
   const [shareError, setShareError] = useState(false);
@@ -118,21 +119,21 @@ Play at: movierush.vercel.app`;
   };
 
   return (
-    <div className="min-h-screen bg-movierush-navy p-6 flex items-center justify-center">
-      <div className="max-w-4xl mx-auto text-center">
+    <div className="min-h-screen bg-movierush-navy p-4 md:p-6 flex items-center justify-center safe-area-padding overflow-safe">
+      <div className="max-w-4xl w-full mx-auto text-center px-2">
         {/* Logo */}
         <Image
           src="/movie-rush-trans-sm.webp"
           alt="MovieRush"
           width={512}
           height={256}
-          sizes="(max-width: 768px) 384px, 512px"
+          sizes="(max-width: 374px) 280px, (max-width: 768px) 384px, 512px"
           priority
-          className="mx-auto mb-8 h-48 md:h-64 w-auto"
+          className="mx-auto mb-6 md:mb-8 h-32 sm:h-48 md:h-64 w-auto"
         />
 
         {/* Game Over heading */}
-        <h1 className="text-4xl md:text-6xl font-display text-movierush-coral mb-4 animate-pop">
+        <h1 className="text-3xl sm:text-4xl md:text-6xl font-display text-movierush-coral mb-4 animate-pop">
           Game Over!
         </h1>
 
@@ -187,8 +188,8 @@ Play at: movierush.vercel.app`;
         {/* Your Guesses section */}
         {sortedMovies.length > 0 && (
           <>
-            <div className="flex items-center justify-center gap-3 mb-6 mt-12">
-              <h2 className="text-3xl font-display text-movierush-gold">
+            <div className="flex items-center justify-center gap-3 mb-4 sm:mb-6 mt-8 sm:mt-12">
+              <h2 className="text-2xl sm:text-3xl font-display text-movierush-gold">
                 Your Guesses
               </h2>
               <button
@@ -218,11 +219,11 @@ Play at: movierush.vercel.app`;
               </button>
             </div>
 
-            <div className="grid w-full grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid w-full grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-3">
               {sortedMovies.map((movie) => (
                 <div
                   key={movie.id}
-                  className="card-chunky flex gap-3 hover:scale-105 transition-transform duration-200"
+                  className="card-chunky flex gap-2 sm:gap-3 hover:scale-105 transition-transform duration-200"
                 >
                   {/* Poster thumbnail */}
                   {movie.poster_path ? (
@@ -260,8 +261,8 @@ Play at: movierush.vercel.app`;
         {/* Today's Stats section */}
         {/* Loading state */}
         {(popularMovies === null || rareMovies === null) && (
-          <section className="mt-12" aria-busy="true" aria-label="Loading statistics">
-            <h2 className="text-3xl font-display text-movierush-gold mb-6">
+          <section className="mt-8 sm:mt-12" aria-busy="true" aria-label="Loading statistics">
+            <h2 className="text-2xl sm:text-3xl font-display text-movierush-gold mb-4 sm:mb-6">
               Today&apos;s Stats
             </h2>
             <div className="flex items-center justify-center gap-3 py-8" role="status">
@@ -294,12 +295,12 @@ Play at: movierush.vercel.app`;
         {popularMovies !== null &&
           rareMovies !== null &&
           (popularMovies.length > 0 || rareMovies.length > 0) && (
-            <section className="mt-12" aria-label="Today's game statistics">
-              <h2 className="text-3xl font-display text-movierush-gold mb-6">
+            <section className="mt-8 sm:mt-12" aria-label="Today's game statistics">
+              <h2 className="text-2xl sm:text-3xl font-display text-movierush-gold mb-4 sm:mb-6">
                 Today&apos;s Stats
               </h2>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
                 {/* Most Popular */}
                 {popularMovies.length > 0 && (
                   <div>
