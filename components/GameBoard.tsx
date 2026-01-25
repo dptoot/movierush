@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { Challenge, GamePhase, GameState, GuessedMovie } from '@/types';
 import { calculateTimeBonus } from '@/lib/timeBonus';
 import { calculatePoints } from '@/lib/scoring';
+import { getUserLocalDate, formatDateForDisplay } from '@/lib/date-utils';
 import Timer from './Timer';
 import AutocompleteInput from './AutocompleteInput';
 import MovieGrid from './MovieGrid';
@@ -25,19 +26,6 @@ const Results = dynamic(() => import('./Results'), {
 const INITIAL_TIME = 60; // seconds
 const MAX_TIME = 90; // maximum time cap
 const STORAGE_KEY = 'movierush_game';
-
-// Format date as "January 12, 2026"
-function formatDate(dateString: string): string {
-  // Extract just the date portion (YYYY-MM-DD) from ISO timestamp
-  const datePart = dateString.split('T')[0];
-  const [year, month, day] = datePart.split('-').map(Number);
-  const date = new Date(year, month - 1, day); // month is 0-indexed
-  return date.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  });
-}
 
 // Persisted data structure
 interface PersistedGame {
@@ -79,6 +67,9 @@ export default function GameBoard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // User's local date (for replay prevention and localStorage keys)
+  const [localDate, setLocalDate] = useState<string>('');
+
   // Game state
   const [gameState, setGameState] = useState<GameState | null>(null);
 
@@ -105,11 +96,12 @@ export default function GameBoard() {
   const initializedRef = useRef(false);
 
   // Load saved game state after challenge is fetched
+  // Uses user's local date for replay prevention (like Wordle)
   useEffect(() => {
-    if (!challenge) return;
+    if (!challenge || !localDate) return;
 
-    // Check for completed game (replay prevention)
-    const completedGame = localStorage.getItem(`game_${challenge.date}`);
+    // Check for completed game (replay prevention) - uses local date, not challenge.date
+    const completedGame = localStorage.getItem(`game_${localDate}`);
     if (completedGame) {
       try {
         const gameData = JSON.parse(completedGame);
@@ -136,8 +128,8 @@ export default function GameBoard() {
     }
 
     const saved = loadGame();
-    if (saved && saved.gameState.date === challenge.date) {
-      // Saved game is for today's challenge - restore it
+    if (saved && saved.gameState.date === localDate) {
+      // Saved game is for today's challenge (local date) - restore it
       setGameState(saved.gameState);
       setGuessedMovies(saved.guessedMovies);
       // Calculate score from guessed movies
@@ -155,7 +147,7 @@ export default function GameBoard() {
     setTimeout(() => {
       initializedRef.current = true;
     }, 0);
-  }, [challenge]);
+  }, [challenge, localDate]);
 
   // Save game state whenever it changes (after initialization)
   useEffect(() => {
@@ -164,11 +156,16 @@ export default function GameBoard() {
     saveGame({ gameState, guessedMovies });
   }, [gameState, guessedMovies]);
 
-  // Fetch today's challenge on mount
+  // Fetch challenge on mount using user's local date
+  // Challenge changes at midnight local time (like Wordle)
   useEffect(() => {
     async function fetchChallenge() {
       try {
-        const response = await fetch('/api/challenge');
+        // Calculate user's local date for the API request
+        const userLocalDate = getUserLocalDate();
+        setLocalDate(userLocalDate);
+
+        const response = await fetch(`/api/challenge?date=${userLocalDate}`);
         if (!response.ok) {
           if (response.status === 404) {
             setError('No challenge available for today. Check back tomorrow!');
@@ -191,10 +188,10 @@ export default function GameBoard() {
 
   // Start the game
   const handleStart = useCallback(() => {
-    if (!challenge) return;
+    if (!challenge || !localDate) return;
 
     setGameState({
-      date: challenge.date,
+      date: localDate, // Use local date for game state
       challengeId: challenge.id,
       phase: 'playing',
       startedAt: Date.now(),
@@ -202,7 +199,7 @@ export default function GameBoard() {
       incorrectCount: 0,
       timeRemaining: INITIAL_TIME,
     });
-  }, [challenge]);
+  }, [challenge, localDate]);
 
   // End the game manually
   const handleEndGame = useCallback(() => {
@@ -398,7 +395,10 @@ export default function GameBoard() {
   const handleRetry = useCallback(() => {
     setError(null);
     setLoading(true);
-    fetch('/api/challenge')
+    // Recalculate local date on retry (in case user retried after midnight)
+    const userLocalDate = getUserLocalDate();
+    setLocalDate(userLocalDate);
+    fetch(`/api/challenge?date=${userLocalDate}`)
       .then((response) => {
         if (!response.ok) {
           if (response.status === 404) {
@@ -452,7 +452,7 @@ export default function GameBoard() {
   }
 
   // Idle state - show Start button
-  if (phase === 'idle' && challenge) {
+  if (phase === 'idle' && challenge && localDate) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-movierush-navy p-4 safe-area-padding">
         <div className="text-center max-w-lg w-full px-2">
@@ -487,7 +487,7 @@ export default function GameBoard() {
           </button>
 
           <p className="text-lg text-movierush-silver">
-            {formatDate(challenge.date)}
+            {localDate && formatDateForDisplay(localDate)}
           </p>
         </div>
       </div>
@@ -563,12 +563,12 @@ export default function GameBoard() {
   }
 
   // Ended state - show Results component
-  if (phase === 'ended' && challenge) {
+  if (phase === 'ended' && challenge && localDate) {
     return (
       <Results
         score={score}
         guessedMovies={guessedMovies}
-        challengeDate={challenge.date}
+        challengeDate={localDate}
         challengeId={String(challenge.id)}
       />
     );

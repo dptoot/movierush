@@ -4,6 +4,14 @@ All notable changes to MovieRush will be documented in this file.
 
 ## [Unreleased]
 
+### Changed
+- **Local Timezone Support:** Challenge now resets at midnight local time instead of UTC (like Wordle)
+  - API accepts `?date=YYYY-MM-DD` parameter for client-driven date selection
+  - GameBoard calculates user's local date and fetches matching challenge
+  - localStorage replay prevention uses local date keys
+  - Added `lib/date-utils.ts` with `getUserLocalDate()` and `formatDateForDisplay()` helpers
+  - Updated PRODUCT_SPEC.md to reflect local midnight behavior (v1.7)
+
 ### Fixed
 - **Autocomplete Search:** Classic films like "Drunken Master" (1978) now appear correctly in search results
   - Added direct TMDB API call for more consistent search results (with tmdb-ts fallback)

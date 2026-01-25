@@ -37,6 +37,8 @@ export default function Results({
   const [rareMovies, setRareMovies] = useState<StatMovie[] | null>(null);
 
   // Save completion to localStorage on mount
+  // Uses user's local date for replay prevention (like Wordle)
+  // challengeDate prop is already the user's local date from GameBoard
   useEffect(() => {
     const gameData = {
       completed: true,

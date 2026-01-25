@@ -1,5 +1,6 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
+import { getUserLocalDate } from '@/lib/date-utils';
 
 interface Challenge {
   id: number;
@@ -11,28 +12,34 @@ interface Challenge {
 
 /**
  * GET /api/challenge
- * Returns today's challenge data.
+ * Returns challenge data for a given date.
+ *
+ * Uses user's local timezone for daily reset (like Wordle).
+ * Challenge changes at midnight local time.
+ *
+ * Query Parameters:
+ * - date (optional): Date in YYYY-MM-DD format. Defaults to server's local date.
  *
  * Caching Strategy:
  * - s-maxage=3600: CDN caches for 1 hour
  * - stale-while-revalidate: Serve stale content while revalidating in background
- * - Challenge changes daily at midnight UTC, so 1-hour cache is safe
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    // Get today's date in UTC, format as YYYY-MM-DD
-    const today = new Date().toISOString().split('T')[0];
+    // Get date from query param, or use server's local date as fallback
+    const dateParam = request.nextUrl.searchParams.get('date');
+    const queryDate = dateParam || getUserLocalDate();
 
     const result = await sql`
       SELECT id, date, prompt, type, movie_ids
       FROM challenges
-      WHERE date = ${today}
+      WHERE date = ${queryDate}
       LIMIT 1
     `;
 
     if (result.length === 0) {
       return NextResponse.json(
-        { error: 'No challenge available for today' },
+        { error: `No challenge available for ${queryDate}` },
         { status: 404 }
       );
     }

@@ -21,7 +21,7 @@ MovieRush is a daily movie trivia game where players race against time to name m
   - Movies by actor (e.g., "Name Tom Hanks movies")
   - Movies by director (e.g., "Name Christopher Nolan movies")
   - Movies by genre/year/theme (future expansion)
-- Challenge resets at midnight UTC
+- Challenge resets at midnight local time (like Wordle)
 
 ### 2.2 Gameplay Flow
 
@@ -114,8 +114,8 @@ So that I have a fair chance without pre-gaming
 **Acceptance Criteria:**
 - Landing page shows "Today's Challenge" with a "Start" button
 - Challenge prompt is hidden until "Start" is clicked
-- Same challenge shown to all players on the same day
-- Challenge changes daily at midnight UTC
+- Same challenge shown to all players on the same calendar day (in their local timezone)
+- Challenge changes daily at midnight local time (like Wordle)
 - Timer only starts after clicking "Start"
 
 ### US-2: Timed Movie Guessing
@@ -1354,6 +1354,6 @@ Redesigned the Timer component with an SVG-based circular progress ring that pro
 
 ---
 
-**Version:** 1.6
+**Version:** 1.7
 **Last Updated:** January 25, 2026
-**Status:** Phase 8 Complete, UI Enhancements Ongoing
+**Status:** Phase 8 Complete, Local Timezone Support Added
