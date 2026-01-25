@@ -1,8 +1,36 @@
 'use client';
 
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, memo } from 'react';
 import Image from 'next/image';
 import { GuessedMovie } from '@/types';
+
+// Memoized movie item component - only re-renders if movie data changes
+const MovieGridItem = memo(function MovieGridItem({ movie }: { movie: GuessedMovie }) {
+  return (
+    <li className="animate-fadeIn">
+      <div className="relative aspect-[2/3] overflow-hidden rounded-lg bg-zinc-300 dark:bg-zinc-600">
+        {movie.poster_path ? (
+          <Image
+            src={`https://image.tmdb.org/t/p/w185${movie.poster_path}`}
+            alt={`Movie poster for ${movie.title}`}
+            width={185}
+            height={278}
+            sizes="(max-width: 640px) 33vw, (max-width: 768px) 25vw, (max-width: 1024px) 16vw, 12.5vw"
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          <div
+            className="flex h-full w-full items-center justify-center p-2 text-center text-xs text-zinc-500 dark:text-zinc-400"
+            role="img"
+            aria-label={`No poster available for ${movie.title}`}
+          >
+            {movie.title}
+          </div>
+        )}
+      </div>
+    </li>
+  );
+});
 
 interface MovieGridProps {
   guessedMovies: GuessedMovie[];
@@ -36,31 +64,7 @@ export default function MovieGrid({ guessedMovies }: MovieGridProps) {
         aria-relevant="additions"
       >
         {[...guessedMovies].reverse().map((movie) => (
-          <li
-            key={movie.id}
-            className="animate-fadeIn"
-          >
-            <div className="relative aspect-[2/3] overflow-hidden rounded-lg bg-zinc-300 dark:bg-zinc-600">
-              {movie.poster_path ? (
-                <Image
-                  src={`https://image.tmdb.org/t/p/w185${movie.poster_path}`}
-                  alt={`Movie poster for ${movie.title}`}
-                  width={185}
-                  height={278}
-                  sizes="(max-width: 640px) 33vw, (max-width: 768px) 25vw, (max-width: 1024px) 16vw, 12.5vw"
-                  className="h-full w-full object-cover"
-                />
-              ) : (
-                <div
-                  className="flex h-full w-full items-center justify-center p-2 text-center text-xs text-zinc-500 dark:text-zinc-400"
-                  role="img"
-                  aria-label={`No poster available for ${movie.title}`}
-                >
-                  {movie.title}
-                </div>
-              )}
-            </div>
-          </li>
+          <MovieGridItem key={movie.id} movie={movie} />
         ))}
       </ul>
     </section>

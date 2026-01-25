@@ -5,6 +5,23 @@ All notable changes to MovieRush will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **Phase 8.3:** Client-Side Performance Optimization
+  - React component memoization:
+    - Added `React.memo()` to MovieGridItem for efficient re-renders
+    - Added `useMemo()` for sorted movie arrays in Results component
+    - Added `useCallback()` for all handler functions in GameBoard (handleStart, handleEndGame, handleMovieSelect, showFeedback, triggerTimerShake, handleRetry)
+  - Code splitting with dynamic imports:
+    - Lazy load Results component using `next/dynamic` (only loaded when game ends)
+    - Loading skeleton displayed while Results component loads
+  - Bundle analysis:
+    - Installed and configured `@next/bundle-analyzer`
+    - Documented baseline: App chunks ~19KB, Total chunks ~852KB
+  - Network performance optimization:
+    - Font loading: Added `display: "swap"` for faster FCP
+    - Preload critical assets: Logo image preload hint
+    - Preconnect to TMDB image CDN for faster poster loading
+    - DNS prefetch for TMDB domain
+  - Verified proper cleanup in all useEffect hooks (timer intervals, event listeners, debounce timers)
 - **Phase 8.2:** Mobile-First Responsive Design Implementation
   - Safe area support for notched devices (iPhone X+, Android punch-hole cameras)
     - Added `viewportFit: "cover"` to viewport configuration

@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import { Challenge, GamePhase, GameState, GuessedMovie } from '@/types';
 import { calculateTimeBonus } from '@/lib/timeBonus';
@@ -8,7 +9,18 @@ import { calculatePoints } from '@/lib/scoring';
 import Timer from './Timer';
 import AutocompleteInput from './AutocompleteInput';
 import MovieGrid from './MovieGrid';
-import Results from './Results';
+
+// Lazy load Results component - only needed when game ends
+const Results = dynamic(() => import('./Results'), {
+  loading: () => (
+    <div className="min-h-screen bg-movierush-navy p-4 flex items-center justify-center safe-area-padding">
+      <div className="text-center">
+        <div className="mb-4 h-8 w-8 mx-auto animate-spin rounded-full border-2 border-movierush-gold border-t-transparent"></div>
+        <p className="text-movierush-gold">Loading results...</p>
+      </div>
+    </div>
+  ),
+});
 
 const INITIAL_TIME = 60; // seconds
 const MAX_TIME = 90; // maximum time cap
@@ -178,7 +190,7 @@ export default function GameBoard() {
   }, []);
 
   // Start the game
-  const handleStart = () => {
+  const handleStart = useCallback(() => {
     if (!challenge) return;
 
     setGameState({
@@ -190,10 +202,10 @@ export default function GameBoard() {
       incorrectCount: 0,
       timeRemaining: INITIAL_TIME,
     });
-  };
+  }, [challenge]);
 
   // End the game manually
-  const handleEndGame = () => {
+  const handleEndGame = useCallback(() => {
     setGameState((prev) => {
       if (!prev) return prev;
       return {
@@ -202,7 +214,7 @@ export default function GameBoard() {
         completedAt: Date.now(),
       };
     });
-  };
+  }, []);
 
   // Get current phase
   const phase: GamePhase = gameState?.phase ?? 'idle';
@@ -215,139 +227,142 @@ export default function GameBoard() {
   const TIME_PENALTY = 3; // seconds for incorrect guess
 
   // Helper to show feedback with animation
-  const showFeedback = (
-    type: 'correct' | 'wrong' | 'repeat-correct' | 'repeat-wrong',
-    message: string
-  ) => {
-    setFeedback({ type, message, key: Date.now() });
-    // Clear feedback after animation completes (1s)
-    setTimeout(() => setFeedback(null), 1000);
-  };
+  const showFeedback = useCallback(
+    (type: 'correct' | 'wrong' | 'repeat-correct' | 'repeat-wrong', message: string) => {
+      setFeedback({ type, message, key: Date.now() });
+      // Clear feedback after animation completes (1s)
+      setTimeout(() => setFeedback(null), 1000);
+    },
+    []
+  );
 
   // Helper to trigger timer shake
-  const triggerTimerShake = () => {
+  const triggerTimerShake = useCallback(() => {
     setTimerShake(true);
     setTimeout(() => setTimerShake(false), 500);
-  };
+  }, []);
 
   // Handle movie selection from autocomplete
-  const handleMovieSelect = (movie: {
-    id: number;
-    title: string;
-    poster_path: string | null;
-    vote_count: number;
-    vote_average: number;
-  }) => {
-    if (!gameState || !challenge) return;
+  const handleMovieSelect = useCallback(
+    (movie: {
+      id: number;
+      title: string;
+      poster_path: string | null;
+      vote_count: number;
+      vote_average: number;
+    }) => {
+      if (!gameState || !challenge) return;
 
-    // Check if this movie was already tried (either correct or incorrect)
-    if (triedMovieIds.has(movie.id)) {
-      // Check if it was a correct guess
-      if (gameState.guessedMovieIds.includes(movie.id)) {
-        showFeedback('repeat-correct', 'Already guessed! ✓');
-      } else {
-        showFeedback('repeat-wrong', 'Already tried that one');
+      // Check if this movie was already tried (either correct or incorrect)
+      if (triedMovieIds.has(movie.id)) {
+        // Check if it was a correct guess
+        if (gameState.guessedMovieIds.includes(movie.id)) {
+          showFeedback('repeat-correct', 'Already guessed! ✓');
+        } else {
+          showFeedback('repeat-wrong', 'Already tried that one');
+        }
+        // No time penalty for repeats
+        return;
       }
-      // No time penalty for repeats
-      return;
-    }
 
-    // Add to tried movies set
-    setTriedMovieIds((prev) => new Set(prev).add(movie.id));
+      // Add to tried movies set
+      setTriedMovieIds((prev) => new Set(prev).add(movie.id));
 
-    // Check if this movie is a valid answer for this challenge
-    const isCorrect = challenge.valid_movie_ids.includes(movie.id);
+      // Check if this movie is a valid answer for this challenge
+      const isCorrect = challenge.valid_movie_ids.includes(movie.id);
 
-    if (isCorrect) {
-      // Calculate time bonus based on movie obscurity
-      const { bonus: timeBonus } = calculateTimeBonus(movie.vote_count, movie.vote_average);
+      if (isCorrect) {
+        // Calculate time bonus based on movie obscurity
+        const { bonus: timeBonus } = calculateTimeBonus(movie.vote_count, movie.vote_average);
 
-      // Calculate points for this guess
-      const { totalPoints } = calculatePoints(movie.vote_count, movie.vote_average);
+        // Calculate points for this guess
+        const { totalPoints } = calculatePoints(movie.vote_count, movie.vote_average);
 
-      // Show positive feedback
-      showFeedback('correct', `+${timeBonus}s`);
+        // Show positive feedback
+        showFeedback('correct', `+${timeBonus}s`);
 
-      // Record guess for social stats (fire-and-forget, don't await)
-      fetch('/api/stats/record-guess', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          challenge_id: challenge.id,
-          tmdb_id: movie.id,
-        }),
-      }).catch((err) => {
-        console.error('Failed to record guess stat:', err);
-      });
+        // Record guess for social stats (fire-and-forget, don't await)
+        fetch('/api/stats/record-guess', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            challenge_id: challenge.id,
+            tmdb_id: movie.id,
+          }),
+        }).catch((err) => {
+          console.error('Failed to record guess stat:', err);
+        });
 
-      // Correct guess - add to guessed movies with scoring info
-      setGuessedMovies((prev) => [
-        ...prev,
-        {
-          id: movie.id,
-          title: movie.title,
-          poster_path: movie.poster_path,
-          points_awarded: totalPoints,
-          time_bonus: timeBonus,
-        },
-      ]);
+        // Correct guess - add to guessed movies with scoring info
+        setGuessedMovies((prev) => [
+          ...prev,
+          {
+            id: movie.id,
+            title: movie.title,
+            poster_path: movie.poster_path,
+            points_awarded: totalPoints,
+            time_bonus: timeBonus,
+          },
+        ]);
 
-      // Update score
-      setScore((prev) => prev + totalPoints);
+        // Update score
+        setScore((prev) => prev + totalPoints);
 
-      setGameState((prev) => {
-        if (!prev) return prev;
+        setGameState((prev) => {
+          if (!prev) return prev;
 
-        const newGuessedIds = [...prev.guessedMovieIds, movie.id];
-        const newTimeRemaining = Math.min(prev.timeRemaining + timeBonus, MAX_TIME);
+          const newGuessedIds = [...prev.guessedMovieIds, movie.id];
+          const newTimeRemaining = Math.min(prev.timeRemaining + timeBonus, MAX_TIME);
 
-        // Check if all movies found - end game early
-        if (newGuessedIds.length >= challenge.total_movies) {
+          // Check if all movies found - end game early
+          if (newGuessedIds.length >= challenge.total_movies) {
+            return {
+              ...prev,
+              guessedMovieIds: newGuessedIds,
+              timeRemaining: newTimeRemaining,
+              phase: 'ended',
+              completedAt: Date.now(),
+            };
+          }
+
           return {
             ...prev,
             guessedMovieIds: newGuessedIds,
             timeRemaining: newTimeRemaining,
-            phase: 'ended',
-            completedAt: Date.now(),
           };
-        }
+        });
+      } else {
+        // Show negative feedback and trigger shake
+        showFeedback('wrong', `-${TIME_PENALTY}s`);
+        triggerTimerShake();
 
-        return {
-          ...prev,
-          guessedMovieIds: newGuessedIds,
-          timeRemaining: newTimeRemaining,
-        };
-      });
-    } else {
-      // Show negative feedback and trigger shake
-      showFeedback('wrong', `-${TIME_PENALTY}s`);
-      triggerTimerShake();
+        // Incorrect guess - apply time penalty
+        setGameState((prev) => {
+          if (!prev) return prev;
 
-      // Incorrect guess - apply time penalty
-      setGameState((prev) => {
-        if (!prev) return prev;
+          const newTime = Math.max(0, prev.timeRemaining - TIME_PENALTY);
 
-        const newTime = Math.max(0, prev.timeRemaining - TIME_PENALTY);
+          // If time runs out from penalty, end game
+          if (newTime <= 0) {
+            return {
+              ...prev,
+              timeRemaining: 0,
+              incorrectCount: prev.incorrectCount + 1,
+              phase: 'ended',
+              completedAt: Date.now(),
+            };
+          }
 
-        // If time runs out from penalty, end game
-        if (newTime <= 0) {
           return {
             ...prev,
-            timeRemaining: 0,
+            timeRemaining: newTime,
             incorrectCount: prev.incorrectCount + 1,
-            phase: 'ended',
-            completedAt: Date.now(),
           };
-        }
-
-        return {
-          ...prev,
-          timeRemaining: newTime,
-          incorrectCount: prev.incorrectCount + 1,
-        };
-      });
-    }
-  };
+        });
+      }
+    },
+    [gameState, challenge, triedMovieIds, showFeedback, triggerTimerShake]
+  );
 
   // Timer countdown effect
   useEffect(() => {
@@ -379,20 +394,8 @@ export default function GameBoard() {
     return () => clearInterval(interval);
   }, [phase]);
 
-  // Loading state
-  if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-movierush-navy p-4 safe-area-padding">
-        <div className="text-center">
-          <div className="mb-4 h-8 w-8 mx-auto animate-spin rounded-full border-2 border-movierush-gold border-t-transparent"></div>
-          <p className="text-movierush-gold">Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Retry handler for error state
-  const handleRetry = () => {
+  // Retry handler for error state (must be before conditional returns to follow hooks rules)
+  const handleRetry = useCallback(() => {
     setError(null);
     setLoading(true);
     fetch('/api/challenge')
@@ -416,7 +419,19 @@ export default function GameBoard() {
       .finally(() => {
         setLoading(false);
       });
-  };
+  }, []);
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-movierush-navy p-4 safe-area-padding">
+        <div className="text-center">
+          <div className="mb-4 h-8 w-8 mx-auto animate-spin rounded-full border-2 border-movierush-gold border-t-transparent"></div>
+          <p className="text-movierush-gold">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   // Error state
   if (error) {

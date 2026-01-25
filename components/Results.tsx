@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { GuessedMovie } from '@/types';
@@ -68,9 +68,10 @@ export default function Results({
       });
   }, [challengeId]);
 
-  // Sort movies by points_awarded descending
-  const sortedMovies = [...guessedMovies].sort(
-    (a, b) => b.points_awarded - a.points_awarded
+  // Sort movies by points_awarded descending (memoized to prevent recalculation on every render)
+  const sortedMovies = useMemo(
+    () => [...guessedMovies].sort((a, b) => b.points_awarded - a.points_awarded),
+    [guessedMovies]
   );
 
   const handleShare = async () => {

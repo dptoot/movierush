@@ -6,6 +6,7 @@ import "./globals.css";
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
+  display: "swap", // Ensure text is visible while font loads (improves FCP)
 });
 
 export const viewport: Viewport = {
@@ -71,6 +72,18 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        {/* Preconnect to TMDB image CDN for faster movie poster loading */}
+        <link rel="preconnect" href="https://image.tmdb.org" />
+        <link rel="dns-prefetch" href="https://image.tmdb.org" />
+        {/* Preload critical logo image for faster LCP */}
+        <link
+          rel="preload"
+          href="/movie-rush-trans-sm.webp"
+          as="image"
+          type="image/webp"
+        />
+      </head>
       <body className={`${inter.variable} antialiased`}>
         {/* Skip link for keyboard navigation - WCAG 2.4.1 */}
         <a href="#main-content" className="skip-link">
