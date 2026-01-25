@@ -107,21 +107,68 @@ function getClient(): TMDB {
 
 /**
  * Search for movies by title
+ * Uses direct TMDB API call (not tmdb-ts library) for consistent results
  */
 export async function searchMovies(query: string): Promise<TMDBMovie[]> {
-  const client = getClient();
-  const response = await client.search.movies({ query });
+  const apiKey = process.env.TMDB_API_KEY;
 
-  return response.results.map((movie) => ({
-    id: movie.id,
-    title: movie.title,
-    release_date: movie.release_date ?? '',
-    poster_path: movie.poster_path ?? null,
-    popularity: movie.popularity ?? 0,
-    backdrop_path: movie.backdrop_path ?? null,
-    video: movie.video ?? false,
-    vote_count: movie.vote_count ?? 0,
-    vote_average: movie.vote_average ?? 0,
+  if (!apiKey) {
+    // Fallback to tmdb-ts library if no API key
+    const client = getClient();
+    const response = await client.search.movies({ query });
+    return response.results.map((movie) => ({
+      id: movie.id,
+      title: movie.title,
+      release_date: movie.release_date ?? '',
+      poster_path: movie.poster_path ?? null,
+      popularity: movie.popularity ?? 0,
+      backdrop_path: movie.backdrop_path ?? null,
+      video: movie.video ?? false,
+      vote_count: movie.vote_count ?? 0,
+      vote_average: movie.vote_average ?? 0,
+    }));
+  }
+
+  // Direct API call - matches behavior of other TMDB-powered sites
+  const url = `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(query)}&api_key=${apiKey}`;
+
+  let response;
+  try {
+    response = await fetch(url);
+  } catch (fetchError) {
+    console.error('TMDB fetch error:', fetchError);
+    // Fallback to tmdb-ts on network error
+    const client = getClient();
+    const fallbackResponse = await client.search.movies({ query });
+    return fallbackResponse.results.map((movie) => ({
+      id: movie.id,
+      title: movie.title,
+      release_date: movie.release_date ?? '',
+      poster_path: movie.poster_path ?? null,
+      popularity: movie.popularity ?? 0,
+      backdrop_path: movie.backdrop_path ?? null,
+      video: movie.video ?? false,
+      vote_count: movie.vote_count ?? 0,
+      vote_average: movie.vote_average ?? 0,
+    }));
+  }
+
+  if (!response.ok) {
+    throw new Error(`TMDB search failed: ${response.status}`);
+  }
+
+  const data = await response.json();
+
+  return (data.results || []).map((movie: Record<string, unknown>) => ({
+    id: movie.id as number,
+    title: movie.title as string,
+    release_date: (movie.release_date as string) ?? '',
+    poster_path: (movie.poster_path as string) ?? null,
+    popularity: (movie.popularity as number) ?? 0,
+    backdrop_path: (movie.backdrop_path as string) ?? null,
+    video: (movie.video as boolean) ?? false,
+    vote_count: (movie.vote_count as number) ?? 0,
+    vote_average: (movie.vote_average as number) ?? 0,
   }));
 }
 

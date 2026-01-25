@@ -4,6 +4,12 @@ All notable changes to MovieRush will be documented in this file.
 
 ## [Unreleased]
 
+### Fixed
+- **Autocomplete Search:** Classic films like "Drunken Master" (1978) now appear correctly in search results
+  - Added direct TMDB API call for more consistent search results (with tmdb-ts fallback)
+  - Changed result sorting from `popularity` to `vote_count` to surface well-known films
+  - Popularity is volatile; vote_count better reflects film recognition
+
 ### Documentation
 - **Product Spec v1.6:** Added Section 14 (Post-Phase 8: UI Enhancements) documenting the timer redesign with full implementation details
 
