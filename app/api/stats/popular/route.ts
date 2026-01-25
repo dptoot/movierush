@@ -52,22 +52,21 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ movies: [] }, { headers: cacheHeaders });
     }
 
-    // Fetch movie details from TMDB for each result
-    const movies: PopularMovie[] = [];
-    for (const stat of stats) {
-      try {
-        const movie = await getMovieDetails(stat.tmdb_id);
-        movies.push({
-          tmdb_id: stat.tmdb_id,
-          title: movie.title,
-          poster_path: movie.poster_path,
-          guess_count: stat.guess_count,
-        });
-      } catch {
-        // Skip movies that fail to fetch
-        continue;
-      }
-    }
+    // Fetch movie details from TMDB in parallel for better performance
+    const moviePromises = stats.map(async (stat) => {
+      const movie = await getMovieDetails(stat.tmdb_id);
+      return {
+        tmdb_id: stat.tmdb_id,
+        title: movie.title,
+        poster_path: movie.poster_path,
+        guess_count: stat.guess_count,
+      };
+    });
+
+    const results = await Promise.allSettled(moviePromises);
+    const movies: PopularMovie[] = results
+      .filter((r): r is PromiseFulfilledResult<PopularMovie> => r.status === 'fulfilled')
+      .map((r) => r.value);
 
     return NextResponse.json({ movies }, { headers: cacheHeaders });
   } catch (error) {

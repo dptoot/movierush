@@ -5,6 +5,13 @@ All notable changes to MovieRush will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **Phase 7.7:** Parallelized TMDB API calls for improved performance
+  - Created `fetchInBatches()` utility function for batched parallel fetching
+  - Refactored `getActorMovies()` to process movie details in parallel batches of 10
+  - Uses `Promise.allSettled()` for graceful error handling (failed requests skipped)
+  - Parallelized stats endpoints (`popular/route.ts`, `rare/route.ts`)
+  - Added performance logging to measure improvement
+  - Estimated 10x speedup for actors with 50+ movies (50s → 5s)
 - **Phase 7.6:** Error boundary components for graceful error handling
   - `components/ErrorBoundary.tsx` - React class component for catching render errors
   - `app/error.tsx` - Next.js route-level error handler
