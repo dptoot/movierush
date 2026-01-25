@@ -5,6 +5,13 @@ All notable changes to MovieRush will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **Phase 7.6:** Error boundary components for graceful error handling
+  - `components/ErrorBoundary.tsx` - React class component for catching render errors
+  - `app/error.tsx` - Next.js route-level error handler
+  - `app/global-error.tsx` - Next.js root layout error handler
+  - MovieRush-branded fallback UI with "Refresh" and "Try Again" buttons
+  - Error details shown in development mode only
+  - Prevents white screen crashes, allows users to recover
 - **Phase 7.5:** API response caching for improved performance
   - Challenge API: 1-hour CDN cache (`s-maxage=3600, stale-while-revalidate`)
   - Autocomplete API: `no-store` to ensure fresh search results
