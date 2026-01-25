@@ -748,7 +748,7 @@ Unused variables across multiple files cause ESLint warnings.
 
 ### 7.5 API Response Caching
 **Priority:** Medium (Performance)
-**Status:** 🔲 Not Started
+**Status:** ✅ Complete
 
 **Problem:**
 TMDB API calls have no caching strategy, resulting in:
@@ -768,11 +768,11 @@ Use Next.js fetch caching with appropriate TTLs for different data types.
 | Stats endpoints | Guess counts | 5 minutes | Balances freshness vs performance |
 
 **Tasks:**
-- [ ] **7.5.1** Add `next: { revalidate: 3600 }` to challenge fetch in `lib/tmdb-client.ts`
-- [ ] **7.5.2** Add `next: { revalidate: 86400 }` to `getMovieDetails()` calls
-- [ ] **7.5.3** Ensure autocomplete uses `cache: 'no-store'` for fresh results
-- [ ] **7.5.4** Add `next: { revalidate: 300 }` to stats endpoint movie detail fetches
-- [ ] **7.5.5** Document caching strategy in code comments
+- [x] **7.5.1** Add `Cache-Control: s-maxage=3600` to challenge API route
+- [x] **7.5.2** Add in-memory cache with 24h TTL to `getMovieDetails()`
+- [x] **7.5.3** Ensure autocomplete uses `Cache-Control: no-store` for fresh results
+- [x] **7.5.4** Add `Cache-Control: s-maxage=300` to stats endpoints
+- [x] **7.5.5** Document caching strategy in code comments
 
 **Acceptance Criteria:**
 - Repeated requests for same movie details are served from cache
@@ -858,7 +858,7 @@ Parallelize API calls using `Promise.all()` with batching to respect TMDB rate l
 | 7.2 Next.js Image Optimization | High | ✅ | Fixes 4 warnings |
 | 7.3 Accessibility Improvements | Medium | ✅ | Fixes 1 warning |
 | 7.4 Remove Unused Variables | Medium | ✅ | Fixes 6 warnings |
-| 7.5 API Response Caching | Medium | 🔲 | N/A |
+| 7.5 API Response Caching | Medium | ✅ | N/A |
 | 7.6 Error Boundary | Medium | 🔲 | N/A |
 | 7.7 Parallelize API Calls | Low | 🔲 | N/A |
 

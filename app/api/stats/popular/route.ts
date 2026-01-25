@@ -14,14 +14,27 @@ interface PopularMovie {
   guess_count: number;
 }
 
+/**
+ * GET /api/stats/popular
+ * Returns the most frequently guessed movies for a challenge.
+ *
+ * Caching Strategy:
+ * - s-maxage=300: CDN caches for 5 minutes
+ * - stale-while-revalidate: Serve stale content while revalidating
+ * - Balances freshness with performance for leaderboard-style data
+ */
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
     const challengeId = searchParams.get('challenge_id');
     const limit = parseInt(searchParams.get('limit') || '5', 10);
 
+    const cacheHeaders = {
+      'Cache-Control': 's-maxage=300, stale-while-revalidate',
+    };
+
     if (!challengeId) {
-      return NextResponse.json({ movies: [] });
+      return NextResponse.json({ movies: [] }, { headers: cacheHeaders });
     }
 
     // Get top guessed movies
@@ -36,7 +49,7 @@ export async function GET(request: NextRequest) {
     const stats = result as GuessStat[];
 
     if (stats.length === 0) {
-      return NextResponse.json({ movies: [] });
+      return NextResponse.json({ movies: [] }, { headers: cacheHeaders });
     }
 
     // Fetch movie details from TMDB for each result
@@ -56,7 +69,7 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    return NextResponse.json({ movies });
+    return NextResponse.json({ movies }, { headers: cacheHeaders });
   } catch (error) {
     console.error('Error fetching popular stats:', error);
     return NextResponse.json({ movies: [] });

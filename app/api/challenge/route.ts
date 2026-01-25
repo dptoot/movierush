@@ -9,6 +9,15 @@ interface Challenge {
   movie_ids: number[];
 }
 
+/**
+ * GET /api/challenge
+ * Returns today's challenge data.
+ *
+ * Caching Strategy:
+ * - s-maxage=3600: CDN caches for 1 hour
+ * - stale-while-revalidate: Serve stale content while revalidating in background
+ * - Challenge changes daily at midnight UTC, so 1-hour cache is safe
+ */
 export async function GET() {
   try {
     // Get today's date in UTC, format as YYYY-MM-DD
@@ -30,14 +39,21 @@ export async function GET() {
 
     const challenge = result[0] as Challenge;
 
-    return NextResponse.json({
-      id: challenge.id,
-      date: challenge.date,
-      prompt: challenge.prompt,
-      type: challenge.type,
-      total_movies: challenge.movie_ids.length,
-      valid_movie_ids: challenge.movie_ids,
-    });
+    return NextResponse.json(
+      {
+        id: challenge.id,
+        date: challenge.date,
+        prompt: challenge.prompt,
+        type: challenge.type,
+        total_movies: challenge.movie_ids.length,
+        valid_movie_ids: challenge.movie_ids,
+      },
+      {
+        headers: {
+          'Cache-Control': 's-maxage=3600, stale-while-revalidate',
+        },
+      }
+    );
   } catch (error) {
     console.error('Database error fetching challenge:', error);
     return NextResponse.json(

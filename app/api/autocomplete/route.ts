@@ -9,6 +9,10 @@ interface AutocompleteRequest {
  * POST /api/autocomplete
  * Search ALL movies from TMDB (unfiltered)
  * Validation happens client-side after selection to prevent answer browsing
+ *
+ * Caching Strategy:
+ * - no-store: Never cache autocomplete results
+ * - Users expect real-time search behavior with fresh results
  */
 export async function POST(request: NextRequest) {
   try {
@@ -17,7 +21,10 @@ export async function POST(request: NextRequest) {
 
     // Validate input
     if (!query || query.trim().length < 2) {
-      return NextResponse.json({ results: [] });
+      return NextResponse.json(
+        { results: [] },
+        { headers: { 'Cache-Control': 'no-store' } }
+      );
     }
 
     // Search TMDB for ALL movies matching the query
@@ -38,7 +45,14 @@ export async function POST(request: NextRequest) {
       .sort((a, b) => b.popularity - a.popularity)
       .slice(0, 8); // Limit to 8 suggestions
 
-    return NextResponse.json({ results });
+    return NextResponse.json(
+      { results },
+      {
+        headers: {
+          'Cache-Control': 'no-store',
+        },
+      }
+    );
   } catch (error) {
     console.error('Autocomplete error:', error);
     return NextResponse.json(

@@ -4,6 +4,14 @@ All notable changes to MovieRush will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+- **Phase 7.5:** API response caching for improved performance
+  - Challenge API: 1-hour CDN cache (`s-maxage=3600, stale-while-revalidate`)
+  - Autocomplete API: `no-store` to ensure fresh search results
+  - Stats APIs: 5-minute CDN cache (`s-maxage=300, stale-while-revalidate`)
+  - `getMovieDetails()`: 24-hour in-memory cache to reduce TMDB API calls
+  - Added documentation comments explaining caching strategy for each endpoint
+
 ### Changed
 - **Phase 7.4:** Removed unused component props to eliminate ESLint warnings
   - Removed `totalMovies` prop from `MovieGrid.tsx` (was passed but never used)

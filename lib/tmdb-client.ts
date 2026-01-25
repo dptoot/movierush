@@ -30,6 +30,20 @@ interface Genre {
 // Singleton TMDB client instance
 let tmdbClient: TMDB | null = null;
 
+/**
+ * In-memory cache for movie details
+ * Caching Strategy:
+ * - TTL: 24 hours (movie metadata rarely changes)
+ * - Reduces TMDB API calls for repeated movie lookups
+ * - Used by stats endpoints and getActorMovies()
+ */
+interface CacheEntry {
+  data: TMDBMovie;
+  expiresAt: number;
+}
+const movieDetailsCache = new Map<number, CacheEntry>();
+const MOVIE_CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
+
 function getClient(): TMDB {
   if (tmdbClient) {
     return tmdbClient;
@@ -72,12 +86,20 @@ export async function searchMovies(query: string): Promise<TMDBMovie[]> {
 
 /**
  * Get movie details by ID
+ * Uses in-memory cache with 24-hour TTL to reduce TMDB API calls
  */
 export async function getMovieDetails(movieId: number): Promise<TMDBMovie> {
+  // Check cache first
+  const cached = movieDetailsCache.get(movieId);
+  if (cached && cached.expiresAt > Date.now()) {
+    return cached.data;
+  }
+
+  // Fetch from TMDB
   const client = getClient();
   const movie = await client.movies.details(movieId);
 
-  return {
+  const movieData: TMDBMovie = {
     id: movie.id,
     title: movie.title,
     release_date: movie.release_date ?? '',
@@ -89,6 +111,14 @@ export async function getMovieDetails(movieId: number): Promise<TMDBMovie> {
     vote_count: movie.vote_count ?? 0,
     vote_average: movie.vote_average ?? 0,
   };
+
+  // Store in cache
+  movieDetailsCache.set(movieId, {
+    data: movieData,
+    expiresAt: Date.now() + MOVIE_CACHE_TTL_MS,
+  });
+
+  return movieData;
 }
 
 /**
