@@ -178,6 +178,8 @@ export default function AutocompleteInput({
           aria-label="Search for movies"
           aria-expanded={showDropdown}
           aria-haspopup="listbox"
+          aria-controls="movie-suggestions-listbox"
+          aria-activedescendant={selectedIndex >= 0 ? `movie-option-${selectedIndex}` : undefined}
           role="combobox"
         />
 
@@ -193,12 +195,14 @@ export default function AutocompleteInput({
       {showDropdown && suggestions.length > 0 && (
         <div
           ref={dropdownRef}
+          id="movie-suggestions-listbox"
           className="absolute z-50 mt-2 w-full overflow-hidden bg-white border-4 border-movierush-navy rounded-xl shadow-chunky-lg"
           role="listbox"
         >
           {suggestions.map((movie, index) => (
             <button
               key={movie.id}
+              id={`movie-option-${index}`}
               onClick={() => handleSelect(movie)}
               onMouseEnter={() => setSelectedIndex(index)}
               className={`flex w-full items-center gap-3 px-4 py-3 text-left transition-colors ${

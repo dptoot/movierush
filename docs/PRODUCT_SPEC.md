@@ -699,7 +699,7 @@ Using `<img>` tags instead of Next.js `<Image />` component results in:
 
 ### 7.3 Accessibility Improvements
 **Priority:** Medium (ESLint warning)
-**Status:** 🔲 Not Started
+**Status:** ✅ Complete
 
 **Problem:**
 The autocomplete input has `role="combobox"` but is missing required ARIA attributes (`aria-controls`), violating WCAG accessibility guidelines.
@@ -708,10 +708,10 @@ The autocomplete input has `role="combobox"` but is missing required ARIA attrib
 Add proper ARIA attributes to create a fully accessible combobox pattern.
 
 **Tasks:**
-- [ ] **7.3.1** Add `id` attribute to the dropdown listbox element
-- [ ] **7.3.2** Add `aria-controls` attribute to input, referencing the listbox id
-- [ ] **7.3.3** Ensure `aria-expanded` reflects dropdown visibility state
-- [ ] **7.3.4** Add `aria-activedescendant` for keyboard navigation
+- [x] **7.3.1** Add `id` attribute to the dropdown listbox element
+- [x] **7.3.2** Add `aria-controls` attribute to input, referencing the listbox id
+- [x] **7.3.3** Ensure `aria-expanded` reflects dropdown visibility state
+- [x] **7.3.4** Add `aria-activedescendant` for keyboard navigation
 - [ ] **7.3.5** Test with screen reader (VoiceOver/NVDA)
 
 **Acceptance Criteria:**
@@ -861,7 +861,7 @@ Parallelize API calls using `Promise.all()` with batching to respect TMDB rate l
 |------|----------|--------|---------------|
 | 7.1 TMDB TypeScript Migration | High | ✅ | Fixes 3 errors |
 | 7.2 Next.js Image Optimization | High | ✅ | Fixes 4 warnings |
-| 7.3 Accessibility Improvements | Medium | 🔲 | Fixes 1 warning |
+| 7.3 Accessibility Improvements | Medium | ✅ | Fixes 1 warning |
 | 7.4 Remove Unused Variables | Medium | 🔲 | Fixes 6 warnings |
 | 7.5 API Response Caching | Medium | 🔲 | N/A |
 | 7.6 Error Boundary | Medium | 🔲 | N/A |

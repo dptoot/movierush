@@ -5,6 +5,12 @@ All notable changes to MovieRush will be documented in this file.
 ## [Unreleased]
 
 ### Changed
+- **Phase 7.3:** Added proper ARIA attributes to autocomplete input for accessibility compliance
+  - Added `id="movie-suggestions-listbox"` to dropdown listbox element
+  - Added `aria-controls` to input referencing the listbox
+  - Added `id` attributes to each option for keyboard navigation
+  - Added `aria-activedescendant` to track highlighted option during keyboard navigation
+  - Eliminated `jsx-a11y/role-has-required-aria-props` ESLint warning
 - **Phase 7.2:** Converted all `<img>` tags to Next.js `<Image />` component for automatic image optimization
   - Configured `next.config.ts` with TMDB image remote patterns
   - Updated `MovieGrid.tsx` to use optimized images with responsive `sizes` prop
