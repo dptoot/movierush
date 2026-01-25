@@ -531,7 +531,7 @@ export default function GameBoard() {
               </div>
               {/* Timer with optional shake */}
               <div className={timerShake ? 'animate-shake' : ''}>
-                <Timer timeRemaining={gameState.timeRemaining} />
+                <Timer timeRemaining={gameState.timeRemaining} maxTime={INITIAL_TIME} />
               </div>
             </div>
           </div>

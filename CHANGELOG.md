@@ -4,6 +4,16 @@ All notable changes to MovieRush will be documented in this file.
 
 ## [Unreleased]
 
+### Changed
+- **Timer UI Redesign:** Replaced radial gradient with animated circular progress ring
+  - SVG-based stroke that drains clockwise as time elapses
+  - Smooth GPU-accelerated CSS animation (mobile-friendly)
+  - Dynamic color: gold (>30s) → orange (10-30s) → coral (<10s)
+  - Handles time bonuses/penalties by restarting animation seamlessly
+  - Supports overflow time (>60s) with animation delay
+  - Fluid responsive sizing using `clamp()` for all screen sizes
+  - Respects `prefers-reduced-motion` accessibility preference
+
 ### Added
 - **Phase 8.4:** Testing Infrastructure & Documentation
   - Testing framework setup:

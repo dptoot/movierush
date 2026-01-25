@@ -134,20 +134,43 @@
     @apply border-4 border-black;
   }
 
-  /* Timer styles */
-  .timer-display {
-    @apply text-5xl md:text-7xl lg:text-9xl font-display;
-    @apply text-movierush-gold;
-    filter: drop-shadow(0 4px 8px rgba(253, 185, 19, 0.5));
+  /* Timer styles - fluid sizing */
+  .timer-container {
+    /* Fluid size: 140px on small screens, scales up to 200px on larger screens */
+    width: clamp(140px, 25vw, 200px);
+    height: clamp(140px, 25vw, 200px);
+  }
+
+  .timer-text {
+    /* Fluid font size that scales with container */
+    font-size: clamp(2rem, 6vw, 3.5rem);
+    z-index: 1;
   }
 
   .timer-warning {
-    @apply text-movierush-coral;
     @apply animate-pulse-slow;
   }
 
   .timer-shake {
     @apply animate-shake;
+  }
+
+  .timer-ring {
+    z-index: 0;
+  }
+
+  .timer-progress-ring {
+    will-change: stroke-dashoffset;
+    transition: stroke 0.3s ease;
+  }
+
+  @keyframes timer-drain {
+    from {
+      stroke-dashoffset: var(--start-offset, 0);
+    }
+    to {
+      stroke-dashoffset: 603.19; /* circumference: 2 * PI * 96 */
+    }
   }
 
   /* Score display */
@@ -220,10 +243,6 @@
     @apply text-xl;
   }
 
-  .timer-display {
-    @apply text-4xl;
-  }
-
   .card-chunky {
     @apply p-3;
   }
@@ -236,8 +255,14 @@
     @apply py-2;
   }
 
-  .landscape-compact .timer-display {
-    @apply text-4xl md:text-5xl;
+  .landscape-compact .timer-container {
+    /* Smaller in landscape to save vertical space */
+    width: clamp(100px, 20vh, 140px);
+    height: clamp(100px, 20vh, 140px);
+  }
+
+  .landscape-compact .timer-text {
+    font-size: clamp(1.5rem, 4vh, 2.5rem);
   }
 
   .landscape-compact .challenge-prompt {
