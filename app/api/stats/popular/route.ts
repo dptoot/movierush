@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
-import { getMovieDetails } from '@/lib/tmdb';
+import { getMovieDetails } from '@/lib/tmdb-client';
 
 interface GuessStat {
   tmdb_id: number;

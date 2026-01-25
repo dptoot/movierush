@@ -5,10 +5,9 @@ import { neon } from '@neondatabase/serverless';
 
 config({ path: '.env.local' });
 
-import { searchPerson, getActorMovies, type TMDBMovie } from '../lib/tmdb.js';
+import { searchPerson, getActorMovies, type TMDBMovie } from '../lib/tmdb-client.js';
 import { selectActorForDate } from '../lib/featured-actors.js';
 
-const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
 const sql = neon(process.env.DATABASE_URL!);
 
 interface MovieWithQuality extends TMDBMovie {
@@ -16,12 +15,6 @@ interface MovieWithQuality extends TMDBMovie {
   vote_average: number;
   quality_score: number;
   tier: 'Very Well-Known' | 'Well-Known' | 'Moderate' | 'Obscure';
-}
-
-function getApiKey(): string {
-  const key = process.env.TMDB_API_KEY;
-  if (!key) throw new Error('TMDB_API_KEY not set');
-  return key;
 }
 
 function getTier(qualityScore: number): MovieWithQuality['tier'] {
@@ -35,17 +28,6 @@ function generateChallengeId(date: string, actorName: string): string {
   const dateFormatted = date.replace(/-/g, '_');
   const slug = actorName.toLowerCase().replace(/\s+/g, '_');
   return `challenge_${dateFormatted}_${slug}`;
-}
-
-async function fetchMovieQuality(movieId: number): Promise<{ vote_count: number; vote_average: number } | null> {
-  try {
-    const response = await fetch(`${TMDB_BASE_URL}/movie/${movieId}?api_key=${getApiKey()}`);
-    if (!response.ok) return null;
-    const data = await response.json();
-    return { vote_count: data.vote_count || 0, vote_average: data.vote_average || 0 };
-  } catch {
-    return null;
-  }
 }
 
 async function challengeExists(date: string): Promise<boolean> {
@@ -64,18 +46,21 @@ async function generateChallenge(actorName: string, date: string): Promise<{ suc
     const actor = persons[0];
     const movies = await getActorMovies(actor.id);
 
-    // Calculate quality scores
+    // Calculate quality scores using data already fetched by getActorMovies()
     const moviesWithQuality: MovieWithQuality[] = [];
-    let obscureCount = 0;
 
     for (const movie of movies) {
-      const quality = await fetchMovieQuality(movie.id);
-      if (quality) {
-        const qualityScore = quality.vote_count * (quality.vote_average / 10);
-        const tier = getTier(qualityScore);
-        moviesWithQuality.push({ ...movie, ...quality, quality_score: qualityScore, tier });
-        if (tier === 'Obscure') obscureCount++;
-      }
+      const voteCount = movie.vote_count ?? 0;
+      const voteAverage = movie.vote_average ?? 0;
+      const qualityScore = voteCount * (voteAverage / 10);
+      const tier = getTier(qualityScore);
+      moviesWithQuality.push({
+        ...movie,
+        vote_count: voteCount,
+        vote_average: voteAverage,
+        quality_score: qualityScore,
+        tier,
+      });
     }
 
     // Validate - just need 20+ movies, no obscure requirement

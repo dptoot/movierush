@@ -472,7 +472,7 @@ interface PlayerStats {
 ### 7.2 Environment Variables
 **Local development** (`.env.local`):
 ```
-TMDB_API_KEY=your_key_here
+TMDB_ACCESS_TOKEN=your_access_token_here
 DATABASE_URL=your_db_url
 ```
 
@@ -592,6 +592,294 @@ DATABASE_URL=your_db_url
 
 ---
 
-**Version:** 1.3
-**Last Updated:** January 12, 2026
-**Status:** Phase 5 In Progress (Branding Complete)
+---
+
+## 12. Phase 7: Technical Improvements
+
+### Overview
+This phase addresses technical debt, ESLint errors, performance optimizations, and code quality improvements identified during a comprehensive technical review.
+
+**Goals:**
+- Fix all ESLint errors and warnings
+- Improve type safety with `tmdb-ts` package
+- Optimize image loading with Next.js Image component
+- Add API response caching for better performance
+- Improve accessibility compliance
+- Add error boundary for graceful error handling
+
+---
+
+### 7.1 TMDB TypeScript Migration
+**Priority:** High (ESLint errors)
+**Status:** ✅ Complete
+
+**Problem:**
+The `lib/tmdb.ts` file uses `any` types in 3 places (lines 61, 67, 94), causing ESLint errors. Manual type definitions are incomplete and don't match TMDB API responses.
+
+**Solution:**
+Replace manual TMDB API calls with the `tmdb-ts` package which provides:
+- Full TypeScript definitions for all TMDB endpoints
+- Type-safe API responses
+- Built-in error handling
+
+**Tasks:**
+- [x] **7.1.1** Install `tmdb-ts` package
+- [x] **7.1.2** Create new `lib/tmdb-client.ts` with typed TMDB client
+- [x] **7.1.3** Refactor `searchMovies()` to use tmdb-ts
+- [x] **7.1.4** Refactor `getMovieDetails()` to use tmdb-ts
+- [x] **7.1.5** Refactor `searchPerson()` to use tmdb-ts
+- [x] **7.1.6** Refactor `getActorMovies()` to use tmdb-ts
+- [x] **7.1.7** Update `types/index.ts` to use/extend tmdb-ts types
+- [x] **7.1.8** Remove old `lib/tmdb.ts` after migration complete
+- [x] **7.1.9** Update all imports across codebase
+
+**Acceptance Criteria:**
+- Zero `@typescript-eslint/no-explicit-any` errors
+- All TMDB API calls use typed responses
+- Existing functionality unchanged
+
+**Files Affected:**
+- `lib/tmdb.ts` → `lib/tmdb-client.ts` (rewrite)
+- `types/index.ts` (update)
+- `app/api/autocomplete/route.ts` (update imports)
+- `app/api/stats/popular/route.ts` (update imports)
+- `app/api/stats/rare/route.ts` (update imports)
+- `scripts/generate-challenge.ts` (update imports)
+- `scripts/generate-month.ts` (update imports)
+
+---
+
+### 7.2 Next.js Image Optimization
+**Priority:** High (Performance + ESLint warnings)
+**Status:** 🔲 Not Started
+
+**Problem:**
+Using `<img>` tags instead of Next.js `<Image />` component results in:
+- Slower LCP (Largest Contentful Paint)
+- Higher bandwidth usage (no automatic optimization)
+- 4 ESLint warnings
+
+**Solution:**
+1. Configure Next.js to allow TMDB remote images
+2. Convert all `<img>` tags to `<Image />` component
+
+**Tasks:**
+- [ ] **7.2.1** Update `next.config.ts` with TMDB image domain configuration:
+  ```typescript
+  const nextConfig: NextConfig = {
+    images: {
+      remotePatterns: [
+        {
+          protocol: 'https',
+          hostname: 'image.tmdb.org',
+          pathname: '/t/p/**',
+        },
+      ],
+    },
+  };
+  ```
+- [ ] **7.2.2** Convert `MovieGrid.tsx` line 40 from `<img>` to `<Image />`
+- [ ] **7.2.3** Convert `Results.tsx` line 227 (Your Guesses thumbnails)
+- [ ] **7.2.4** Convert `Results.tsx` line 315 (Popular movies thumbnails)
+- [ ] **7.2.5** Convert `Results.tsx` line 356 (Rare movies thumbnails)
+- [ ] **7.2.6** Add appropriate `width`, `height`, and `sizes` props for responsive loading
+- [ ] **7.2.7** Test image loading across different screen sizes
+
+**Acceptance Criteria:**
+- Zero `@next/next/no-img-element` warnings
+- Images load with proper optimization
+- No layout shift during image loading
+
+**Files Affected:**
+- `next.config.ts`
+- `components/MovieGrid.tsx`
+- `components/Results.tsx`
+
+---
+
+### 7.3 Accessibility Improvements
+**Priority:** Medium (ESLint warning)
+**Status:** 🔲 Not Started
+
+**Problem:**
+The autocomplete input has `role="combobox"` but is missing required ARIA attributes (`aria-controls`), violating WCAG accessibility guidelines.
+
+**Solution:**
+Add proper ARIA attributes to create a fully accessible combobox pattern.
+
+**Tasks:**
+- [ ] **7.3.1** Add `id` attribute to the dropdown listbox element
+- [ ] **7.3.2** Add `aria-controls` attribute to input, referencing the listbox id
+- [ ] **7.3.3** Ensure `aria-expanded` reflects dropdown visibility state
+- [ ] **7.3.4** Add `aria-activedescendant` for keyboard navigation
+- [ ] **7.3.5** Test with screen reader (VoiceOver/NVDA)
+
+**Acceptance Criteria:**
+- Zero `jsx-a11y/role-has-required-aria-props` warnings
+- Combobox is navigable via keyboard
+- Screen reader announces suggestions correctly
+
+**Files Affected:**
+- `components/AutocompleteInput.tsx`
+
+---
+
+### 7.4 Remove Unused Variables
+**Priority:** Medium (ESLint warnings)
+**Status:** 🔲 Not Started
+
+**Problem:**
+6 unused variables across multiple files cause ESLint warnings.
+
+**Tasks:**
+- [ ] **7.4.1** `components/MovieGrid.tsx:11` - Remove or use `totalMovies` prop
+- [ ] **7.4.2** `components/Timer.tsx:8` - Remove unused `isRunning` variable
+- [ ] **7.4.3** `lib/tmdb.ts:105` - Remove unused `error` in catch block
+- [ ] **7.4.4** `scripts/generate-challenge.ts:159` - Remove unused `obscureCount`
+- [ ] **7.4.5** `scripts/generate-challenge.ts:212` - Remove unused `challengeId`
+- [ ] **7.4.6** `scripts/generate-month.ts:77` - Remove unused `obscureCount`
+
+**Acceptance Criteria:**
+- Zero `@typescript-eslint/no-unused-vars` warnings
+
+**Files Affected:**
+- `components/MovieGrid.tsx`
+- `components/Timer.tsx`
+- `lib/tmdb.ts`
+- `scripts/generate-challenge.ts`
+- `scripts/generate-month.ts`
+
+---
+
+### 7.5 API Response Caching
+**Priority:** Medium (Performance)
+**Status:** 🔲 Not Started
+
+**Problem:**
+TMDB API calls have no caching strategy, resulting in:
+- Repeated API calls for same data
+- Slower response times
+- Unnecessary TMDB API usage
+
+**Solution:**
+Use Next.js fetch caching with appropriate TTLs for different data types.
+
+**Caching Strategy:**
+| Endpoint | Data Type | TTL | Rationale |
+|----------|-----------|-----|-----------|
+| `/api/challenge` | Challenge data | 1 hour | Changes daily, safe to cache |
+| `getMovieDetails()` | Movie metadata | 24 hours | Rarely changes |
+| `searchMovies()` | Search results | No cache | User expects fresh results |
+| Stats endpoints | Guess counts | 5 minutes | Balances freshness vs performance |
+
+**Tasks:**
+- [ ] **7.5.1** Add `next: { revalidate: 3600 }` to challenge fetch in `lib/tmdb-client.ts`
+- [ ] **7.5.2** Add `next: { revalidate: 86400 }` to `getMovieDetails()` calls
+- [ ] **7.5.3** Ensure autocomplete uses `cache: 'no-store'` for fresh results
+- [ ] **7.5.4** Add `next: { revalidate: 300 }` to stats endpoint movie detail fetches
+- [ ] **7.5.5** Document caching strategy in code comments
+
+**Acceptance Criteria:**
+- Repeated requests for same movie details are served from cache
+- Challenge data is cached for 1 hour
+- Autocomplete results are always fresh
+- No stale data issues
+
+**Files Affected:**
+- `lib/tmdb-client.ts` (new file from 7.1)
+- `app/api/challenge/route.ts`
+- `app/api/stats/popular/route.ts`
+- `app/api/stats/rare/route.ts`
+
+---
+
+### 7.6 Error Boundary
+**Priority:** Medium (Reliability)
+**Status:** 🔲 Not Started
+
+**Problem:**
+No error boundary exists. If a component throws during render, the entire app crashes with a white screen.
+
+**Solution:**
+Create a simple error boundary component with a user-friendly fallback UI.
+
+**Tasks:**
+- [ ] **7.6.1** Create `components/ErrorBoundary.tsx` as a class component
+- [ ] **7.6.2** Create `app/error.tsx` for app-level error handling (Next.js convention)
+- [ ] **7.6.3** Create `app/global-error.tsx` for root layout errors
+- [ ] **7.6.4** Design fallback UI with:
+  - MovieRush branding
+  - "Something went wrong" message
+  - "Refresh" button to reload the page
+  - Optional: "Report issue" link
+- [ ] **7.6.5** Test by intentionally throwing errors
+
+**Acceptance Criteria:**
+- Errors show friendly fallback UI instead of white screen
+- Users can recover by refreshing
+- Error details logged to console (dev mode)
+
+**Files Affected:**
+- `components/ErrorBoundary.tsx` (new)
+- `app/error.tsx` (new)
+- `app/global-error.tsx` (new)
+
+---
+
+### 7.7 Performance: Parallelize TMDB API Calls
+**Priority:** Low (Performance optimization)
+**Status:** 🔲 Not Started
+
+**Problem:**
+`getActorMovies()` makes sequential API calls for each movie to fetch details (runtime filtering). For actors with 50+ movies, this creates 50+ sequential requests.
+
+**Solution:**
+Parallelize API calls using `Promise.all()` with batching to respect TMDB rate limits.
+
+**Tasks:**
+- [ ] **7.7.1** Refactor `getActorMovies()` to use `Promise.all()` for movie detail fetches
+- [ ] **7.7.2** Implement batching (10 concurrent requests max) to avoid rate limits
+- [ ] **7.7.3** Add error handling for partial batch failures
+- [ ] **7.7.4** Parallelize stats endpoint movie fetches (`popular/route.ts`, `rare/route.ts`)
+- [ ] **7.7.5** Measure and document performance improvement
+
+**Acceptance Criteria:**
+- Challenge generation is significantly faster
+- Stats endpoints respond faster
+- No TMDB rate limit errors
+
+**Files Affected:**
+- `lib/tmdb-client.ts`
+- `app/api/stats/popular/route.ts`
+- `app/api/stats/rare/route.ts`
+
+---
+
+### Phase 7 Summary
+
+| Task | Priority | Status | ESLint Impact |
+|------|----------|--------|---------------|
+| 7.1 TMDB TypeScript Migration | High | ✅ | Fixes 3 errors |
+| 7.2 Next.js Image Optimization | High | 🔲 | Fixes 4 warnings |
+| 7.3 Accessibility Improvements | Medium | 🔲 | Fixes 1 warning |
+| 7.4 Remove Unused Variables | Medium | 🔲 | Fixes 6 warnings |
+| 7.5 API Response Caching | Medium | 🔲 | N/A |
+| 7.6 Error Boundary | Medium | 🔲 | N/A |
+| 7.7 Parallelize API Calls | Low | 🔲 | N/A |
+
+**Total ESLint Issues Fixed:** 3 errors, 11 warnings (all issues)
+
+**Recommended Order:**
+1. 7.1 (blocks other work, fixes errors)
+2. 7.4 (quick wins, clears warnings)
+3. 7.2 (requires 7.1 complete for clean types)
+4. 7.3 (accessibility compliance)
+5. 7.5 (performance, can be done with 7.1)
+6. 7.6 (reliability)
+7. 7.7 (optimization, lowest priority)
+
+---
+
+**Version:** 1.4
+**Last Updated:** January 24, 2026
+**Status:** Phase 7 Planning Complete

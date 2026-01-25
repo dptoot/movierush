@@ -4,7 +4,24 @@ All notable changes to MovieRush will be documented in this file.
 
 ## [Unreleased]
 
+### Changed
+- **Phase 7.1:** Migrated TMDB API client to `tmdb-ts` package for full TypeScript type safety
+  - Created `lib/tmdb-client.ts` with typed TMDB API functions
+  - Replaced all `any` types with proper TypeScript definitions
+  - Eliminated 3 `@typescript-eslint/no-explicit-any` ESLint errors
+  - Simplified scripts by using vote data already returned by `getActorMovies()`
+  - Removed redundant `fetchMovieQuality()` calls (now included in movie details)
+  - Note: Requires `TMDB_ACCESS_TOKEN` environment variable (API Read Access Token)
+
 ### Added
+- Phase 7 Technical Improvements spec in `docs/PRODUCT_SPEC.md`
+  - 7.1 TMDB TypeScript migration using `tmdb-ts` package
+  - 7.2 Next.js Image optimization for TMDB images
+  - 7.3 Accessibility improvements for autocomplete combobox
+  - 7.4 Unused variable cleanup
+  - 7.5 API response caching with Next.js fetch cache
+  - 7.6 Error boundary with fallback UI
+  - 7.7 Parallelized TMDB API calls for performance
 - Vercel Analytics integration for traffic tracking (page views, visitors, popular pages)
 - Comprehensive meta tags for SEO and social sharing
   - Keywords for search engines

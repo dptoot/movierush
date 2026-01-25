@@ -5,9 +5,7 @@ import { neon } from '@neondatabase/serverless';
 // Load environment variables from .env.local BEFORE other imports
 config({ path: '.env.local' });
 
-import { searchPerson, getActorMovies, type TMDBMovie } from '../lib/tmdb.js';
-
-const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
+import { searchPerson, getActorMovies, type TMDBMovie } from '../lib/tmdb-client.js';
 
 // Initialize database connection after dotenv loads
 const sql = neon(process.env.DATABASE_URL!);
@@ -24,14 +22,6 @@ interface TierCounts {
   'Well-Known': number;
   'Moderate': number;
   'Obscure': number;
-}
-
-function getApiKey(): string {
-  const key = process.env.TMDB_API_KEY;
-  if (!key) {
-    throw new Error('TMDB_API_KEY environment variable is not set');
-  }
-  return key;
 }
 
 function validateDate(dateStr: string): boolean {
@@ -58,25 +48,6 @@ function generateChallengeId(date: string, actorName: string): string {
   const dateFormatted = date.replace(/-/g, '_');
   const slug = generateActorSlug(actorName);
   return `challenge_${dateFormatted}_${slug}`;
-}
-
-async function fetchMovieQuality(movieId: number): Promise<{ vote_count: number; vote_average: number } | null> {
-  try {
-    const url = `${TMDB_BASE_URL}/movie/${movieId}?api_key=${getApiKey()}`;
-    const response = await fetch(url);
-
-    if (!response.ok) {
-      return null;
-    }
-
-    const data = await response.json();
-    return {
-      vote_count: data.vote_count || 0,
-      vote_average: data.vote_average || 0,
-    };
-  } catch {
-    return null;
-  }
 }
 
 async function generateChallenge(actorName: string, date: string): Promise<string> {
@@ -111,13 +82,14 @@ async function generateChallenge(actorName: string, date: string): Promise<strin
   console.log(`   ✓ Found: ${actor.name} (ID: ${actor.id})`);
   console.log(`   ✓ Known for: ${actor.known_for_department}`);
 
-  // Step 3: Fetch filmography
+  // Step 3: Fetch filmography (includes vote_count and vote_average)
   console.log('\n🎥 Fetching filmography...');
 
   const movies = await getActorMovies(actor.id);
   console.log(`   ✓ Found ${movies.length} feature films`);
 
   // Step 4: Calculate quality scores for validation
+  // getActorMovies() already fetches vote_count and vote_average
   console.log('\n📊 Calculating quality scores...');
 
   const moviesWithQuality: MovieWithQuality[] = [];
@@ -129,22 +101,20 @@ async function generateChallenge(actorName: string, date: string): Promise<strin
   };
 
   for (const movie of movies) {
-    const quality = await fetchMovieQuality(movie.id);
+    const voteCount = movie.vote_count ?? 0;
+    const voteAverage = movie.vote_average ?? 0;
+    const qualityScore = voteCount * (voteAverage / 10);
+    const tier = getTier(qualityScore);
 
-    if (quality) {
-      const qualityScore = quality.vote_count * (quality.vote_average / 10);
-      const tier = getTier(qualityScore);
+    moviesWithQuality.push({
+      ...movie,
+      vote_count: voteCount,
+      vote_average: voteAverage,
+      quality_score: qualityScore,
+      tier,
+    });
 
-      moviesWithQuality.push({
-        ...movie,
-        vote_count: quality.vote_count,
-        vote_average: quality.vote_average,
-        quality_score: qualityScore,
-        tier,
-      });
-
-      tierCounts[tier]++;
-    }
+    tierCounts[tier]++;
   }
 
   console.log(`   ✓ Very Well-Known (≥3000): ${tierCounts['Very Well-Known']} movies`);
@@ -156,7 +126,6 @@ async function generateChallenge(actorName: string, date: string): Promise<strin
   console.log('\n✅ Validating requirements...');
 
   const totalMovies = moviesWithQuality.length;
-  const obscureCount = tierCounts['Obscure'];
 
   if (totalMovies < 20) {
     throw new Error(`Insufficient movies: ${totalMovies} (minimum 20 required)`);
@@ -209,7 +178,7 @@ async function main() {
   const [actorName, date] = args;
 
   try {
-    const challengeId = await generateChallenge(actorName, date);
+    await generateChallenge(actorName, date);
     process.exit(0);
   } catch (error) {
     console.error('\n❌ Error:', error instanceof Error ? error.message : error);

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { searchMovies } from '@/lib/tmdb';
+import { searchMovies } from '@/lib/tmdb-client';
 
 interface AutocompleteRequest {
   query: string;
