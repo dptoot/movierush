@@ -5,6 +5,7 @@ All notable changes to MovieRush will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- Vercel Analytics integration for traffic tracking (page views, visitors, popular pages)
 - Comprehensive meta tags for SEO and social sharing
   - Keywords for search engines
   - Twitter card (summary_large_image)
