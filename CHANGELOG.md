@@ -4,6 +4,15 @@ All notable changes to MovieRush will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+- Comprehensive meta tags for SEO and social sharing
+  - Keywords for search engines
+  - Twitter card (summary_large_image)
+  - Full OpenGraph config (url, siteName, locale, type, image dimensions)
+  - Web manifest for PWA support
+- New favicon assets (16x16, 32x32, apple-touch-icon, android-chrome)
+- OG image (1200x630) for social sharing previews
+
 ### Changed
 - Re-enabled autofocus on movie input when game starts
 
