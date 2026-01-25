@@ -224,9 +224,11 @@ Play at: movierush.vercel.app`;
                 >
                   {/* Poster thumbnail */}
                   {movie.poster_path ? (
-                    <img
+                    <Image
                       src={`${TMDB_IMAGE_BASE}${movie.poster_path}`}
                       alt={movie.title}
+                      width={64}
+                      height={96}
                       className="h-24 w-16 rounded object-cover"
                     />
                   ) : (
@@ -312,9 +314,11 @@ Play at: movierush.vercel.app`;
                             {index + 1}
                           </span>
                           {movie.poster_path ? (
-                            <img
+                            <Image
                               src={`${TMDB_IMAGE_BASE}${movie.poster_path}`}
                               alt={movie.title}
+                              width={44}
+                              height={64}
                               className="h-16 w-11 rounded object-cover"
                             />
                           ) : (
@@ -353,9 +357,11 @@ Play at: movierush.vercel.app`;
                             {index + 1}
                           </span>
                           {movie.poster_path ? (
-                            <img
+                            <Image
                               src={`${TMDB_IMAGE_BASE}${movie.poster_path}`}
                               alt={movie.title}
+                              width={44}
+                              height={64}
                               className="h-16 w-11 rounded object-cover"
                             />
                           ) : (

@@ -5,6 +5,12 @@ All notable changes to MovieRush will be documented in this file.
 ## [Unreleased]
 
 ### Changed
+- **Phase 7.2:** Converted all `<img>` tags to Next.js `<Image />` component for automatic image optimization
+  - Configured `next.config.ts` with TMDB image remote patterns
+  - Updated `MovieGrid.tsx` to use optimized images with responsive `sizes` prop
+  - Updated `Results.tsx` (3 locations: Your Guesses, Popular Movies, Hidden Gems)
+  - Eliminated 4 `@next/next/no-img-element` ESLint warnings
+  - Benefits: automatic WebP conversion, lazy loading, proper sizing for better LCP
 - **Phase 7.1:** Migrated TMDB API client to `tmdb-ts` package for full TypeScript type safety
   - Created `lib/tmdb-client.ts` with typed TMDB API functions
   - Replaced all `any` types with proper TypeScript definitions

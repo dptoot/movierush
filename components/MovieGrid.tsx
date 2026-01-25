@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useEffect } from 'react';
+import Image from 'next/image';
 import { GuessedMovie } from '@/types';
 
 interface MovieGridProps {
@@ -37,9 +38,12 @@ export default function MovieGrid({ guessedMovies, totalMovies }: MovieGridProps
             title={movie.title}
           >
             {movie.poster_path ? (
-              <img
+              <Image
                 src={`https://image.tmdb.org/t/p/w185${movie.poster_path}`}
                 alt={movie.title}
+                width={185}
+                height={278}
+                sizes="(max-width: 640px) 33vw, (max-width: 768px) 25vw, (max-width: 1024px) 16vw, 12.5vw"
                 className="h-full w-full object-cover"
               />
             ) : (

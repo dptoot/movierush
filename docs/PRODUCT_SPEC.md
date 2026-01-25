@@ -651,7 +651,7 @@ Replace manual TMDB API calls with the `tmdb-ts` package which provides:
 
 ### 7.2 Next.js Image Optimization
 **Priority:** High (Performance + ESLint warnings)
-**Status:** 🔲 Not Started
+**Status:** ✅ Complete
 
 **Problem:**
 Using `<img>` tags instead of Next.js `<Image />` component results in:
@@ -664,7 +664,7 @@ Using `<img>` tags instead of Next.js `<Image />` component results in:
 2. Convert all `<img>` tags to `<Image />` component
 
 **Tasks:**
-- [ ] **7.2.1** Update `next.config.ts` with TMDB image domain configuration:
+- [x] **7.2.1** Update `next.config.ts` with TMDB image domain configuration:
   ```typescript
   const nextConfig: NextConfig = {
     images: {
@@ -678,12 +678,12 @@ Using `<img>` tags instead of Next.js `<Image />` component results in:
     },
   };
   ```
-- [ ] **7.2.2** Convert `MovieGrid.tsx` line 40 from `<img>` to `<Image />`
-- [ ] **7.2.3** Convert `Results.tsx` line 227 (Your Guesses thumbnails)
-- [ ] **7.2.4** Convert `Results.tsx` line 315 (Popular movies thumbnails)
-- [ ] **7.2.5** Convert `Results.tsx` line 356 (Rare movies thumbnails)
-- [ ] **7.2.6** Add appropriate `width`, `height`, and `sizes` props for responsive loading
-- [ ] **7.2.7** Test image loading across different screen sizes
+- [x] **7.2.2** Convert `MovieGrid.tsx` line 40 from `<img>` to `<Image />`
+- [x] **7.2.3** Convert `Results.tsx` line 227 (Your Guesses thumbnails)
+- [x] **7.2.4** Convert `Results.tsx` line 315 (Popular movies thumbnails)
+- [x] **7.2.5** Convert `Results.tsx` line 356 (Rare movies thumbnails)
+- [x] **7.2.6** Add appropriate `width`, `height`, and `sizes` props for responsive loading
+- [x] **7.2.7** Test image loading across different screen sizes
 
 **Acceptance Criteria:**
 - Zero `@next/next/no-img-element` warnings
@@ -860,7 +860,7 @@ Parallelize API calls using `Promise.all()` with batching to respect TMDB rate l
 | Task | Priority | Status | ESLint Impact |
 |------|----------|--------|---------------|
 | 7.1 TMDB TypeScript Migration | High | ✅ | Fixes 3 errors |
-| 7.2 Next.js Image Optimization | High | 🔲 | Fixes 4 warnings |
+| 7.2 Next.js Image Optimization | High | ✅ | Fixes 4 warnings |
 | 7.3 Accessibility Improvements | Medium | 🔲 | Fixes 1 warning |
 | 7.4 Remove Unused Variables | Medium | 🔲 | Fixes 6 warnings |
 | 7.5 API Response Caching | Medium | 🔲 | N/A |
