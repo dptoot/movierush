@@ -533,10 +533,7 @@ export default function GameBoard() {
 
           {/* Movie grid - shows guessed movies */}
           <div className="flex-1">
-            <MovieGrid
-              guessedMovies={guessedMovies}
-              totalMovies={challenge.total_movies}
-            />
+            <MovieGrid guessedMovies={guessedMovies} />
           </div>
         </div>
       </div>

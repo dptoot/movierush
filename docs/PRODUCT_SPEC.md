@@ -726,28 +726,23 @@ Add proper ARIA attributes to create a fully accessible combobox pattern.
 
 ### 7.4 Remove Unused Variables
 **Priority:** Medium (ESLint warnings)
-**Status:** 🔲 Not Started
+**Status:** ✅ Complete
 
 **Problem:**
-6 unused variables across multiple files cause ESLint warnings.
+Unused variables across multiple files cause ESLint warnings.
 
 **Tasks:**
-- [ ] **7.4.1** `components/MovieGrid.tsx:11` - Remove or use `totalMovies` prop
-- [ ] **7.4.2** `components/Timer.tsx:8` - Remove unused `isRunning` variable
-- [ ] **7.4.3** `lib/tmdb.ts:105` - Remove unused `error` in catch block
-- [ ] **7.4.4** `scripts/generate-challenge.ts:159` - Remove unused `obscureCount`
-- [ ] **7.4.5** `scripts/generate-challenge.ts:212` - Remove unused `challengeId`
-- [ ] **7.4.6** `scripts/generate-month.ts:77` - Remove unused `obscureCount`
+- [x] **7.4.1** `components/MovieGrid.tsx` - Removed unused `totalMovies` prop
+- [x] **7.4.2** `components/Timer.tsx` - Removed unused `isRunning` prop
+- [x] **7.4.3-7.4.6** - Already fixed during Phase 7.1 TMDB migration (lib/tmdb.ts removed, scripts refactored)
 
 **Acceptance Criteria:**
-- Zero `@typescript-eslint/no-unused-vars` warnings
+- Zero `@typescript-eslint/no-unused-vars` warnings ✅
 
-**Files Affected:**
-- `components/MovieGrid.tsx`
-- `components/Timer.tsx`
-- `lib/tmdb.ts`
-- `scripts/generate-challenge.ts`
-- `scripts/generate-month.ts`
+**Files Modified:**
+- `components/MovieGrid.tsx` - Removed totalMovies from interface and props
+- `components/Timer.tsx` - Removed isRunning from interface and props
+- `components/GameBoard.tsx` - Removed totalMovies prop from MovieGrid usage
 
 ---
 
@@ -862,7 +857,7 @@ Parallelize API calls using `Promise.all()` with batching to respect TMDB rate l
 | 7.1 TMDB TypeScript Migration | High | ✅ | Fixes 3 errors |
 | 7.2 Next.js Image Optimization | High | ✅ | Fixes 4 warnings |
 | 7.3 Accessibility Improvements | Medium | ✅ | Fixes 1 warning |
-| 7.4 Remove Unused Variables | Medium | 🔲 | Fixes 6 warnings |
+| 7.4 Remove Unused Variables | Medium | ✅ | Fixes 6 warnings |
 | 7.5 API Response Caching | Medium | 🔲 | N/A |
 | 7.6 Error Boundary | Medium | 🔲 | N/A |
 | 7.7 Parallelize API Calls | Low | 🔲 | N/A |

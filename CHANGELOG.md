@@ -5,6 +5,11 @@ All notable changes to MovieRush will be documented in this file.
 ## [Unreleased]
 
 ### Changed
+- **Phase 7.4:** Removed unused component props to eliminate ESLint warnings
+  - Removed `totalMovies` prop from `MovieGrid.tsx` (was passed but never used)
+  - Removed `isRunning` prop from `Timer.tsx` (was defined but never used)
+  - Eliminated final 2 `@typescript-eslint/no-unused-vars` warnings
+  - ESLint now reports 0 problems (0 errors, 0 warnings)
 - **Phase 7.3:** Added proper ARIA attributes to autocomplete input for accessibility compliance
   - Added `id="movie-suggestions-listbox"` to dropdown listbox element
   - Added `aria-controls` to input referencing the listbox

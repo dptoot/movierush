@@ -6,10 +6,9 @@ import { GuessedMovie } from '@/types';
 
 interface MovieGridProps {
   guessedMovies: GuessedMovie[];
-  totalMovies: number;
 }
 
-export default function MovieGrid({ guessedMovies, totalMovies }: MovieGridProps) {
+export default function MovieGrid({ guessedMovies }: MovieGridProps) {
   const gridRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll to top when new movie added

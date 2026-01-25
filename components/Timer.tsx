@@ -2,10 +2,9 @@
 
 interface TimerProps {
   timeRemaining: number;
-  isRunning?: boolean;
 }
 
-export default function Timer({ timeRemaining, isRunning = true }: TimerProps) {
+export default function Timer({ timeRemaining }: TimerProps) {
   // Determine visual state based on time remaining
   const isWarning = timeRemaining < 10;
 
