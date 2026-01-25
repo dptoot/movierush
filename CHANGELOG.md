@@ -4,6 +4,12 @@ All notable changes to MovieRush will be documented in this file.
 
 ## [Unreleased]
 
+### Changed
+- **Spec Alignment:** Updated time mechanics in PRODUCT_SPEC.md to match implementation
+  - Starting time: 30s → 60s (matches `INITIAL_TIME` in GameBoard.tsx)
+  - Maximum time cap: 45s → 90s (matches `MAX_TIME` in GameBoard.tsx)
+  - Updated US-2 acceptance criteria and game design decisions sections
+
 ### Added
 - **Phase 7.7:** Parallelized TMDB API calls for improved performance
   - Created `fetchInBatches()` utility function for batched parallel fetching

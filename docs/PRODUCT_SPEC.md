@@ -85,7 +85,7 @@ MovieRush is a daily movie trivia game where players race against time to name m
 
 ### 2.4 Time Mechanics
 
-**Starting Time:** 30 seconds
+**Starting Time:** 60 seconds
 
 **Time Bonus per Correct Answer:**
 - **Formula (Finalized):** Based on quality score = vote_count × (vote_average / 10)
@@ -100,7 +100,7 @@ MovieRush is a daily movie trivia game where players race against time to name m
 - -3 seconds per incorrect guess
 
 **Maximum Time:**
-- 45 seconds (hard cap prevents indefinite play)
+- 90 seconds (hard cap prevents indefinite play)
 
 ---
 
@@ -131,7 +131,7 @@ So that I can quickly enter my answers without typos
 - When I select a movie, the game validates if it's in the valid answer list
 - Correct guesses reveal movie poster and award bonuses
 - Incorrect guesses result in 3-second time penalty
-- Timer starts at 30 seconds and counts down visibly
+- Timer starts at 60 seconds and counts down visibly
 - Input clears after each guess, ready for next answer
 - "End Game" button is visible and allows player to end early
 
@@ -556,7 +556,7 @@ DATABASE_URL=your_db_url
 - [x] Autocomplete shows all TMDB movies (requires actual knowledge, prevents browsing)
 - [x] Obscurity scoring uses quality score (vote_count × vote_average/10)
 - [x] Time/point bonuses finalized (3000/1000/200/0 thresholds)
-- [x] Maximum time cap: 45 seconds
+- [x] Maximum time cap: 90 seconds
 - [ ] Movie poster quality (w185, w342, w500, or original?)
 - [ ] Challenge difficulty rules (min 20 movies, min 3 obscure - finalized)
 - [ ] Skeleton grid ordering (chronological by release date)
