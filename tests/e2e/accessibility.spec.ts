@@ -47,7 +47,11 @@ test.describe('Accessibility', () => {
 
     await page.goto('/');
     await page.getByRole('button', { name: /start/i }).click();
-    await page.getByRole('button', { name: /end game/i }).click();
+
+    // Trigger game end by dispatching a custom event (since End Game button was removed)
+    await page.evaluate(() => {
+      window.dispatchEvent(new CustomEvent('test:end-game'));
+    });
 
     // Wait for results to load
     await expect(page.locator('text=/game over/i')).toBeVisible();
@@ -116,13 +120,10 @@ test.describe('Keyboard Navigation', () => {
     await page.keyboard.press('Enter');
     await expect(input).toHaveValue('');
 
-    // Tab to End Game button
-    await page.keyboard.press('Tab');
-    const endButton = page.getByRole('button', { name: /end game/i });
-    await expect(endButton).toBeFocused();
-
-    // Press Enter to end game
-    await page.keyboard.press('Enter');
+    // Trigger game end programmatically (since End Game button was removed)
+    await page.evaluate(() => {
+      window.dispatchEvent(new CustomEvent('test:end-game'));
+    });
 
     // Should show results
     await expect(page.locator('text=/game over/i')).toBeVisible();
@@ -256,11 +257,10 @@ test.describe('Screen Reader Support', () => {
 
     await startButton.click();
 
-    // End game button
-    const endButton = page.getByRole('button', { name: /end game/i });
-    await expect(endButton).toHaveAttribute('aria-label', /end game/i);
-
-    await endButton.click();
+    // End game to get to results
+    await page.evaluate(() => {
+      window.dispatchEvent(new CustomEvent('test:end-game'));
+    });
 
     // Share button
     const shareButton = page.getByRole('button', { name: /share/i });
@@ -270,7 +270,9 @@ test.describe('Screen Reader Support', () => {
   test('results statistics are properly labeled', async ({ page }) => {
     await page.goto('/');
     await page.getByRole('button', { name: /start/i }).click();
-    await page.getByRole('button', { name: /end game/i }).click();
+    await page.evaluate(() => {
+      window.dispatchEvent(new CustomEvent('test:end-game'));
+    });
 
     // Check output elements have labels
     const moviesOutput = page.locator('output[aria-label="Movies found"]');

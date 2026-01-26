@@ -44,9 +44,6 @@ test.describe('Game Flow', () => {
     const input = page.getByPlaceholder(/type a movie name/i);
     await expect(input).toBeVisible();
     await expect(input).toBeFocused();
-
-    // Should show the end game button
-    await expect(page.getByRole('button', { name: /end game/i })).toBeVisible();
   });
 
   test('timer counts down during gameplay', async ({ page }) => {
@@ -94,12 +91,14 @@ test.describe('Game Flow', () => {
     await expect(input).toHaveValue('');
   });
 
-  test('end game button shows results', async ({ page }) => {
+  test('game end shows results', async ({ page }) => {
     await page.goto('/');
     await page.getByRole('button', { name: /start/i }).click();
 
-    // Click end game
-    await page.getByRole('button', { name: /end game/i }).click();
+    // End the game
+    await page.evaluate(() => {
+      window.dispatchEvent(new CustomEvent('test:end-game'));
+    });
 
     // Should show game over message
     await expect(page.locator('text=/game over/i')).toBeVisible();
@@ -117,7 +116,9 @@ test.describe('Game Flow', () => {
   test('results page shows come back tomorrow message', async ({ page }) => {
     await page.goto('/');
     await page.getByRole('button', { name: /start/i }).click();
-    await page.getByRole('button', { name: /end game/i }).click();
+    await page.evaluate(() => {
+      window.dispatchEvent(new CustomEvent('test:end-game'));
+    });
 
     await expect(page.locator('text=/come back tomorrow/i')).toBeVisible();
   });

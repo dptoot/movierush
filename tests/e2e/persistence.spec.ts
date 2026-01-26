@@ -44,7 +44,9 @@ test.describe('localStorage Persistence', () => {
   test('completed game prevents replay on same day', async ({ page }) => {
     await page.goto('/');
     await page.getByRole('button', { name: /start/i }).click();
-    await page.getByRole('button', { name: /end game/i }).click();
+    await page.evaluate(() => {
+      window.dispatchEvent(new CustomEvent('test:end-game'));
+    });
 
     // Should show results
     await expect(page.locator('text=/game over/i')).toBeVisible();
@@ -86,7 +88,9 @@ test.describe('localStorage Persistence', () => {
   test('score persists after game completion and refresh', async ({ page }) => {
     await page.goto('/');
     await page.getByRole('button', { name: /start/i }).click();
-    await page.getByRole('button', { name: /end game/i }).click();
+    await page.evaluate(() => {
+      window.dispatchEvent(new CustomEvent('test:end-game'));
+    });
 
     // Get the score
     const scoreElement = page.locator('output[aria-label="Total score"]');
@@ -146,7 +150,9 @@ test.describe('Share Functionality', () => {
 
     await page.goto('/');
     await page.getByRole('button', { name: /start/i }).click();
-    await page.getByRole('button', { name: /end game/i }).click();
+    await page.evaluate(() => {
+      window.dispatchEvent(new CustomEvent('test:end-game'));
+    });
 
     // Click share button
     await page.getByRole('button', { name: /share/i }).click();
@@ -175,7 +181,9 @@ test.describe('Share Functionality', () => {
     await page.locator('[role="option"]').first().click();
 
     // End game
-    await page.getByRole('button', { name: /end game/i }).click();
+    await page.evaluate(() => {
+      window.dispatchEvent(new CustomEvent('test:end-game'));
+    });
 
     // If there's a "Your Guesses" section with the copy button
     const copyButton = page.getByRole('button', { name: /copy movie list/i });

@@ -213,6 +213,13 @@ export default function GameBoard() {
     });
   }, []);
 
+  // Listen for test event to end game (used by e2e tests)
+  useEffect(() => {
+    const handler = () => handleEndGame();
+    window.addEventListener('test:end-game', handler);
+    return () => window.removeEventListener('test:end-game', handler);
+  }, [handleEndGame]);
+
   // Get current phase
   const phase: GamePhase = gameState?.phase ?? 'idle';
 
@@ -540,17 +547,6 @@ export default function GameBoard() {
           {/* Note: backdrop-blur removed - it creates a stacking context that breaks dropdown z-index on mobile */}
           <div className="mb-4 md:mb-6 bg-white/10 rounded-xl p-3 md:p-6">
             <AutocompleteInput onSelect={handleMovieSelect} />
-          </div>
-
-          {/* End Game button - above movie list */}
-          <div className="mb-4 md:mb-6 text-center">
-            <button
-              onClick={handleEndGame}
-              className="btn-secondary"
-              aria-label="End game early and see results"
-            >
-              End Game
-            </button>
           </div>
 
           {/* Movie grid - shows guessed movies */}

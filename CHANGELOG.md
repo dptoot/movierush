@@ -4,6 +4,11 @@ All notable changes to MovieRush will be documented in this file.
 
 ## [Unreleased]
 
+### Removed
+- **End Game Button:** Removed from gameplay UI - players were confusing it for a submit button
+  - Game now ends only when timer expires
+  - E2e tests updated to use `test:end-game` custom event
+
 ### Fixed
 - **E2E Test CI Failures:** Tests no longer require database connection
   - Added API mock fixtures (`tests/e2e/fixtures/mock-api.ts`) with query-aware autocomplete mocks
