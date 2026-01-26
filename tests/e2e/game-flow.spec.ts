@@ -128,18 +128,11 @@ test.describe('Game Flow', () => {
     // Wait for results
     await expect(page.locator('[role="listbox"]')).toBeVisible({ timeout: 5000 });
 
-    // Get initial state - no option should be selected initially
-    const options = page.locator('[role="option"]');
-    const initialSelectedCount = await options.filter({ hasAttribute: ['aria-selected', 'true'] }).count();
-
     // Press arrow down to navigate
     await input.press('ArrowDown');
 
     // Wait for an option to become selected
     await expect(page.locator('[role="option"][aria-selected="true"]')).toBeVisible({ timeout: 2000 });
-
-    // Count selected options after pressing ArrowDown
-    const selectedOptions = options.filter({ has: page.locator('[aria-selected="true"]') });
 
     // Verify exactly one option is selected
     const selectedOption = page.locator('[role="option"][aria-selected="true"]');

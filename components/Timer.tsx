@@ -42,19 +42,17 @@ export default function Timer({ timeRemaining, maxTime = 60 }: TimerProps) {
       const circumference = 2 * Math.PI * 96;
       const overflowTime = Math.max(0, timeRemaining - maxTime);
       const effectiveTime = Math.min(timeRemaining, maxTime);
-      const progress = effectiveTime / maxTime;
+      const animProgress = effectiveTime / maxTime;
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Intentional: restart CSS animation on time bonuses/penalties
       setAnimation((prev) => ({
         key: prev.key + 1,
-        startOffset: circumference * (1 - progress),
+        startOffset: circumference * (1 - animProgress),
         duration: effectiveTime,
         delay: overflowTime,
       }));
     }
     prevTimeRef.current = timeRemaining;
   }, [timeRemaining, maxTime]);
-
-  // Calculate progress for color (still based on live timeRemaining)
-  const progress = Math.min(timeRemaining / maxTime, 1);
 
   // Calculate color based on time remaining
   // Gold (>30s) -> Orange (10-30s) -> Coral (<10s)

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { calculateTimeBonus, TimeBonusResult } from '@/lib/timeBonus';
+import { calculateTimeBonus } from '@/lib/timeBonus';
 
 describe('calculateTimeBonus', () => {
   describe('quality score calculation', () => {
