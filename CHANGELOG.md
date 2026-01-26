@@ -4,6 +4,13 @@ All notable changes to MovieRush will be documented in this file.
 
 ## [Unreleased]
 
+### Fixed
+- **E2E Test CI Performance:** Reduced test runtime from 41 minutes to ~21 seconds
+  - Use production server (`npm start`) in CI instead of dev server (`npm run dev`)
+  - Added global test timeout (30s), expect timeout (5s), action timeout (10s), navigation timeout (15s)
+  - Pipe server stdout/stderr in CI for better debugging
+  - Root cause: dev server was slow to start in CI without database connection
+
 ### Removed
 - **End Game Button:** Removed from gameplay UI - players were confusing it for a submit button
   - Game now ends only when timer expires
