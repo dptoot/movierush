@@ -167,6 +167,24 @@ export async function setupApiMocks(page: Page) {
       body: JSON.stringify({ success: true }),
     });
   });
+
+  // Mock the popular stats API
+  await page.route('**/api/stats/popular**', (route) => {
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ movies: [] }),
+    });
+  });
+
+  // Mock the rare stats API
+  await page.route('**/api/stats/rare**', (route) => {
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ movies: [] }),
+    });
+  });
 }
 
 /**
@@ -217,6 +235,24 @@ export async function setupApiMocksWithSearch(page: Page) {
       status: 200,
       contentType: 'application/json',
       body: JSON.stringify({ success: true }),
+    });
+  });
+
+  // Mock the popular stats API
+  await page.route('**/api/stats/popular**', (route) => {
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ movies: [] }),
+    });
+  });
+
+  // Mock the rare stats API
+  await page.route('**/api/stats/rare**', (route) => {
+    route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ movies: [] }),
     });
   });
 }
