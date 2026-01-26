@@ -5,9 +5,13 @@
   --color-movierush-navy: #1a2650;
   --color-movierush-gold: #FDB913;
   --color-movierush-coral: #E94F37;
+  /* Darker coral for WCAG AA contrast (5:1) with white text */
+  --color-movierush-coral-dark: #C43D27;
   --color-movierush-cream: #F5E6D3;
   /* Silver adjusted for WCAG AA contrast (4.5:1) on navy background */
   --color-movierush-silver: #A8B8C8;
+  /* Darker silver for WCAG AA contrast (4.5:1) on white background */
+  --color-movierush-silver-dark: #5C6A7A;
   --color-movierush-blue: #2E5C8A;
 
   /* Semantic colors */
@@ -118,7 +122,7 @@
   }
 
   .btn-secondary {
-    @apply bg-movierush-coral text-white;
+    @apply bg-movierush-coral-dark text-white;
     @apply font-bold px-6 py-3 rounded-lg;
     @apply min-h-12;
     @apply shadow-chunky;

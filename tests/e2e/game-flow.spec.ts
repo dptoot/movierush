@@ -1,7 +1,11 @@
 import { test, expect } from '@playwright/test';
+import { setupApiMocksWithSearch } from './fixtures/mock-api';
 
 test.describe('Game Flow', () => {
   test.beforeEach(async ({ page }) => {
+    // Set up API mocks BEFORE navigating to avoid database calls
+    await setupApiMocksWithSearch(page);
+
     // Clear localStorage before each test
     await page.goto('/');
     await page.evaluate(() => {
@@ -165,8 +169,8 @@ test.describe('Game Flow', () => {
 
 test.describe('Error Handling', () => {
   test('shows error state when challenge API fails', async ({ page }) => {
-    // Mock the challenge API to fail
-    await page.route('/api/challenge', (route) => {
+    // Mock the challenge API to fail (overrides any default mocks)
+    await page.route('**/api/challenge**', (route) => {
       route.fulfill({
         status: 500,
         body: JSON.stringify({ error: 'Server error' }),
@@ -184,7 +188,7 @@ test.describe('Error Handling', () => {
 
   test('shows message when no challenge available', async ({ page }) => {
     // Mock the challenge API to return 404
-    await page.route('/api/challenge', (route) => {
+    await page.route('**/api/challenge**', (route) => {
       route.fulfill({
         status: 404,
         body: JSON.stringify({ error: 'No challenge' }),

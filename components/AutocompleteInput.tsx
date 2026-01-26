@@ -218,7 +218,7 @@ export default function AutocompleteInput({
                 <p className={`truncate font-semibold ${index === selectedIndex ? 'text-movierush-navy' : 'text-movierush-navy'}`}>
                   {movie.title}
                 </p>
-                <p className={`text-sm ${index === selectedIndex ? 'text-movierush-navy/70' : 'text-movierush-silver'}`}>
+                <p className={`text-sm ${index === selectedIndex ? 'text-movierush-navy' : 'text-movierush-silver-dark'}`}>
                   {getYear(movie.release_date)}
                 </p>
               </div>
@@ -237,7 +237,7 @@ export default function AutocompleteInput({
       {/* No results message */}
       {showDropdown && query.length >= 2 && !isLoading && !searchError && suggestions.length === 0 && (
         <div className="absolute z-50 mt-2 w-full bg-white border-4 border-movierush-navy rounded-xl p-4 text-center shadow-chunky-lg">
-          <span className="text-movierush-silver italic">No matching movies found</span>
+          <span className="text-movierush-silver-dark italic">No matching movies found</span>
         </div>
       )}
     </div>

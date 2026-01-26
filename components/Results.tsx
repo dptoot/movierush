@@ -151,13 +151,13 @@ Play at: movierush.vercel.app`;
             <output className="text-3xl sm:text-4xl font-bold text-movierush-navy block" aria-label="Movies found">
               {guessedMovies.length}
             </output>
-            <p className="text-xs sm:text-sm text-movierush-silver">movies found</p>
+            <p className="text-xs sm:text-sm text-movierush-silver-dark">movies found</p>
           </div>
           <div className="card-chunky px-4 py-3 sm:px-8 sm:py-4">
             <output className="text-3xl sm:text-4xl font-bold text-movierush-coral block" aria-label="Total score">
               {score}
             </output>
-            <p className="text-xs sm:text-sm text-movierush-silver">points</p>
+            <p className="text-xs sm:text-sm text-movierush-silver-dark">points</p>
           </div>
         </div>
 
@@ -182,7 +182,7 @@ Play at: movierush.vercel.app`;
               localStorage.removeItem(`game_${challengeDate}`);
               window.location.reload();
             }}
-            className="text-xs text-movierush-cream/40 hover:text-movierush-coral underline mb-4"
+            className="text-xs text-movierush-silver hover:text-movierush-coral underline mb-4"
           >
             [Dev] Reset & Replay Today
           </button>
@@ -336,7 +336,7 @@ Play at: movierush.vercel.app`;
                             <p className="font-semibold text-movierush-navy line-clamp-1">
                               {movie.title}
                             </p>
-                            <p className="text-sm text-movierush-silver">
+                            <p className="text-sm text-movierush-silver-dark">
                               {movie.guess_count}{' '}
                               {movie.guess_count === 1 ? 'player' : 'players'}
                             </p>
@@ -379,7 +379,7 @@ Play at: movierush.vercel.app`;
                             <p className="font-semibold text-movierush-navy line-clamp-1">
                               {movie.title}
                             </p>
-                            <p className="text-sm text-movierush-silver">
+                            <p className="text-sm text-movierush-silver-dark">
                               {movie.guess_count}{' '}
                               {movie.guess_count === 1 ? 'player' : 'players'}
                             </p>

@@ -1,7 +1,11 @@
 import { test, expect } from '@playwright/test';
+import { setupApiMocksWithSearch } from './fixtures/mock-api';
 
 test.describe('localStorage Persistence', () => {
   test.beforeEach(async ({ page }) => {
+    // Set up API mocks BEFORE navigating to avoid database calls
+    await setupApiMocksWithSearch(page);
+
     // Clear localStorage before each test
     await page.goto('/');
     await page.evaluate(() => {
@@ -126,6 +130,9 @@ test.describe('localStorage Persistence', () => {
 
 test.describe('Share Functionality', () => {
   test.beforeEach(async ({ page }) => {
+    // Set up API mocks BEFORE navigating to avoid database calls
+    await setupApiMocksWithSearch(page);
+
     await page.goto('/');
     await page.evaluate(() => {
       localStorage.clear();

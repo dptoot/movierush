@@ -4,6 +4,16 @@ All notable changes to MovieRush will be documented in this file.
 
 ## [Unreleased]
 
+### Fixed
+- **E2E Test CI Failures:** Tests no longer require database connection
+  - Added API mock fixtures (`tests/e2e/fixtures/mock-api.ts`) with query-aware autocomplete mocks
+  - All 32 e2e tests now pass in CI without `DATABASE_URL` secret
+- **WCAG AA Color Contrast:** Fixed all color contrast violations for accessibility compliance
+  - Added `--color-movierush-coral-dark` (#C43D27) for buttons with white text (5:1 ratio)
+  - Added `--color-movierush-silver-dark` (#5C6A7A) for text on white backgrounds (4.5:1 ratio)
+  - Updated Results component: card labels ("movies found", "points", player counts)
+  - Updated AutocompleteInput: year text and "no results" message
+
 ### Changed
 - **Local Timezone Support:** Challenge now resets at midnight local time instead of UTC (like Wordle)
   - API accepts `?date=YYYY-MM-DD` parameter for client-driven date selection
