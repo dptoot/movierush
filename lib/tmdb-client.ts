@@ -108,6 +108,7 @@ function getClient(): TMDB {
 /**
  * Search for movies by title
  * Uses direct TMDB API call (not tmdb-ts library) for consistent results
+ * Fetches pages 1 and 2 in parallel to improve result coverage
  */
 export async function searchMovies(query: string): Promise<TMDBMovie[]> {
   const apiKey = process.env.TMDB_API_KEY;
@@ -129,12 +130,16 @@ export async function searchMovies(query: string): Promise<TMDBMovie[]> {
     }));
   }
 
-  // Direct API call - matches behavior of other TMDB-powered sites
-  const url = `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(query)}&api_key=${apiKey}`;
+  // Direct API call - fetch pages 1 and 2 in parallel for better coverage
+  const baseUrl = `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(query)}&api_key=${apiKey}`;
 
-  let response;
+  let responses;
   try {
-    response = await fetch(url);
+    // Fetch both pages in parallel
+    responses = await Promise.all([
+      fetch(`${baseUrl}&page=1`),
+      fetch(`${baseUrl}&page=2`),
+    ]);
   } catch (fetchError) {
     console.error('TMDB fetch error:', fetchError);
     // Fallback to tmdb-ts on network error
@@ -153,13 +158,35 @@ export async function searchMovies(query: string): Promise<TMDBMovie[]> {
     }));
   }
 
-  if (!response.ok) {
-    throw new Error(`TMDB search failed: ${response.status}`);
+  // Check if page 1 succeeded (required)
+  if (!responses[0].ok) {
+    throw new Error(`TMDB search failed: ${responses[0].status}`);
   }
 
-  const data = await response.json();
+  const page1Data = await responses[0].json();
+  const page1Results = page1Data.results || [];
 
-  return (data.results || []).map((movie: Record<string, unknown>) => ({
+  // Only process page 2 if it succeeded and there are more results
+  let page2Results: Record<string, unknown>[] = [];
+  if (responses[1].ok && page1Data.total_results > 20) {
+    const page2Data = await responses[1].json();
+    page2Results = page2Data.results || [];
+  }
+
+  // Merge results and deduplicate by movie ID
+  const allResults = [...page1Results, ...page2Results];
+  const seenIds = new Set<number>();
+  const uniqueResults: Record<string, unknown>[] = [];
+
+  for (const movie of allResults) {
+    const id = movie.id as number;
+    if (!seenIds.has(id)) {
+      seenIds.add(id);
+      uniqueResults.push(movie);
+    }
+  }
+
+  return uniqueResults.map((movie: Record<string, unknown>) => ({
     id: movie.id as number,
     title: movie.title as string,
     release_date: (movie.release_date as string) ?? '',

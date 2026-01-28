@@ -4,6 +4,13 @@ All notable changes to MovieRush will be documented in this file.
 
 ## [Unreleased]
 
+### Changed
+- **Autocomplete Search Coverage:** Now fetches 2 pages from TMDB API for better results
+  - Fetch pages 1 and 2 in parallel using `Promise.all` (no latency increase)
+  - Merge and deduplicate results by movie ID
+  - Gracefully handle when page 2 doesn't exist
+  - Fixes classic films like "Romeo + Juliet" (1996) not appearing in autocomplete
+
 ### Fixed
 - **E2E Test CI Performance:** Reduced test runtime from 41 minutes to ~21 seconds
   - Use production server (`npm start`) in CI instead of dev server (`npm run dev`)
