@@ -251,7 +251,10 @@ export async function searchPerson(name: string): Promise<TMDBPerson[]> {
 }
 
 /**
- * Get all movies for an actor (cast credits), filtered for feature films only
+ * Get all movies for an actor (cast credits), filtered for feature-length films
+ *
+ * Includes theatrical releases and TV movies, excludes documentaries.
+ * Runtime filter: 75-240 minutes (allows epic films like Killers of the Flower Moon).
  *
  * Performance: Uses batched parallel fetching (10 concurrent requests)
  * to significantly speed up processing for actors with large filmographies.
@@ -285,8 +288,8 @@ export async function getActorMovies(personId: number): Promise<TMDBMovie[]> {
       const genres = (details.genres ?? []) as Genre[];
       const isFeatureFilm =
         runtime >= 75 && // Feature film length
-        runtime <= 200 && // Reasonable maximum
-        !genres.some((g) => ['Documentary', 'TV Movie'].includes(g.name));
+        runtime <= 240 && // Reasonable maximum (allows epic films)
+        !genres.some((g) => g.name === 'Documentary');
 
       if (isFeatureFilm) {
         return {

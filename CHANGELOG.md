@@ -12,6 +12,12 @@ All notable changes to MovieRush will be documented in this file.
   - Fixes classic films like "Romeo + Juliet" (1996) not appearing in autocomplete
 
 ### Fixed
+- **Movie Filtering Bug:** Valid movies incorrectly rejected as wrong answers
+  - Increased runtime cap from 200 to 240 minutes (allows epic films like "Killers of the Flower Moon")
+  - Removed TV Movie genre exclusion (allows films like "Mazes and Monsters")
+  - Note: Existing challenges need regeneration to include these movies
+
+### Fixed
 - **E2E Test CI Performance:** Reduced test runtime from 41 minutes to ~21 seconds
   - Use production server (`npm start`) in CI instead of dev server (`npm run dev`)
   - Added global test timeout (30s), expect timeout (5s), action timeout (10s), navigation timeout (15s)
