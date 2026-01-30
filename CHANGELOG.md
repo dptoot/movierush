@@ -4,6 +4,12 @@ All notable changes to MovieRush will be documented in this file.
 
 ## [Unreleased]
 
+### Fixed
+- **Stats Race Condition:** Results screen now waits for all guess recordings to complete
+  - Player's own guesses were missing from "Most Popular" and "Hidden Gems" stats on initial render
+  - Added transitional "Saving results..." state that awaits all pending record-guess API calls
+  - Reduced stats API cache TTL from 5 minutes to 1 minute for fresher data between players
+
 ### Improved
 - **Autocomplete UX:** First dropdown item is now auto-selected when results appear
   - Pressing Enter immediately submits the top result (no arrow key navigation needed)

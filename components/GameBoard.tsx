@@ -95,6 +95,12 @@ export default function GameBoard() {
   // Track if we've initialized from localStorage (prevents saving during load)
   const initializedRef = useRef(false);
 
+  // Track pending record-guess promises to await before showing results
+  const pendingStatsRef = useRef<Promise<unknown>[]>([]);
+
+  // Track if we're in the process of ending the game (awaiting stats)
+  const [isEndingGame, setIsEndingGame] = useState(false);
+
   // Load saved game state after challenge is fetched
   // Uses user's local date for replay prevention (like Wordle)
   useEffect(() => {
@@ -156,6 +162,32 @@ export default function GameBoard() {
     saveGame({ gameState, guessedMovies });
   }, [gameState, guessedMovies]);
 
+  // When ending game, await all pending stats before transitioning to results
+  useEffect(() => {
+    if (!isEndingGame) return;
+
+    async function finishGame() {
+      // Wait for all pending record-guess calls to complete
+      if (pendingStatsRef.current.length > 0) {
+        await Promise.all(pendingStatsRef.current);
+        pendingStatsRef.current = [];
+      }
+
+      // Now transition to ended state
+      setGameState((prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          phase: 'ended',
+          completedAt: Date.now(),
+        };
+      });
+      setIsEndingGame(false);
+    }
+
+    finishGame();
+  }, [isEndingGame]);
+
   // Fetch challenge on mount using user's local date
   // Challenge changes at midnight local time (like Wordle)
   useEffect(() => {
@@ -201,16 +233,9 @@ export default function GameBoard() {
     });
   }, [challenge, localDate]);
 
-  // End the game manually
+  // End the game manually (will await pending stats)
   const handleEndGame = useCallback(() => {
-    setGameState((prev) => {
-      if (!prev) return prev;
-      return {
-        ...prev,
-        phase: 'ended',
-        completedAt: Date.now(),
-      };
-    });
+    setIsEndingGame(true);
   }, []);
 
   // Listen for test event to end game (used by e2e tests)
@@ -285,8 +310,8 @@ export default function GameBoard() {
         // Show positive feedback
         showFeedback('correct', `+${timeBonus}s`);
 
-        // Record guess for social stats (fire-and-forget, don't await)
-        fetch('/api/stats/record-guess', {
+        // Record guess for social stats - track promise to await before showing results
+        const recordPromise = fetch('/api/stats/record-guess', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -296,6 +321,7 @@ export default function GameBoard() {
         }).catch((err) => {
           console.error('Failed to record guess stat:', err);
         });
+        pendingStatsRef.current.push(recordPromise);
 
         // Correct guess - add to guessed movies with scoring info
         setGuessedMovies((prev) => [
@@ -318,14 +344,14 @@ export default function GameBoard() {
           const newGuessedIds = [...prev.guessedMovieIds, movie.id];
           const newTimeRemaining = Math.min(prev.timeRemaining + timeBonus, MAX_TIME);
 
-          // Check if all movies found - end game early
+          // Check if all movies found - trigger game end (will await pending stats)
           if (newGuessedIds.length >= challenge.total_movies) {
+            // Use setTimeout to trigger end after state update completes
+            setTimeout(() => setIsEndingGame(true), 0);
             return {
               ...prev,
               guessedMovieIds: newGuessedIds,
               timeRemaining: newTimeRemaining,
-              phase: 'ended',
-              completedAt: Date.now(),
             };
           }
 
@@ -346,14 +372,13 @@ export default function GameBoard() {
 
           const newTime = Math.max(0, prev.timeRemaining - TIME_PENALTY);
 
-          // If time runs out from penalty, end game
+          // If time runs out from penalty, trigger game end (will await pending stats)
           if (newTime <= 0) {
+            setTimeout(() => setIsEndingGame(true), 0);
             return {
               ...prev,
               timeRemaining: 0,
               incorrectCount: prev.incorrectCount + 1,
-              phase: 'ended',
-              completedAt: Date.now(),
             };
           }
 
@@ -370,7 +395,7 @@ export default function GameBoard() {
 
   // Timer countdown effect
   useEffect(() => {
-    if (phase !== 'playing') return;
+    if (phase !== 'playing' || isEndingGame) return;
 
     const interval = setInterval(() => {
       setGameState((prev) => {
@@ -378,13 +403,12 @@ export default function GameBoard() {
 
         const newTime = prev.timeRemaining - 1;
 
-        // Time's up - end the game
+        // Time's up - trigger game end (will await pending stats)
         if (newTime <= 0) {
+          setTimeout(() => setIsEndingGame(true), 0);
           return {
             ...prev,
             timeRemaining: 0,
-            phase: 'ended',
-            completedAt: Date.now(),
           };
         }
 
@@ -396,7 +420,7 @@ export default function GameBoard() {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [phase]);
+  }, [phase, isEndingGame]);
 
   // Retry handler for error state (must be before conditional returns to follow hooks rules)
   const handleRetry = useCallback(() => {
@@ -496,6 +520,18 @@ export default function GameBoard() {
           <p className="text-lg text-movierush-silver">
             {localDate && formatDateForDisplay(localDate)}
           </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Ending state - show brief loading while awaiting stats to be recorded
+  if (isEndingGame) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-movierush-navy p-4 safe-area-padding">
+        <div className="text-center">
+          <div className="mb-4 h-8 w-8 mx-auto animate-spin rounded-full border-2 border-movierush-gold border-t-transparent"></div>
+          <p className="text-movierush-gold">Saving results...</p>
         </div>
       </div>
     );

@@ -19,9 +19,9 @@ interface RareMovie {
  * Returns the least frequently guessed movies for a challenge (hidden gems).
  *
  * Caching Strategy:
- * - s-maxage=300: CDN caches for 5 minutes
+ * - s-maxage=60: CDN caches for 1 minute
  * - stale-while-revalidate: Serve stale content while revalidating
- * - Balances freshness with performance for leaderboard-style data
+ * - Short TTL ensures stats stay relatively fresh for active games
  */
 export async function GET(request: NextRequest) {
   try {
@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get('limit') || '5', 10);
 
     const cacheHeaders = {
-      'Cache-Control': 's-maxage=300, stale-while-revalidate',
+      'Cache-Control': 's-maxage=60, stale-while-revalidate',
     };
 
     if (!challengeId) {
