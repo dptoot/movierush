@@ -58,7 +58,8 @@ export default function AutocompleteInput({
       const data = await response.json();
       setSuggestions(data.results || []);
       setShowDropdown(data.results?.length > 0);
-      setSelectedIndex(-1);
+      // Auto-select first result so Enter submits immediately
+      setSelectedIndex(data.results?.length > 0 ? 0 : -1);
     } catch (error) {
       console.error('Autocomplete error:', error);
       setSuggestions([]);
@@ -170,7 +171,12 @@ export default function AutocompleteInput({
           value={query}
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
-          onFocus={() => suggestions.length > 0 && setShowDropdown(true)}
+          onFocus={() => {
+            if (suggestions.length > 0) {
+              setShowDropdown(true);
+              setSelectedIndex(0); // Ensure first item is selected on focus
+            }
+          }}
           placeholder="Type a movie name..."
           disabled={disabled}
           className="w-full bg-white text-movierush-navy border-4 border-movierush-gold rounded-lg px-4 md:px-6 py-4 text-lg md:text-xl outline-none transition-all focus:ring-4 focus:ring-movierush-gold/50 placeholder:text-movierush-silver disabled:cursor-not-allowed disabled:opacity-50"

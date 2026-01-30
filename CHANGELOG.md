@@ -4,6 +4,12 @@ All notable changes to MovieRush will be documented in this file.
 
 ## [Unreleased]
 
+### Improved
+- **Autocomplete UX:** First dropdown item is now auto-selected when results appear
+  - Pressing Enter immediately submits the top result (no arrow key navigation needed)
+  - Works on both desktop and mobile (keyboard "Go" button)
+  - Reduces keystrokes for faster movie guessing
+
 ### Changed
 - **Autocomplete Search Coverage:** Now fetches 2 pages from TMDB API for better results
   - Fetch pages 1 and 2 in parallel using `Promise.all` (no latency increase)
