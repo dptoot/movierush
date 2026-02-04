@@ -447,17 +447,22 @@ interface PlayerStats {
 **Tasks:**
 - [x] Refine challenge generation script
 - [x] Add validation rules (difficulty, list size)
-- [x] Set up cron job (Vercel Cron)
-  - Created `/api/cron/generate-challenge` endpoint
-  - Added `vercel.json` with cron schedule (6 PM UTC daily)
-  - Implemented CRON_SECRET authorization
-  - Created `lib/featured-actors.ts` with 100 curated actors
-  - Deterministic actor selection (same date = same actor)
-  - Duplicate prevention (checks before generating)
-- [ ] Pre-generate 30 days of challenges
-- [ ] Monitor and adjust
+- [x] Set up cron job (GitHub Actions)
+  - Created `.github/workflows/daily-challenge.yml`
+  - Runs at 6 PM UTC daily (1 PM EST) to generate tomorrow's challenge
+  - Manual trigger via workflow_dispatch for emergency re-runs
+  - Email notification on failure (default GitHub behavior)
+- [x] Expanded actor list with random selection
+  - `lib/featured-actors.ts` now contains 300+ curated actors
+  - Random selection (not deterministic) for variety
+  - Retry logic: 3 attempts with different actors on validation failure
+- [x] Dry-run mode for testing (`--dry-run` flag)
+- [x] Cleanup script for future challenges (`scripts/cleanup-future-challenges.ts`)
+- [x] Removed deprecated files:
+  - `scripts/generate-month.ts` (batch generation)
+  - `scripts/trigger-cron.ts` (Vercel cron testing)
 
-**Deliverable:** Self-sustaining daily challenge system
+**Deliverable:** Self-sustaining daily challenge system via GitHub Actions
 
 ---
 

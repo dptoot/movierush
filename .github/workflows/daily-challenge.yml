@@ -1,0 +1,64 @@
+name: Daily Challenge Generation
+
+on:
+  schedule:
+    # Run at 6 PM UTC daily (1 PM EST / 2 PM EDT)
+    # Generates tomorrow's challenge, giving 6+ hours to fix issues before midnight
+    - cron: '0 18 * * *'
+  workflow_dispatch:
+    # Allow manual trigger from GitHub UI for emergency re-runs
+    inputs:
+      date:
+        description: 'Target date (YYYY-MM-DD). Leave empty for tomorrow.'
+        required: false
+        type: string
+      dry_run:
+        description: 'Dry run mode (preview without database changes)'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  generate-challenge:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate challenge
+        id: generate
+        run: |
+          # Build command with optional flags
+          CMD="npx tsx scripts/generate-challenge.ts"
+
+          if [ -n "${{ github.event.inputs.date }}" ]; then
+            CMD="$CMD --date ${{ github.event.inputs.date }}"
+          fi
+
+          if [ "${{ github.event.inputs.dry_run }}" == "true" ]; then
+            CMD="$CMD --dry-run"
+          fi
+
+          echo "Running: $CMD"
+          $CMD
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          TMDB_ACCESS_TOKEN: ${{ secrets.TMDB_ACCESS_TOKEN }}
+
+      - name: Log completion
+        if: success()
+        run: |
+          echo "Challenge generation completed successfully"
+          echo "Workflow: ${{ github.workflow }}"
+          echo "Run ID: ${{ github.run_id }}"
+          echo "Triggered by: ${{ github.event_name }}"

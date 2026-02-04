@@ -4,6 +4,19 @@ All notable changes to MovieRush will be documented in this file.
 
 ## [Unreleased]
 
+### Changed
+- **Daily Challenge Automation:** Migrated from Vercel Cron to GitHub Actions
+  - New workflow at `.github/workflows/daily-challenge.yml`
+  - Runs at 6 PM UTC (1 PM EST) daily to generate tomorrow's challenge
+  - Manual trigger via workflow_dispatch for emergency re-runs
+  - Email notification on failure (default GitHub behavior)
+  - Expanded actor list from 114 to 300+ curated actors spanning all decades
+  - Random actor selection (not deterministic) for variety
+  - Retry logic: 3 attempts with different actors on validation failure
+  - Dry-run mode (`--dry-run` flag) for testing without database changes
+  - New cleanup script (`scripts/cleanup-future-challenges.ts`) for database maintenance
+  - Removed deprecated files: `scripts/generate-month.ts`, `scripts/trigger-cron.ts`
+
 ### Fixed
 - **Stats Race Condition:** Results screen now waits for all guess recordings to complete
   - Player's own guesses were missing from "Most Popular" and "Hidden Gems" stats on initial render
