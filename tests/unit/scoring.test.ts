@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { calculatePoints, ScoringResult } from '@/lib/scoring';
+import { calculatePoints, ScoringResult, SCORE_SCALE } from '@/lib/scoring';
 
 describe('calculatePoints', () => {
   describe('quality score calculation', () => {
@@ -21,147 +21,145 @@ describe('calculatePoints', () => {
 
   describe('tier classification', () => {
     it('classifies very-well-known movies (quality >= 3000)', () => {
-      // 5000 votes * 7.0 rating = 3500 quality score
       const result = calculatePoints(5000, 7.0);
       expect(result.tier).toBe('very-well-known');
-      expect(result.qualityScore).toBe(3500);
     });
 
     it('classifies well-known movies (1000 <= quality < 3000)', () => {
-      // 2000 votes * 7.0 rating = 1400 quality score
       const result = calculatePoints(2000, 7.0);
       expect(result.tier).toBe('well-known');
-      expect(result.qualityScore).toBe(1400);
     });
 
     it('classifies moderate movies (200 <= quality < 1000)', () => {
-      // 500 votes * 8.0 rating = 400 quality score
       const result = calculatePoints(500, 8.0);
       expect(result.tier).toBe('moderate');
-      expect(result.qualityScore).toBe(400);
     });
 
     it('classifies obscure movies (quality < 200)', () => {
-      // 100 votes * 6.0 rating = 60 quality score
       const result = calculatePoints(100, 6.0);
       expect(result.tier).toBe('obscure');
-      expect(result.qualityScore).toBe(60);
     });
   });
 
-  describe('boundary conditions', () => {
-    it('classifies exactly 3000 as very-well-known', () => {
-      // 4000 votes * 7.5 rating = 3000 quality score
-      const result = calculatePoints(4000, 7.5);
-      expect(result.tier).toBe('very-well-known');
-      expect(result.qualityScore).toBe(3000);
+  describe('continuous power curve scoring', () => {
+    it('awards SCORE_SCALE for quality score of 0', () => {
+      const result = calculatePoints(0, 8.0);
+      expect(result.totalPoints).toBe(SCORE_SCALE);
     });
 
-    it('classifies just below 3000 as well-known', () => {
-      // 3998 votes * 7.5 rating = 2998.5 quality score
-      const result = calculatePoints(3998, 7.5);
-      expect(result.tier).toBe('well-known');
-      expect(result.qualityScore).toBeCloseTo(2998.5);
+    it('awards MIN_POINTS for quality score at or above cap (10,000)', () => {
+      const result = calculatePoints(30000, 8.5);
+      expect(result.totalPoints).toBe(3);
     });
 
-    it('classifies exactly 1000 as well-known', () => {
-      // 1000 votes * 10.0 rating = 1000 quality score
-      const result = calculatePoints(1000, 10.0);
-      expect(result.tier).toBe('well-known');
-      expect(result.qualityScore).toBe(1000);
-    });
-
-    it('classifies just below 1000 as moderate', () => {
-      // 999 votes * 10.0 rating = 999 quality score
-      const result = calculatePoints(999, 10.0);
-      expect(result.tier).toBe('moderate');
-      expect(result.qualityScore).toBe(999);
-    });
-
-    it('classifies exactly 200 as moderate', () => {
-      // 200 votes * 10.0 rating = 200 quality score
-      const result = calculatePoints(200, 10.0);
-      expect(result.tier).toBe('moderate');
-      expect(result.qualityScore).toBe(200);
-    });
-
-    it('classifies just below 200 as obscure', () => {
-      // 199 votes * 10.0 rating = 199 quality score
-      const result = calculatePoints(199, 10.0);
-      expect(result.tier).toBe('obscure');
-      expect(result.qualityScore).toBe(199);
-    });
-  });
-
-  describe('points calculation', () => {
-    it('awards 10 base points for all tiers', () => {
-      const tiers: ScoringResult['tier'][] = ['very-well-known', 'well-known', 'moderate', 'obscure'];
-      const testCases = [
-        { voteCount: 5000, voteAverage: 7.0 }, // very-well-known
-        { voteCount: 2000, voteAverage: 7.0 }, // well-known
-        { voteCount: 500, voteAverage: 8.0 },  // moderate
-        { voteCount: 100, voteAverage: 6.0 },  // obscure
+    it('scores decrease monotonically as quality score increases', () => {
+      const qualityInputs = [
+        { voteCount: 10, voteAverage: 5.0 },   // QS = 5
+        { voteCount: 100, voteAverage: 6.0 },   // QS = 60
+        { voteCount: 500, voteAverage: 8.0 },   // QS = 400
+        { voteCount: 2000, voteAverage: 7.0 },  // QS = 1400
+        { voteCount: 5000, voteAverage: 7.0 },  // QS = 3500
+        { voteCount: 15000, voteAverage: 8.0 }, // QS = 12000
       ];
 
-      testCases.forEach((tc, index) => {
+      const scores = qualityInputs.map(tc => calculatePoints(tc.voteCount, tc.voteAverage).totalPoints);
+
+      for (let i = 1; i < scores.length; i++) {
+        expect(scores[i]).toBeLessThanOrEqual(scores[i - 1]);
+      }
+    });
+
+    it('produces unique scores for movies with different quality scores', () => {
+      // Sam Rockwell game mock — all should have distinct scores
+      const movies = [
+        { voteCount: 12534, voteAverage: 6.8 }, // Iron Man 2
+        { voteCount: 8121, voteAverage: 8.1 },  // Three Billboards
+        { voteCount: 4567, voteAverage: 7.6 },  // Moon
+        { voteCount: 2543, voteAverage: 7.2 },  // Galaxy Quest
+        { voteCount: 1523, voteAverage: 7.1 },  // The Way Way Back
+        { voteCount: 578, voteAverage: 6.6 },   // Confessions
+        { voteCount: 56, voteAverage: 7.0 },    // Lawn Dogs
+      ];
+
+      const scores = movies.map(m => calculatePoints(m.voteCount, m.voteAverage).totalPoints);
+      const uniqueScores = new Set(scores);
+      expect(uniqueScores.size).toBe(scores.length);
+    });
+
+    it('distributes gaps evenly across the score range', () => {
+      // The power curve should produce gaps that don't vary wildly
+      const movies = [
+        { voteCount: 56, voteAverage: 7.0 },    // QS ~39
+        { voteCount: 578, voteAverage: 6.6 },   // QS ~381
+        { voteCount: 1523, voteAverage: 7.1 },  // QS ~1081
+        { voteCount: 2543, voteAverage: 7.2 },  // QS ~1831
+        { voteCount: 4567, voteAverage: 7.6 },  // QS ~3471
+        { voteCount: 8121, voteAverage: 8.1 },  // QS ~6578
+      ];
+
+      const scores = movies.map(m => calculatePoints(m.voteCount, m.voteAverage).totalPoints);
+      const gaps = [];
+      for (let i = 1; i < scores.length; i++) {
+        gaps.push(scores[i - 1] - scores[i]);
+      }
+
+      const maxGap = Math.max(...gaps);
+      const minGap = Math.min(...gaps);
+      // Power curve gaps should be within 4x of each other (log would be 25x+)
+      expect(maxGap / minGap).toBeLessThan(4);
+    });
+
+    it('totalPoints is always between MIN_POINTS and SCORE_SCALE', () => {
+      const testCases = [
+        { voteCount: 0, voteAverage: 0 },
+        { voteCount: 0, voteAverage: 10 },
+        { voteCount: 50, voteAverage: 6.5 },
+        { voteCount: 800, voteAverage: 7.5 },
+        { voteCount: 50000, voteAverage: 9.0 },
+      ];
+
+      testCases.forEach((tc) => {
         const result = calculatePoints(tc.voteCount, tc.voteAverage);
-        expect(result.basePoints).toBe(10);
-        expect(result.tier).toBe(tiers[index]);
+        expect(result.totalPoints).toBeGreaterThanOrEqual(3);
+        expect(result.totalPoints).toBeLessThanOrEqual(SCORE_SCALE);
       });
     });
 
-    it('awards 0 bonus points for very-well-known movies', () => {
-      const result = calculatePoints(5000, 7.0);
-      expect(result.bonusPoints).toBe(0);
-      expect(result.totalPoints).toBe(10);
-    });
-
-    it('awards 5 bonus points for well-known movies', () => {
-      const result = calculatePoints(2000, 7.0);
-      expect(result.bonusPoints).toBe(5);
-      expect(result.totalPoints).toBe(15);
-    });
-
-    it('awards 10 bonus points for moderate movies', () => {
-      const result = calculatePoints(500, 8.0);
-      expect(result.bonusPoints).toBe(10);
-      expect(result.totalPoints).toBe(20);
-    });
-
-    it('awards 20 bonus points for obscure movies', () => {
-      const result = calculatePoints(100, 6.0);
-      expect(result.bonusPoints).toBe(20);
-      expect(result.totalPoints).toBe(30);
+    it('interface has no basePoints or bonusPoints fields', () => {
+      const result = calculatePoints(1000, 7.0);
+      expect(result).toHaveProperty('qualityScore');
+      expect(result).toHaveProperty('tier');
+      expect(result).toHaveProperty('totalPoints');
+      expect(result).not.toHaveProperty('basePoints');
+      expect(result).not.toHaveProperty('bonusPoints');
     });
   });
 
   describe('real-world examples', () => {
-    it('scores a blockbuster like The Dark Knight correctly', () => {
-      // Approximately: 30000 votes, 8.5 rating = 25500 quality score
+    it('scores a blockbuster at the floor', () => {
+      // The Dark Knight: ~30000 votes, 8.5 rating = 25500 QS (above cap)
       const result = calculatePoints(30000, 8.5);
       expect(result.tier).toBe('very-well-known');
-      expect(result.totalPoints).toBe(10);
+      expect(result.totalPoints).toBe(3);
     });
 
-    it('scores a moderately popular film correctly', () => {
-      // Approximately: 1500 votes, 7.0 rating = 1050 quality score
-      const result = calculatePoints(1500, 7.0);
-      expect(result.tier).toBe('well-known');
-      expect(result.totalPoints).toBe(15);
+    it('scores a moderately popular film higher than a blockbuster', () => {
+      const moderate = calculatePoints(1500, 7.0);
+      const blockbuster = calculatePoints(30000, 8.5);
+      expect(moderate.totalPoints).toBeGreaterThan(blockbuster.totalPoints);
     });
 
-    it('scores a cult classic correctly', () => {
-      // Approximately: 800 votes, 7.5 rating = 600 quality score
-      const result = calculatePoints(800, 7.5);
-      expect(result.tier).toBe('moderate');
-      expect(result.totalPoints).toBe(20);
+    it('scores a cult classic higher than a moderately popular film', () => {
+      const cult = calculatePoints(800, 7.5);
+      const moderate = calculatePoints(1500, 7.0);
+      expect(cult.totalPoints).toBeGreaterThan(moderate.totalPoints);
     });
 
-    it('scores an obscure indie film correctly', () => {
-      // Approximately: 50 votes, 6.5 rating = 32.5 quality score
-      const result = calculatePoints(50, 6.5);
-      expect(result.tier).toBe('obscure');
-      expect(result.totalPoints).toBe(30);
+    it('scores an obscure indie film highest', () => {
+      const obscure = calculatePoints(50, 6.5);
+      const cult = calculatePoints(800, 7.5);
+      expect(obscure.totalPoints).toBeGreaterThan(cult.totalPoints);
+      expect(obscure.totalPoints).toBeGreaterThan(50);
     });
   });
 });

@@ -5,22 +5,27 @@
  *
  * Quality score = vote_count × (vote_average / 10)
  *
- * Base points: 10 per correct movie
+ * Uses a continuous power curve so every movie gets a unique score
+ * proportional to its obscurity, with evenly distributed gaps.
  *
- * Popularity bonus tiers:
- * - Very Well-Known (3000+): +0 bonus points
- * - Well-Known (1000-2999): +5 bonus points
- * - Moderate (200-999): +10 bonus points
- * - Obscure (<200): +20 bonus points
+ * Formula: points = max(MIN_POINTS, round(SCORE_SCALE × (1 - (QS / CAP)^CURVE_EXPONENT)))
+ *
+ * SCORE_SCALE: max possible points per movie (configurable)
+ * QUALITY_CAP: quality score at which points drop to the floor
+ * CURVE_EXPONENT: controls gap distribution (lower = more even, higher = more aggressive)
+ * MIN_POINTS: floor so a correct guess is always worth something
+ *
+ * Tiers are retained for display/feedback purposes only.
  */
 
-const BASE_POINTS = 10;
+export const SCORE_SCALE = 100;
+const QUALITY_CAP = 10_000;
+const CURVE_EXPONENT = 0.4;
+const MIN_POINTS = 3;
 
 export interface ScoringResult {
   qualityScore: number;
   tier: 'very-well-known' | 'well-known' | 'moderate' | 'obscure';
-  basePoints: number;
-  bonusPoints: number;
   totalPoints: number;
 }
 
@@ -28,29 +33,30 @@ export function calculatePoints(voteCount: number, voteAverage: number): Scoring
   // Calculate quality score
   const qualityScore = voteCount * (voteAverage / 10);
 
-  // Determine tier and bonus
+  // Determine tier (for display purposes)
   let tier: ScoringResult['tier'];
-  let bonusPoints: number;
-
   if (qualityScore >= 3000) {
     tier = 'very-well-known';
-    bonusPoints = 0;
   } else if (qualityScore >= 1000) {
     tier = 'well-known';
-    bonusPoints = 5;
   } else if (qualityScore >= 200) {
     tier = 'moderate';
-    bonusPoints = 10;
   } else {
     tier = 'obscure';
-    bonusPoints = 20;
+  }
+
+  // Continuous power curve: more obscure → more points
+  let totalPoints: number;
+  if (qualityScore >= QUALITY_CAP) {
+    totalPoints = MIN_POINTS;
+  } else {
+    const ratio = Math.pow(qualityScore / QUALITY_CAP, CURVE_EXPONENT);
+    totalPoints = Math.max(MIN_POINTS, Math.round(SCORE_SCALE * (1 - ratio)));
   }
 
   return {
     qualityScore,
     tier,
-    basePoints: BASE_POINTS,
-    bonusPoints,
-    totalPoints: BASE_POINTS + bonusPoints,
+    totalPoints,
   };
 }
