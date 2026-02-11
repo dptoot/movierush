@@ -10,18 +10,18 @@
  *
  * Formula: points = max(MIN_POINTS, round(SCORE_SCALE × (1 - (QS / CAP)^CURVE_EXPONENT)))
  *
- * SCORE_SCALE: max possible points per movie (configurable)
- * QUALITY_CAP: quality score at which points drop to the floor
+ * SCORE_SCALE: max possible points per movie (300)
+ * QUALITY_CAP: quality score at which points drop to the floor (15,000)
  * CURVE_EXPONENT: controls gap distribution (lower = more even, higher = more aggressive)
  * MIN_POINTS: floor so a correct guess is always worth something
  *
  * Tiers are retained for display/feedback purposes only.
  */
 
-export const SCORE_SCALE = 100;
-const QUALITY_CAP = 10_000;
+export const SCORE_SCALE = 300;
+const QUALITY_CAP = 15_000;
 const CURVE_EXPONENT = 0.4;
-const MIN_POINTS = 3;
+const MIN_POINTS = 100;
 
 export interface ScoringResult {
   qualityScore: number;

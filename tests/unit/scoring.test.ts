@@ -47,9 +47,9 @@ describe('calculatePoints', () => {
       expect(result.totalPoints).toBe(SCORE_SCALE);
     });
 
-    it('awards MIN_POINTS for quality score at or above cap (10,000)', () => {
+    it('awards MIN_POINTS for quality score at or above cap (15,000)', () => {
       const result = calculatePoints(30000, 8.5);
-      expect(result.totalPoints).toBe(3);
+      expect(result.totalPoints).toBe(100);
     });
 
     it('scores decrease monotonically as quality score increases', () => {
@@ -69,16 +69,14 @@ describe('calculatePoints', () => {
       }
     });
 
-    it('produces unique scores for movies with different quality scores', () => {
-      // Sam Rockwell game mock — all should have distinct scores
+    it('produces unique scores for movies with sufficiently different quality scores', () => {
+      // Movies spread across the scoring range — all should have distinct scores
       const movies = [
-        { voteCount: 12534, voteAverage: 6.8 }, // Iron Man 2
-        { voteCount: 8121, voteAverage: 8.1 },  // Three Billboards
-        { voteCount: 4567, voteAverage: 7.6 },  // Moon
-        { voteCount: 2543, voteAverage: 7.2 },  // Galaxy Quest
-        { voteCount: 1523, voteAverage: 7.1 },  // The Way Way Back
-        { voteCount: 578, voteAverage: 6.6 },   // Confessions
-        { voteCount: 56, voteAverage: 7.0 },    // Lawn Dogs
+        { voteCount: 4567, voteAverage: 7.6 },  // Moon (QS ~3471)
+        { voteCount: 2543, voteAverage: 7.2 },  // Galaxy Quest (QS ~1831)
+        { voteCount: 1523, voteAverage: 7.1 },  // The Way Way Back (QS ~1081)
+        { voteCount: 578, voteAverage: 6.6 },   // Confessions (QS ~381)
+        { voteCount: 56, voteAverage: 7.0 },    // Lawn Dogs (QS ~39)
       ];
 
       const scores = movies.map(m => calculatePoints(m.voteCount, m.voteAverage).totalPoints);
@@ -120,7 +118,7 @@ describe('calculatePoints', () => {
 
       testCases.forEach((tc) => {
         const result = calculatePoints(tc.voteCount, tc.voteAverage);
-        expect(result.totalPoints).toBeGreaterThanOrEqual(3);
+        expect(result.totalPoints).toBeGreaterThanOrEqual(100);
         expect(result.totalPoints).toBeLessThanOrEqual(SCORE_SCALE);
       });
     });
@@ -140,7 +138,7 @@ describe('calculatePoints', () => {
       // The Dark Knight: ~30000 votes, 8.5 rating = 25500 QS (above cap)
       const result = calculatePoints(30000, 8.5);
       expect(result.tier).toBe('very-well-known');
-      expect(result.totalPoints).toBe(3);
+      expect(result.totalPoints).toBe(100);
     });
 
     it('scores a moderately popular film higher than a blockbuster', () => {
@@ -159,7 +157,7 @@ describe('calculatePoints', () => {
       const obscure = calculatePoints(50, 6.5);
       const cult = calculatePoints(800, 7.5);
       expect(obscure.totalPoints).toBeGreaterThan(cult.totalPoints);
-      expect(obscure.totalPoints).toBeGreaterThan(50);
+      expect(obscure.totalPoints).toBeGreaterThan(200);
     });
   });
 });
