@@ -109,12 +109,13 @@ test.describe('Keyboard Navigation', () => {
     await page.keyboard.type('Star Wars');
     await expect(page.locator('[role="listbox"]')).toBeVisible({ timeout: 5000 });
 
-    // Navigate with arrow keys
-    await page.keyboard.press('ArrowDown');
-    // Wait briefly for React state update
-    await page.waitForTimeout(100);
+    // First option is auto-selected when results load
     const firstOption = page.locator('[role="option"]').first();
-    await expect(firstOption).toHaveAttribute('aria-selected', 'true');
+    await expect(firstOption).toHaveAttribute('aria-selected', 'true', { timeout: 5000 });
+
+    // Arrow down moves selection to second option
+    await page.keyboard.press('ArrowDown');
+    await expect(firstOption).toHaveAttribute('aria-selected', 'false', { timeout: 5000 });
 
     // Select with Enter
     await page.keyboard.press('Enter');
