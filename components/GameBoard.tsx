@@ -239,7 +239,7 @@ export default function GameBoard({ date }: GameBoardProps) {
     }
 
     fetchChallenge();
-  }, []);
+  }, [date]);
 
   // Start the game
   const handleStart = useCallback(() => {

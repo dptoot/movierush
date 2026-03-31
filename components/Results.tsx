@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
+import Link from 'next/link';
 import { GuessedMovie } from '@/types';
 
 interface ResultsProps {
@@ -145,12 +146,12 @@ Play at: movierush.vercel.app`;
         {/* Next action message - right below heading */}
         <p className="mb-8 text-movierush-cream/70">
           {isYesterday ? (
-            <a
+            <Link
               href="/"
               className="text-movierush-gold hover:text-movierush-cream transition-colors underline"
             >
               Play today&apos;s challenge
-            </a>
+            </Link>
           ) : (
             <>
               Come back tomorrow for a new challenge!
