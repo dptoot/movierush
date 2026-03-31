@@ -10,6 +10,7 @@ interface ResultsProps {
   guessedMovies: GuessedMovie[];
   challengeDate: string;
   challengeId: string;
+  isYesterday?: boolean;
 }
 
 interface StatMovie {
@@ -26,6 +27,7 @@ export default function Results({
   guessedMovies,
   challengeDate,
   challengeId,
+  isYesterday = false,
 }: ResultsProps) {
   const searchParams = useSearchParams();
   // Show dev tools in development mode OR when ?dev=true is in URL
@@ -140,9 +142,27 @@ Play at: movierush.vercel.app`;
           Game Over!
         </h1>
 
-        {/* Come back tomorrow message - right below heading */}
+        {/* Next action message - right below heading */}
         <p className="mb-8 text-movierush-cream/70">
-          Come back tomorrow for a new challenge!
+          {isYesterday ? (
+            <a
+              href="/"
+              className="text-movierush-gold hover:text-movierush-cream transition-colors underline"
+            >
+              Play today&apos;s challenge
+            </a>
+          ) : (
+            <>
+              Come back tomorrow for a new challenge!
+              <br />
+              <a
+                href="/yesterday"
+                className="text-movierush-silver hover:text-movierush-gold transition-colors underline text-sm"
+              >
+                Yesterday&apos;s Challenge
+              </a>
+            </>
+          )}
         </p>
 
         {/* Stats row - movies found and points side by side */}

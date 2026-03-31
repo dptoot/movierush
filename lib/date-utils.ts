@@ -22,6 +22,18 @@ export function getUserLocalDate(): string {
  * @param dateString - Date in YYYY-MM-DD format
  * @returns Formatted date string (e.g., "January 19, 2026")
  */
+/**
+ * Get yesterday's date in the user's local timezone in YYYY-MM-DD format.
+ * Used for the "play yesterday's challenge" feature.
+ *
+ * @returns Date string in YYYY-MM-DD format for yesterday
+ */
+export function getYesterdayLocalDate(): string {
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  return yesterday.toLocaleDateString('en-CA');
+}
+
 export function formatDateForDisplay(dateString: string): string {
   // Parse the date parts to avoid timezone issues
   const [year, month, day] = dateString.split('-').map(Number);

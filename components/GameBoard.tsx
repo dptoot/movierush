@@ -61,7 +61,11 @@ function clearGame(): void {
   }
 }
 
-export default function GameBoard() {
+interface GameBoardProps {
+  date?: string;
+}
+
+export default function GameBoard({ date }: GameBoardProps) {
   // Challenge data from API
   const [challenge, setChallenge] = useState<Challenge | null>(null);
   const [loading, setLoading] = useState(true);
@@ -149,11 +153,28 @@ export default function GameBoard() {
       clearGame();
     }
 
+    // Auto-start when date prop is provided (e.g., /yesterday route)
+    // Only if no completed or in-progress game was restored above
+    if (date && !localStorage.getItem(`game_${localDate}`)) {
+      const savedGame = loadGame();
+      if (!savedGame || savedGame.gameState.date !== localDate) {
+        setGameState({
+          date: localDate,
+          challengeId: challenge.id,
+          phase: 'playing',
+          startedAt: Date.now(),
+          guessedMovieIds: [],
+          incorrectCount: 0,
+          timeRemaining: INITIAL_TIME,
+        });
+      }
+    }
+
     // Mark as initialized after a tick to allow state to settle
     setTimeout(() => {
       initializedRef.current = true;
     }, 0);
-  }, [challenge, localDate]);
+  }, [challenge, localDate, date]);
 
   // Save game state whenever it changes (after initialization)
   useEffect(() => {
@@ -194,13 +215,15 @@ export default function GameBoard() {
     async function fetchChallenge() {
       try {
         // Calculate user's local date for the API request
-        const userLocalDate = getUserLocalDate();
+        const userLocalDate = date ?? getUserLocalDate();
         setLocalDate(userLocalDate);
 
         const response = await fetch(`/api/challenge?date=${userLocalDate}`);
         if (!response.ok) {
           if (response.status === 404) {
-            setError('No challenge available for today. Check back tomorrow!');
+            setError(date
+              ? 'No challenge available for this date.'
+              : 'No challenge available for today. Check back tomorrow!');
           } else {
             setError('Failed to load challenge. Please try again.');
           }
@@ -427,13 +450,15 @@ export default function GameBoard() {
     setError(null);
     setLoading(true);
     // Recalculate local date on retry (in case user retried after midnight)
-    const userLocalDate = getUserLocalDate();
+    const userLocalDate = date ?? getUserLocalDate();
     setLocalDate(userLocalDate);
     fetch(`/api/challenge?date=${userLocalDate}`)
       .then((response) => {
         if (!response.ok) {
           if (response.status === 404) {
-            setError('No challenge available today. Check back soon!');
+            setError(date
+              ? 'No challenge available for this date.'
+              : 'No challenge available today. Check back soon!');
           } else {
             setError('Something went wrong. Please try again later.');
           }
@@ -450,7 +475,7 @@ export default function GameBoard() {
       .finally(() => {
         setLoading(false);
       });
-  }, []);
+  }, [date]);
 
   // Loading state
   if (loading) {
@@ -509,10 +534,16 @@ export default function GameBoard() {
             </span>
           </p>
 
+          {date && (
+            <p className="text-movierush-coral font-semibold mb-4">
+              Yesterday&apos;s Challenge
+            </p>
+          )}
+
           <button
             onClick={handleStart}
             className="btn-primary mb-8"
-            aria-label="Start today's movie challenge"
+            aria-label={date ? "Start yesterday's movie challenge" : "Start today's movie challenge"}
           >
             Start The Rush
           </button>
@@ -520,6 +551,15 @@ export default function GameBoard() {
           <p className="text-lg text-movierush-silver">
             {localDate && formatDateForDisplay(localDate)}
           </p>
+
+          {!date && (
+            <a
+              href="/yesterday"
+              className="text-movierush-silver hover:text-movierush-gold transition-colors underline text-sm mt-4 inline-block"
+            >
+              Yesterday&apos;s Challenge
+            </a>
+          )}
         </div>
       </div>
     );
@@ -602,6 +642,7 @@ export default function GameBoard() {
         guessedMovies={guessedMovies}
         challengeDate={localDate}
         challengeId={String(challenge.id)}
+        isYesterday={!!date}
       />
     );
   }
