@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
 import { getUserLocalDate } from '@/lib/date-utils';
+import { getPersonProfileUrl } from '@/lib/tmdb-client';
 
 interface Challenge {
   id: number;
@@ -8,6 +9,7 @@ interface Challenge {
   prompt: string;
   type: string;
   movie_ids: number[];
+  tmdb_person_id: number | null;
 }
 
 /**
@@ -31,7 +33,7 @@ export async function GET(request: NextRequest) {
     const queryDate = dateParam || getUserLocalDate();
 
     const result = await sql`
-      SELECT id, date, prompt, type, movie_ids
+      SELECT id, date, prompt, type, movie_ids, tmdb_person_id
       FROM challenges
       WHERE date = ${queryDate}
       LIMIT 1
@@ -46,6 +48,16 @@ export async function GET(request: NextRequest) {
 
     const challenge = result[0] as Challenge;
 
+    // Fetch profile image for actor/director challenges
+    let profile_image_url: string | null = null;
+    if (challenge.tmdb_person_id) {
+      try {
+        profile_image_url = await getPersonProfileUrl(challenge.tmdb_person_id);
+      } catch (err) {
+        console.error('Failed to fetch profile image:', err);
+      }
+    }
+
     return NextResponse.json(
       {
         id: challenge.id,
@@ -54,6 +66,7 @@ export async function GET(request: NextRequest) {
         type: challenge.type,
         total_movies: challenge.movie_ids.length,
         valid_movie_ids: challenge.movie_ids,
+        ...(profile_image_url && { profile_image_url }),
       },
       {
         headers: {

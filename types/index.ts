@@ -23,6 +23,7 @@ export interface Challenge {
   type: 'actor' | 'director' | 'genre' | 'theme';
   total_movies: number;
   valid_movie_ids: number[];
+  profile_image_url?: string;
 }
 
 /**

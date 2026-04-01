@@ -321,6 +321,17 @@ export async function getActorMovies(personId: number): Promise<TMDBMovie[]> {
 }
 
 /**
+ * Get the profile image URL for a person by their TMDB ID
+ * Returns null if the person has no profile image
+ */
+export async function getPersonProfileUrl(personId: number): Promise<string | null> {
+  const client = getClient();
+  const person = await client.people.details(personId);
+  if (!person.profile_path) return null;
+  return `https://image.tmdb.org/t/p/w185${person.profile_path}`;
+}
+
+/**
  * Get poster URL for display
  * @param posterPath - The poster path from TMDB (e.g., "/abc123.jpg")
  * @param size - Image size: w92, w154, w185, w342, w500, w780, original

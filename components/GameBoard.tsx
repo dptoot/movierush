@@ -584,9 +584,20 @@ export default function GameBoard({ date }: GameBoardProps) {
         <div className="mx-auto max-w-6xl w-full landscape-compact">
           {/* Header with prompt */}
           <div className="mb-4 md:mb-6 text-center">
-            <h2 className="challenge-prompt mb-2 md:mb-4 px-2">
-              {challenge.prompt}
-            </h2>
+            <div className="flex items-center justify-center gap-3 md:gap-4 mb-2 md:mb-4 px-2">
+              {challenge.profile_image_url && (
+                <Image
+                  src={challenge.profile_image_url}
+                  alt=""
+                  width={64}
+                  height={64}
+                  className="rounded-full w-12 h-12 md:w-16 md:h-16 object-cover flex-shrink-0"
+                />
+              )}
+              <h2 className="challenge-prompt">
+                {challenge.prompt}
+              </h2>
+            </div>
 
             {/* Timer with feedback */}
             <div className="relative flex flex-col items-center">
