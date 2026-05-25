@@ -14,6 +14,14 @@ export interface Movie {
 }
 
 /**
+ * Snapshotted scoring data for a movie in a challenge
+ */
+export interface MovieScore {
+  vote_count: number;
+  vote_average: number;
+}
+
+/**
  * Challenge data returned from API
  */
 export interface Challenge {
@@ -24,6 +32,7 @@ export interface Challenge {
   total_movies: number;
   valid_movie_ids: number[];
   profile_image_url?: string;
+  movie_scores?: Record<number, MovieScore>;
 }
 
 /**

@@ -19,6 +19,13 @@ export const mockChallenge = {
   type: 'theme',
   total_movies: 5,
   valid_movie_ids: [771, 772, 773, 774, 775], // Fake IDs for testing
+  movie_scores: {
+    771: { vote_count: 5000, vote_average: 7.0 },
+    772: { vote_count: 3000, vote_average: 6.5 },
+    773: { vote_count: 1500, vote_average: 7.2 },
+    774: { vote_count: 800, vote_average: 6.8 },
+    775: { vote_count: 200, vote_average: 5.5 },
+  },
 };
 
 // Mock autocomplete results for different queries

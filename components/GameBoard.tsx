@@ -324,11 +324,16 @@ export default function GameBoard({ date }: GameBoardProps) {
       const isCorrect = challenge.valid_movie_ids.includes(movie.id);
 
       if (isCorrect) {
+        // Use snapshotted scoring data for consistency; fall back to live data for pre-snapshot challenges
+        const snapshot = challenge.movie_scores?.[movie.id];
+        const scoreVoteCount = snapshot?.vote_count ?? movie.vote_count;
+        const scoreVoteAverage = snapshot?.vote_average ?? movie.vote_average;
+
         // Calculate time bonus based on movie obscurity
-        const { bonus: timeBonus } = calculateTimeBonus(movie.vote_count, movie.vote_average);
+        const { bonus: timeBonus } = calculateTimeBonus(scoreVoteCount, scoreVoteAverage);
 
         // Calculate points for this guess
-        const { totalPoints } = calculatePoints(movie.vote_count, movie.vote_average);
+        const { totalPoints } = calculatePoints(scoreVoteCount, scoreVoteAverage);
 
         // Show positive feedback
         showFeedback('correct', `+${timeBonus}s`);
