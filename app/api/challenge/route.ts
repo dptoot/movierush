@@ -48,6 +48,20 @@ export async function GET(request: NextRequest) {
 
     const challenge = result[0] as Challenge;
 
+    // Fetch snapshotted scoring data for consistent scores across all players
+    const movieScores = await sql`
+      SELECT tmdb_id, vote_count, vote_average
+      FROM challenge_movies
+      WHERE challenge_id = ${challenge.id}
+    `;
+    const movie_scores: Record<number, { vote_count: number; vote_average: number }> = {};
+    for (const row of movieScores) {
+      movie_scores[row.tmdb_id as number] = {
+        vote_count: Number(row.vote_count),
+        vote_average: Number(row.vote_average),
+      };
+    }
+
     // Fetch profile image for actor/director challenges
     let profile_image_url: string | null = null;
     if (challenge.tmdb_person_id) {
@@ -67,6 +81,7 @@ export async function GET(request: NextRequest) {
         total_movies: challenge.movie_ids.length,
         valid_movie_ids: challenge.movie_ids,
         ...(profile_image_url && { profile_image_url }),
+        ...(Object.keys(movie_scores).length > 0 && { movie_scores }),
       },
       {
         headers: {

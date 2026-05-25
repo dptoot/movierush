@@ -108,6 +108,28 @@ function parseArgs(args: string[]): ParsedArgs {
   return parsed;
 }
 
+async function insertChallengeWithMovies(
+  challengeId: string,
+  date: string,
+  prompt: string,
+  actorId: number,
+  movies: MovieWithQuality[]
+): Promise<void> {
+  const movieIds = movies.map(m => m.id);
+
+  await sql`
+    INSERT INTO challenges (id, date, type, prompt, tmdb_person_id, movie_ids)
+    VALUES (${challengeId}, ${date}, 'actor', ${prompt}, ${actorId}, ${movieIds})
+  `;
+
+  for (const movie of movies) {
+    await sql`
+      INSERT INTO challenge_movies (challenge_id, tmdb_id, title, release_date, poster_path, popularity, backdrop_path, vote_count, vote_average)
+      VALUES (${challengeId}, ${movie.id}, ${movie.title}, ${movie.release_date || null}, ${movie.poster_path}, ${movie.popularity}, ${movie.backdrop_path}, ${movie.vote_count}, ${movie.vote_average})
+    `;
+  }
+}
+
 async function checkChallengeExists(date: string): Promise<boolean> {
   const result = await sql`
     SELECT id FROM challenges WHERE date = ${date} LIMIT 1
@@ -234,12 +256,10 @@ async function generateChallenge(
   } else {
     console.log('\n💾 Storing challenge in database...');
 
-    await sql`
-      INSERT INTO challenges (id, date, type, prompt, tmdb_person_id, movie_ids)
-      VALUES (${challengeId}, ${date}, 'actor', ${prompt}, ${actor!.id}, ${movieIds})
-    `;
+    await insertChallengeWithMovies(challengeId, date, prompt, actor!.id, movies!);
 
     console.log('   ✓ Challenge saved successfully!');
+    console.log(`   ✓ Snapshotted scoring data for ${movies!.length} movies`);
   }
 
   // Summary
@@ -322,12 +342,10 @@ async function generateWithRetry(
     } else {
       console.log('\n💾 Storing challenge in database...');
 
-      await sql`
-        INSERT INTO challenges (id, date, type, prompt, tmdb_person_id, movie_ids)
-        VALUES (${challengeId}, ${date}, 'actor', ${prompt}, ${actor!.id}, ${movieIds})
-      `;
+      await insertChallengeWithMovies(challengeId, date, prompt, actor!.id, movies!);
 
       console.log('   ✓ Challenge saved successfully!');
+      console.log(`   ✓ Snapshotted scoring data for ${movies!.length} movies`);
     }
 
     // Summary

@@ -19,12 +19,13 @@ async function initDatabase() {
         type TEXT NOT NULL,
         prompt TEXT NOT NULL,
         tmdb_person_id INTEGER,
+        movie_ids INTEGER[],
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `;
     console.log('✓ Created challenges table');
 
-    // Create movies table (associated with challenges)
+    // Create movies table (associated with challenges) — stores TMDB snapshot for consistent scoring
     await sql`
       CREATE TABLE IF NOT EXISTS challenge_movies (
         id SERIAL PRIMARY KEY,
@@ -35,6 +36,8 @@ async function initDatabase() {
         poster_path TEXT,
         popularity DECIMAL(10, 3) NOT NULL,
         backdrop_path TEXT,
+        vote_count INTEGER NOT NULL DEFAULT 0,
+        vote_average DECIMAL(3, 1) NOT NULL DEFAULT 0.0,
         UNIQUE(challenge_id, tmdb_id)
       )
     `;
