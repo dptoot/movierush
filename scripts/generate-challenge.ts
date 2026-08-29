@@ -7,6 +7,7 @@ config({ path: '.env.local' });
 
 import { searchPerson, getActorMovies, type TMDBMovie } from '../lib/tmdb-client.js';
 import { selectRandomActor, FEATURED_ACTORS } from '../lib/featured-actors.js';
+import { pickNextChallengeDate } from '../lib/date-utils.js';
 
 // Initialize database connection after dotenv loads
 const sql = neon(process.env.DATABASE_URL!);
@@ -37,7 +38,10 @@ interface GenerationResult {
 
 interface ParsedArgs {
   actorName?: string;
-  date: string;
+  /** Explicit target date, only set when the user passes --date or a positional date. */
+  date?: string;
+  /** True when the user supplied a date; false means "auto-resolve from the DB". */
+  dateProvided: boolean;
   dryRun: boolean;
 }
 
@@ -50,10 +54,27 @@ function validateDate(dateStr: string): boolean {
   return !isNaN(date.getTime());
 }
 
-function getTomorrowDate(): string {
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  return tomorrow.toISOString().split('T')[0];
+/** Today's date in UTC as YYYY-MM-DD. */
+function getUTCToday(): string {
+  return new Date().toISOString().split('T')[0];
+}
+
+/** Latest challenge date currently in the DB as YYYY-MM-DD, or null if none. */
+async function getLatestChallengeDate(): Promise<string | null> {
+  const result = await sql`
+    SELECT to_char(date, 'YYYY-MM-DD') AS date FROM challenges ORDER BY date DESC LIMIT 1
+  `;
+  return result.length > 0 ? (result[0].date as string) : null;
+}
+
+/**
+ * Resolve which date to generate when none is supplied. Based on the data (next
+ * open slot after the latest challenge) rather than only the wall clock, so a
+ * run GitHub Actions delayed past midnight UTC fills the correct next slot
+ * instead of leapfrogging a day and colliding with the following day's run.
+ */
+async function resolveNextChallengeDate(): Promise<string> {
+  return pickNextChallengeDate(getUTCToday(), await getLatestChallengeDate());
 }
 
 function getTier(qualityScore: number): MovieWithQuality['tier'] {
@@ -75,7 +96,7 @@ function generateChallengeId(date: string, actorName: string): string {
 
 function parseArgs(args: string[]): ParsedArgs {
   const parsed: ParsedArgs = {
-    date: getTomorrowDate(),
+    dateProvided: false,
     dryRun: false,
   };
 
@@ -91,6 +112,7 @@ function parseArgs(args: string[]): ParsedArgs {
         throw new Error('--date requires a value (YYYY-MM-DD)');
       }
       parsed.date = args[i + 1];
+      parsed.dateProvided = true;
       i += 2;
     } else if (!arg.startsWith('--')) {
       // Positional arguments: "actor name" "date"
@@ -98,6 +120,7 @@ function parseArgs(args: string[]): ParsedArgs {
         parsed.actorName = arg;
       } else {
         parsed.date = arg;
+        parsed.dateProvided = true;
       }
       i++;
     } else {
@@ -210,15 +233,8 @@ async function generateChallenge(
 
   console.log(`\n📅 Target Date: ${date}`);
 
-  // Step 2: Check if challenge already exists
-  if (!dryRun) {
-    const exists = await checkChallengeExists(date);
-    if (exists) {
-      throw new Error(`Challenge already exists for ${date}`);
-    }
-  }
-
-  // Step 3: Validate actor
+  // Step 2: Validate actor
+  // (Existence for `date` is already checked by the caller in main().)
   console.log(`\n🔍 Validating actor: ${actorName}`);
 
   const validation = await validateActor(actorName);
@@ -231,21 +247,21 @@ async function generateChallenge(
   console.log(`   ✓ Found: ${actor!.name} (TMDB ID: ${actor!.id})`);
   console.log(`   ✓ Feature films: ${movies!.length}`);
 
-  // Step 4: Show tier breakdown
+  // Step 3: Show tier breakdown
   console.log('\n📊 Quality Distribution:');
   console.log(`   Very Well-Known (≥3000): ${tierCounts!['Very Well-Known']} movies`);
   console.log(`   Well-Known (≥1000): ${tierCounts!['Well-Known']} movies`);
   console.log(`   Moderate (≥200): ${tierCounts!['Moderate']} movies`);
   console.log(`   Obscure (<200): ${tierCounts!['Obscure']} movies`);
 
-  // Step 5: Generate challenge ID
+  // Step 4: Generate challenge ID
   const challengeId = generateChallengeId(date, actor!.name);
   console.log(`\n🆔 Challenge ID: ${challengeId}`);
 
-  // Step 6: Collect movie IDs
+  // Step 5: Collect movie IDs
   const movieIds = movies!.map(m => m.id);
 
-  // Step 7: Store in database (unless dry run)
+  // Step 6: Store in database (unless dry run)
   const prompt = `Name ${actor!.name} Movies`;
 
   if (dryRun) {
@@ -289,13 +305,7 @@ async function generateWithRetry(
   console.log(`\n📅 Target Date: ${date}`);
   console.log(`🎲 Auto-selecting actor from ${FEATURED_ACTORS.length} candidates\n`);
 
-  // Check if challenge already exists
-  if (!dryRun) {
-    const exists = await checkChallengeExists(date);
-    if (exists) {
-      throw new Error(`Challenge already exists for ${date}`);
-    }
-  }
+  // (Existence for `date` is already checked by the caller in main().)
 
   const failedActors: string[] = [];
   let lastError: string = '';
@@ -385,17 +395,31 @@ async function main() {
   try {
     const parsed = parseArgs(args);
 
+    // Resolve the target date. When the user didn't pass one, pick the next open
+    // slot from the DB so a schedule-delayed run doesn't leapfrog a day.
+    const targetDate = parsed.dateProvided
+      ? parsed.date!
+      : await resolveNextChallengeDate();
+
     // Validate date
-    if (!validateDate(parsed.date)) {
+    if (!validateDate(targetDate)) {
       throw new Error('Invalid date format. Use YYYY-MM-DD');
+    }
+
+    // Idempotency guard: if this date already has a challenge, there is nothing to
+    // do. Treat it as success rather than a hard failure so a duplicate run (e.g.
+    // a delayed cron overlapping the next day's) doesn't report a false alarm.
+    if (!parsed.dryRun && (await checkChallengeExists(targetDate))) {
+      console.log(`\n✅ Challenge already exists for ${targetDate} — nothing to do, skipping.\n`);
+      process.exit(0);
     }
 
     if (parsed.actorName) {
       // Manual mode: specific actor provided
-      await generateChallenge(parsed.actorName, parsed.date, parsed.dryRun);
+      await generateChallenge(parsed.actorName, targetDate, parsed.dryRun);
     } else {
       // Auto mode: randomly select actor with retry logic
-      await generateWithRetry(parsed.date, parsed.dryRun);
+      await generateWithRetry(targetDate, parsed.dryRun);
     }
 
     process.exit(0);

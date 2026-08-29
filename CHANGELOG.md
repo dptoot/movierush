@@ -4,6 +4,19 @@ All notable changes to MovieRush will be documented in this file.
 
 ## [Unreleased]
 
+### Fixed
+- **Daily Challenge Generation resilience:** The workflow was failing (false alarms)
+  whenever a GitHub Actions scheduled run was delayed across the UTC midnight
+  boundary — the clock-derived "tomorrow" date leapfrogged a day, pre-created the
+  wrong slot, and the next run then died on a hard "Challenge already exists" error.
+  - Target date is now derived from the data: the next open slot after the latest
+    existing challenge (`latest + 1`), floored at today, so a delayed run fills the
+    correct next day instead of leapfrogging. Steady state still yields tomorrow.
+  - An existing challenge for the target date is now treated as a successful no-op
+    (exit 0, "nothing to do, skipping") instead of a hard failure.
+  - New pure helpers `addDays` / `pickNextChallengeDate` in `lib/date-utils.ts`
+    with unit coverage in `tests/unit/challengeDate.test.ts`.
+
 ### Changed
 - **Daily Challenge Automation:** Migrated from Vercel Cron to GitHub Actions
   - New workflow at `.github/workflows/daily-challenge.yml`
