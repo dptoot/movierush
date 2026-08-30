@@ -4,6 +4,12 @@ All notable changes to MovieRush will be documented in this file.
 
 ## [Unreleased]
 
+### Changed
+- **Node 24 across CI:** Bumped `node-version` from 20 to 24 in both GitHub
+  Actions workflows (`daily-challenge.yml`, `test.yml`) and the `@types/node`
+  devDependency to `^24`, resolving the "Node 20 is deprecated / forced to run
+  on Node 24" runner warnings.
+
 ### Fixed
 - **Daily Challenge Generation resilience:** The workflow was failing (false alarms)
   whenever a GitHub Actions scheduled run was delayed across the UTC midnight
