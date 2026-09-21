@@ -14,6 +14,13 @@ const sql = neon(process.env.DATABASE_URL!);
 
 const MAX_RETRIES = 3;
 const MIN_MOVIES = 20;
+/**
+ * No-repeat cooldown: an actor featured within this many days before the target
+ * date is excluded from auto-selection. Prevents the tight clustering that pure
+ * random selection produces (e.g. the same actor twice in one week). The pool is
+ * ~288 actors, so excluding this many still leaves ample candidates.
+ */
+const COOLDOWN_DAYS = 60;
 
 interface MovieWithQuality extends TMDBMovie {
   vote_count: number;
@@ -75,6 +82,26 @@ async function getLatestChallengeDate(): Promise<string | null> {
  */
 async function resolveNextChallengeDate(): Promise<string> {
   return pickNextChallengeDate(getUTCToday(), await getLatestChallengeDate());
+}
+
+/**
+ * Actor names featured within COOLDOWN_DAYS before `targetDate`, so auto-selection
+ * can exclude them. Names are recovered from the stored prompt ("Name X Movies" →
+ * "X") to match the FEATURED_ACTORS list that selectRandomActor filters on.
+ */
+async function getRecentActorNames(targetDate: string): Promise<string[]> {
+  // Compute the cooldown cutoff in JS to avoid SQL date/param arithmetic.
+  const cutoff = new Date(`${targetDate}T00:00:00Z`);
+  cutoff.setUTCDate(cutoff.getUTCDate() - COOLDOWN_DAYS);
+  const cutoffStr = cutoff.toISOString().split('T')[0];
+
+  const rows = await sql`
+    SELECT prompt FROM challenges
+    WHERE date >= ${cutoffStr} AND date < ${targetDate}
+  `;
+  return rows.map(r =>
+    (r.prompt as string).replace(/^Name /, '').replace(/ Movies$/, '')
+  );
 }
 
 function getTier(qualityScore: number): MovieWithQuality['tier'] {
@@ -303,16 +330,22 @@ async function generateWithRetry(
   console.log(`\n🎬 MovieRush Challenge Generator${dryRun ? ' (DRY RUN)' : ''}\n`);
   console.log('━'.repeat(50));
   console.log(`\n📅 Target Date: ${date}`);
-  console.log(`🎲 Auto-selecting actor from ${FEATURED_ACTORS.length} candidates\n`);
-
   // (Existence for `date` is already checked by the caller in main().)
+
+  // Exclude actors featured within the cooldown window so the same actor can't
+  // reappear day-to-day (or twice in the same week) purely by chance.
+  const recentNames = await getRecentActorNames(date);
+  console.log(
+    `🎲 Auto-selecting actor from ${FEATURED_ACTORS.length} candidates ` +
+    `(${recentNames.length} excluded by ${COOLDOWN_DAYS}-day cooldown)\n`
+  );
 
   const failedActors: string[] = [];
   let lastError: string = '';
 
   for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
-    // Select random actor, excluding previously failed ones
-    const actorName = selectRandomActor(failedActors);
+    // Select random actor, excluding cooldown actors and previously failed ones
+    const actorName = selectRandomActor([...recentNames, ...failedActors]);
 
     console.log(`\n🔄 Attempt ${attempt}/${MAX_RETRIES}: ${actorName}`);
 

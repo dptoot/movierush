@@ -11,6 +11,13 @@ All notable changes to MovieRush will be documented in this file.
   on Node 24" runner warnings.
 
 ### Fixed
+- **Actor repeat clustering in daily challenges:** Auto-selection had no memory of
+  recently-featured actors, so the same actor could reappear day-to-day or twice in
+  a single week purely by chance (e.g. Will Ferrell on Jan 12/13/15). Added a 60-day
+  no-repeat cooldown (`COOLDOWN_DAYS` in `scripts/generate-challenge.ts`): actors
+  featured within the prior 60 days are excluded from the random draw via a new
+  `getRecentActorNames` helper. The ~288-actor pool leaves ample candidates after
+  exclusion, and manual (named-actor) generation is unaffected.
 - **Daily Challenge Generation resilience:** The workflow was failing (false alarms)
   whenever a GitHub Actions scheduled run was delayed across the UTC midnight
   boundary — the clock-derived "tomorrow" date leapfrogged a day, pre-created the
