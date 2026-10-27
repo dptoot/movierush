@@ -163,21 +163,29 @@ async function insertChallengeWithMovies(
   date: string,
   prompt: string,
   actorId: number,
-  movies: MovieWithQuality[]
+  allMovies: MovieWithQuality[]
 ): Promise<void> {
+  // TMDB can list the same film more than once (e.g. multiple credits), which
+  // violates UNIQUE(challenge_id, tmdb_id). Keep the first occurrence of each.
+  const movies = [...new Map(allMovies.map(m => [m.id, m])).values()];
+  if (movies.length !== allMovies.length) {
+    console.log(`   ⚠️  Dropped ${allMovies.length - movies.length} duplicate TMDB entries`);
+  }
   const movieIds = movies.map(m => m.id);
 
-  await sql`
-    INSERT INTO challenges (id, date, type, prompt, tmdb_person_id, movie_ids)
-    VALUES (${challengeId}, ${date}, 'actor', ${prompt}, ${actorId}, ${movieIds})
-  `;
-
-  for (const movie of movies) {
-    await sql`
-      INSERT INTO challenge_movies (challenge_id, tmdb_id, title, release_date, poster_path, popularity, backdrop_path, vote_count, vote_average)
-      VALUES (${challengeId}, ${movie.id}, ${movie.title}, ${movie.release_date || null}, ${movie.poster_path}, ${movie.popularity}, ${movie.backdrop_path}, ${movie.vote_count}, ${movie.vote_average})
-    `;
-  }
+  // One transaction so a failure can never leave a half-written challenge behind
+  await sql.transaction([
+    sql`
+      INSERT INTO challenges (id, date, type, prompt, tmdb_person_id, movie_ids)
+      VALUES (${challengeId}, ${date}, 'actor', ${prompt}, ${actorId}, ${movieIds})
+    `,
+    ...movies.map(
+      movie => sql`
+        INSERT INTO challenge_movies (challenge_id, tmdb_id, title, release_date, poster_path, popularity, backdrop_path, vote_count, vote_average)
+        VALUES (${challengeId}, ${movie.id}, ${movie.title}, ${movie.release_date || null}, ${movie.poster_path}, ${movie.popularity}, ${movie.backdrop_path}, ${movie.vote_count}, ${movie.vote_average})
+      `
+    ),
+  ]);
 }
 
 async function checkChallengeExists(date: string): Promise<boolean> {
