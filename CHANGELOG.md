@@ -5,6 +5,9 @@ All notable changes to MovieRush will be documented in this file.
 ## [Unreleased]
 
 ### Changed
+- **Playwright 1.64.1:** Upgraded `@playwright/test` from 1.58.0. GitHub's
+  `ubuntu-latest` moved to Ubuntu 26.04, which 1.58.0 can't install Chromium on,
+  failing every E2E CI run at the browser-install step.
 - **Node 24 across CI:** Bumped `node-version` from 20 to 24 in both GitHub
   Actions workflows (`daily-challenge.yml`, `test.yml`) and the `@types/node`
   devDependency to `^24`, resolving the "Node 20 is deprecated / forced to run
