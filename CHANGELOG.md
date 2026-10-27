@@ -14,6 +14,11 @@ All notable changes to MovieRush will be documented in this file.
   on Node 24" runner warnings.
 
 ### Fixed
+- **Challenge generation crash on duplicate TMDB films:** TMDB can list the same film
+  twice in an actor's filmography (hit on Robert De Niro, Oct 25), which broke the
+  `UNIQUE(challenge_id, tmdb_id)` constraint mid-insert and left a half-written
+  challenge (22 of 117 movies). `insertChallengeWithMovies` now de-duplicates by TMDB id
+  and writes the challenge and its movies in a single transaction.
 - **Actor repeat clustering in daily challenges:** Auto-selection had no memory of
   recently-featured actors, so the same actor could reappear day-to-day or twice in
   a single week purely by chance (e.g. Will Ferrell on Jan 12/13/15). Added a 60-day
