@@ -14,6 +14,10 @@ All notable changes to MovieRush will be documented in this file.
   on Node 24" runner warnings.
 
 ### Fixed
+- **Autocomplete hid exact title matches:** Results were sorted purely by vote count
+  and cut to 8, so typing "perfect" never showed the 1985 film *Perfect* (209 votes)
+  behind 19+ bigger films like *Pitch Perfect*. Exact title matches now sort first,
+  then by vote count (`app/api/autocomplete/route.ts`).
 - **Challenge generation crash on duplicate TMDB films:** TMDB can list the same film
   twice in an actor's filmography (hit on Robert De Niro, Oct 25), which broke the
   `UNIQUE(challenge_id, tmdb_id)` constraint mid-insert and left a half-written
