@@ -14,6 +14,10 @@ All notable changes to MovieRush will be documented in this file.
   on Node 24" runner warnings.
 
 ### Fixed
+- **Autocomplete hid exact title matches:** Results were sorted purely by vote count
+  and cut to 8, so typing "perfect" never showed the 1985 film *Perfect* (209 votes)
+  behind 19+ bigger films like *Pitch Perfect*. Exact title matches now sort first,
+  then by vote count (`app/api/autocomplete/route.ts`).
 - **Actor repeat clustering in daily challenges:** Auto-selection had no memory of
   recently-featured actors, so the same actor could reappear day-to-day or twice in
   a single week purely by chance (e.g. Will Ferrell on Jan 12/13/15). Added a 60-day

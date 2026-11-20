@@ -31,7 +31,10 @@ export async function POST(request: NextRequest) {
     const searchResults = await searchMovies(query.trim());
 
     // Return all results (no filtering) - validation happens after selection
-    // Sort by vote_count (most recognized films first) - popularity is volatile
+    // Exact title matches first (so typing "perfect" finds "Perfect" even though
+    // bigger films like "Pitch Perfect" contain the word), then by vote_count
+    // (most recognized first) - popularity is volatile
+    const normalizedQuery = query.trim().toLowerCase();
     const results = searchResults
       .map((movie) => ({
         id: movie.id,
@@ -42,7 +45,12 @@ export async function POST(request: NextRequest) {
         vote_average: movie.vote_average ?? 0,
         popularity: movie.popularity ?? 0,
       }))
-      .sort((a, b) => b.vote_count - a.vote_count)
+      .sort((a, b) => {
+        const aExact = a.title.trim().toLowerCase() === normalizedQuery ? 1 : 0;
+        const bExact = b.title.trim().toLowerCase() === normalizedQuery ? 1 : 0;
+        if (aExact !== bExact) return bExact - aExact;
+        return b.vote_count - a.vote_count;
+      })
       .slice(0, 8); // Limit to 8 suggestions
 
     return NextResponse.json(
